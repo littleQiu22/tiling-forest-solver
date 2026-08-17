@@ -1,0 +1,3 @@
+PySide6>=6.6
+cpmpy>=1.0
+ortools>=9.8
