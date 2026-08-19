@@ -1,0 +1,174 @@
+from enum import IntEnum
+
+from models.geometry import DIRECTION
+from models.tile import TILE
+
+
+class EDGE_CHANNEL(IntEnum):
+    CONNECT_CHANNEL = 1
+
+
+class _EDGE_FLOW(IntEnum):
+    NO_FLOW = 0
+
+    ROAD_FLOW = 1
+
+    CLEARING_N_FLOW = 11
+    CLEARING_S_FLOW = 12
+    CLEARING_W_FLOW = 13
+    CLEARING_E_FLOW = 14
+    CLEARING_FULL_FLOW = 15
+
+
+class GRID_CHANNEL(IntEnum):
+    STUMP_HORIZONTAL_CHANNEL = 1
+    STUMP_VERTICAL_CHANNEL = 2
+
+
+class _GRID_FLOW(IntEnum):
+    NO_FLOW = 0
+
+    STUMP_FLOW = 1
+
+
+_EDGE_FLOW_CONFIG = {
+    EDGE_CHANNEL.CONNECT_CHANNEL: {
+        # Road
+        TILE.TYPE.ROAD_WS: {
+            DIRECTION.WEST: _EDGE_FLOW.ROAD_FLOW,
+            DIRECTION.SOUTH: _EDGE_FLOW.ROAD_FLOW,
+        },
+        TILE.TYPE.ROAD_WN: {
+            DIRECTION.WEST: _EDGE_FLOW.ROAD_FLOW,
+            DIRECTION.NORTH: _EDGE_FLOW.ROAD_FLOW,
+        },
+        TILE.TYPE.ROAD_ES: {
+            DIRECTION.EAST: _EDGE_FLOW.ROAD_FLOW,
+            DIRECTION.SOUTH: _EDGE_FLOW.ROAD_FLOW,
+        },
+        TILE.TYPE.ROAD_EN: {
+            DIRECTION.EAST: _EDGE_FLOW.ROAD_FLOW,
+            DIRECTION.NORTH: _EDGE_FLOW.ROAD_FLOW,
+        },
+        TILE.TYPE.ROAD_WE: {
+            DIRECTION.WEST: _EDGE_FLOW.ROAD_FLOW,
+            DIRECTION.EAST: _EDGE_FLOW.ROAD_FLOW,
+        },
+        TILE.TYPE.ROAD_NS: {
+            DIRECTION.NORTH: _EDGE_FLOW.ROAD_FLOW,
+            DIRECTION.SOUTH: _EDGE_FLOW.ROAD_FLOW,
+        },
+        TILE.TYPE.ROAD_E: {
+            DIRECTION.EAST: _EDGE_FLOW.ROAD_FLOW,
+        },
+        TILE.TYPE.ROAD_W: {
+            DIRECTION.WEST: _EDGE_FLOW.ROAD_FLOW,
+        },
+        TILE.TYPE.ROAD_N: {
+            DIRECTION.NORTH: _EDGE_FLOW.ROAD_FLOW,
+        },
+        TILE.TYPE.ROAD_S: {
+            DIRECTION.SOUTH: _EDGE_FLOW.ROAD_FLOW,
+        },
+
+        # Clearing
+        TILE.TYPE.CLEARING_EN: {
+            DIRECTION.EAST: _EDGE_FLOW.CLEARING_N_FLOW,
+            DIRECTION.NORTH: _EDGE_FLOW.CLEARING_E_FLOW,
+        },
+        TILE.TYPE.CLEARING_ES: {
+            DIRECTION.EAST: _EDGE_FLOW.CLEARING_S_FLOW,
+            DIRECTION.SOUTH: _EDGE_FLOW.CLEARING_E_FLOW,
+        },
+        TILE.TYPE.CLEARING_WN: {
+            DIRECTION.WEST: _EDGE_FLOW.CLEARING_N_FLOW,
+            DIRECTION.NORTH: _EDGE_FLOW.CLEARING_W_FLOW,
+        },
+        TILE.TYPE.CLEARING_WS: {
+            DIRECTION.WEST: _EDGE_FLOW.CLEARING_S_FLOW,
+            DIRECTION.SOUTH: _EDGE_FLOW.CLEARING_W_FLOW,
+        },
+        TILE.TYPE.CLEARING_E: {
+            DIRECTION.EAST: _EDGE_FLOW.CLEARING_FULL_FLOW,
+            DIRECTION.NORTH: _EDGE_FLOW.CLEARING_E_FLOW,
+            DIRECTION.SOUTH: _EDGE_FLOW.CLEARING_E_FLOW,
+        },
+        TILE.TYPE.CLEARING_W: {
+            DIRECTION.WEST: _EDGE_FLOW.CLEARING_FULL_FLOW,
+            DIRECTION.NORTH: _EDGE_FLOW.CLEARING_W_FLOW,
+            DIRECTION.SOUTH: _EDGE_FLOW.CLEARING_W_FLOW,
+        },
+        TILE.TYPE.CLEARING_N: {
+            DIRECTION.NORTH: _EDGE_FLOW.CLEARING_FULL_FLOW,
+            DIRECTION.WEST: _EDGE_FLOW.CLEARING_N_FLOW,
+            DIRECTION.EAST: _EDGE_FLOW.CLEARING_N_FLOW,
+        },
+        TILE.TYPE.CLEARING_S: {
+            DIRECTION.SOUTH: _EDGE_FLOW.CLEARING_FULL_FLOW,
+            DIRECTION.WEST: _EDGE_FLOW.CLEARING_S_FLOW,
+            DIRECTION.EAST: _EDGE_FLOW.CLEARING_S_FLOW,
+        },
+
+        # Road & Clearing
+        TILE.TYPE.CLEARING_E_ROAD_W: {
+            DIRECTION.NORTH: _EDGE_FLOW.CLEARING_E_FLOW,
+            DIRECTION.SOUTH: _EDGE_FLOW.CLEARING_E_FLOW,
+            DIRECTION.WEST: _EDGE_FLOW.ROAD_FLOW,
+            DIRECTION.EAST: _EDGE_FLOW.CLEARING_FULL_FLOW,
+        },
+        TILE.TYPE.CLEARING_W_ROAD_E: {
+            DIRECTION.NORTH: _EDGE_FLOW.CLEARING_W_FLOW,
+            DIRECTION.SOUTH: _EDGE_FLOW.CLEARING_W_FLOW,
+            DIRECTION.WEST: _EDGE_FLOW.CLEARING_FULL_FLOW,
+            DIRECTION.EAST: _EDGE_FLOW.ROAD_FLOW,
+        },
+        TILE.TYPE.CLEARING_S_ROAD_N: {
+            DIRECTION.NORTH: _EDGE_FLOW.ROAD_FLOW,
+            DIRECTION.SOUTH: _EDGE_FLOW.CLEARING_FULL_FLOW,
+            DIRECTION.WEST: _EDGE_FLOW.CLEARING_S_FLOW,
+            DIRECTION.EAST: _EDGE_FLOW.CLEARING_S_FLOW,
+        },
+        TILE.TYPE.CLEARING_N_ROAD_S: {
+            DIRECTION.NORTH: _EDGE_FLOW.CLEARING_FULL_FLOW,
+            DIRECTION.SOUTH: _EDGE_FLOW.ROAD_FLOW,
+            DIRECTION.WEST: _EDGE_FLOW.CLEARING_N_FLOW,
+            DIRECTION.EAST: _EDGE_FLOW.CLEARING_N_FLOW,
+        },
+    }
+}
+
+_GRID_FLOW_CONFIG = {
+    GRID_CHANNEL.STUMP_HORIZONTAL_CHANNEL: {
+        TILE.TYPE.STUMP_E: {
+            DIRECTION.EAST: _GRID_FLOW.STUMP_FLOW
+        },
+        TILE.TYPE.STUMP_W: {
+            DIRECTION.WEST: _GRID_FLOW.STUMP_FLOW
+        },
+    },
+    GRID_CHANNEL.STUMP_VERTICAL_CHANNEL: {
+        TILE.TYPE.STUMP_N: {
+            DIRECTION.NORTH: _GRID_FLOW.STUMP_FLOW
+        },
+        TILE.TYPE.STUMP_S: {
+            DIRECTION.SOUTH: _GRID_FLOW.STUMP_FLOW
+        }
+    }
+}
+
+
+_EDGE_FLOW_TABLE = {
+    (c, t, d): flow for c, tds in _EDGE_FLOW_CONFIG.items() for t, ds in tds.items() for d, flow in ds.items()
+}
+
+_GRID_FLOW_TABLE = {
+    (c, t, d): flow for c, tds in _GRID_FLOW_CONFIG.items() for t, ds in tds.items() for d, flow in ds.items()
+}
+
+
+def getEdgeFlow(c: EDGE_CHANNEL, tile: TILE.TYPE, d: DIRECTION):
+    return _EDGE_FLOW_TABLE.get((c, tile, d), _EDGE_FLOW.NO_FLOW)
+
+
+def getGridFlow(c: GRID_CHANNEL, tile: TILE.TYPE, d: DIRECTION):
+    return _GRID_FLOW_TABLE.get((c, tile, d), _GRID_FLOW.NO_FLOW)
