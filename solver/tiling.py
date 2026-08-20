@@ -108,14 +108,13 @@ class TilingSolver:
                     flow = sum([getGridFlow(c, x.tile, d) * x for x in xs])
                     self._flowsPerGrid[v.neighbor(d)][c].append(flow)
 
-            needBloom = sum([x for x in xs if x.tile in TILE.ROADS])
-            self._needBloomPerGrid[v] = needBloom
-
             isRoad = sum([x for x in xs if x.tile in TILE.ROADS])
             self._isRoadPerGrid[v] = isRoad
 
             isClearing = sum([x for x in xs if x.tile in TILE.CLEARINGS])
             self._isClearingPerGrid[v] = isClearing
+
+            self._needBloomPerGrid[v] = isRoad
 
             needConnect = sum(
                 [x for x in xs if x.tile in (TILE.ROADS | TILE.CLEARINGS)])
@@ -171,7 +170,7 @@ class TilingSolver:
         bloomOrderPerGrid = {}
         bloomSourceIdPerGrid = {}
 
-        for i, v in enumerate(self._puzzle.grids):
+        for v in self._puzzle.grids:
             bloomOrderPerGrid[v] = cp.intvar(
                 1, self._puzzle.gridCount,
                 name=f"bloomOrder({v.row},{v.col})")
@@ -346,7 +345,7 @@ class TilingSolver:
             case MODELING.GOAL.MAX_DENSITY:
                 density = sum([sum(xs) for xs in self._xsPerGrid.values()])
                 self._model.add(density == bound)
-            case MODELING.GOAL.MIN_UNEXPLORE:
+            case MODELING.GOAL.MIN_UNEXPLORED:
                 exitedUnexplore = sum(
                     [isSourceExit for v, isSourceExit in self._isSourceExitPerGrid.items()
                      if (vData := self._puzzle.getGridData(v)) is not None and vData.status == TILE.STATUS.UNEXPLORED])
@@ -434,7 +433,7 @@ class TilingSolver:
             case MODELING.GOAL.MAX_DENSITY:
                 density = sum([sum(xs) for xs in self._xsPerGrid.values()])
                 self._guaredSetObjective(density, False)
-            case MODELING.GOAL.MIN_UNEXPLORE:
+            case MODELING.GOAL.MIN_UNEXPLORED:
                 exitedUnexplore = sum(
                     [isSourceExit for v, isSourceExit in self._isSourceExitPerGrid.items()
                      if (vData := self._puzzle.getGridData(v)) is not None and vData.status == TILE.STATUS.UNEXPLORED])

@@ -1,6 +1,21 @@
 # Constraint Programming Modeling
 
-This document describes the constraint-programming model used by the solver. It is written as an implementation blueprint: parameters are fixed data, expressions are derived from existing data or variables, and variables are solver decisions.
+This document explains the modeling ideas behind the Tiling Forest solver. It is written as a guided tour first and a formula reference second.
+
+The code is still the source of truth for implementation details. The goal here is to make the main ideas readable: what each puzzle mechanic means, why it is modeled in a particular way, and which variables are introduced only when they are needed.
+
+## The Puzzle Region
+
+The solver works on a selected region of the larger game map. A grid in that region can be one of two kinds:
+
+- **Empty grid**: the solver may choose at most one tile from the tile pool.
+- **Pre-placed grid**: the tile type is already known, but the solver may still decide whether this grid is active in the current local model.
+
+That second point is important. A puzzle region in the game can be only a local window into a larger map. Some pre-placed tiles may not be connectable yet from the perspective of this local region. If every pre-placed tile were forced active, flow-conservation rules could make early or partial regions infeasible for the wrong reason.
+
+So pre-placed grids are represented by activation variables. Their tile type is fixed, but their flow can be switched off unless another rule forces activation. Stump tiles are the main exception: when the paired-stump rule is enabled, pre-placed stumps must be active.
+
+The solver also derives a set of **exits**. A non-unexplored pre-placed tile is an exit if it has a positive outgoing figure flow toward a grid outside the modeled region. If no such exit exists, the model falls back to treating every grid that is not explicitly marked unexplored as an exit. This keeps closed regions usable by the connectivity model.
 
 ## Tiles
 
@@ -22,562 +37,521 @@ Each tile type has a figure drawn on it:
 
 ![tiles with stump](tiles-stump.png)
 
-The exact integer encoding of roads, clearings, and stump directions is an implementation detail. The model only requires the encoding to expose the parameters listed below.
+The exact integer values used by the code are implementation details. What matters for the model is that each tile can answer a few local questions:
 
-## Notation
+- What figure-flow code does this tile expose on each edge?
+- Does this tile contain a road?
+- Does this tile contain a clearing?
+- Does this tile emit stump-flow toward a neighboring grid?
 
-### Geometry
+Those answers are enough to build the constraints below.
 
-| Meaning                                           | Notation               | Type          |
-| :------------------------------------------------ | :--------------------- | :------------ |
-| All grids in the modeled puzzle region            | $V$                    | Set of scalar |
-| Empty grids where the solver may place a tile     | $\hat{V}$              | Set of scalar |
-| Shared edges between adjacent grids               | $E$                    | Set of scalar |
-| Edges incident to grid $v$                        | $E(v)$                 | Set of scalar |
-| Grids adjacent to grid $v$                        | $N(v)$                 | Set of scalar |
-| Four cardinal directions                          | $D$                    | Set of scalar |
-| Direction from grid $v$ to edge $e$               | $D(v,e)$               | Parameter     |
-| Direction from grid $u$ to adjacent grid $v$      | $D(u,v)$               | Parameter     |
-| Stump-flow channels centered at grid $v$          | $C(v)$                 | Set of scalar |
-| Adjacent grids included in stump-flow channel $c$ | $N_c(v)$               | Set of scalar |
-| Unique integer id of grid $v$                     | $\operatorname{id}(v)$ | Parameter     |
+## Modeling Toolkit
 
-### Tiles and Fixed Data
+The solver uses two recurring techniques.
 
-| Meaning                                                 | Notation                        | Type                          |
-| :------------------------------------------------------ | :------------------------------ | :---------------------------- |
-| All tile types                                          | $T$                             | Set of scalar                 |
-| Tile types containing a road                            | $T_R$                           | Set of scalar                 |
-| Tile types containing a clearing                        | $T_L$                           | Set of scalar                 |
-| Tile types that can connect to others                   | $T_C$                           | Set of scalar                 |
-| Whether grid $v$ is an exit                             | $\operatorname{isExit}(v)$      | Parameter                     |
-| Edge-figure code of tile $t$ in direction $d$           | $\operatorname{edgeFlow}(t,d)$  | Parameter                     |
-| Whether tile $t$ has a road opening in direction $d$    | $\operatorname{roadEdge}(t,d)$  | Parameter                     |
-| Stump-pairing code emitted by tile $t$ in direction $d$ | $\operatorname{stumpFlow}(t,d)$ | Parameter                     |
-| Final placement indicator for tile $t$ on grid $v$      | $p_{vt}$                        | Expression or fixed parameter |
+**Flow conservation** is used when local shapes must match. Instead of writing pairwise compatibility lists for every tile combination, each tile side emits a small code. Compatible neighboring sides expose equal codes.
 
-For $v \in \hat{V}$, $p_{vt}$ is the decision variable $x_{vt}$. For pre-placed or otherwise fixed grids, $p_{vt}$ is a constant one-hot parameter. This keeps all rule constraints valid over $V$ while limiting placement decisions to $\hat{V}$.
+This is used for:
 
-### Placement Decisions
+- aligned figures across shared edges;
+- paired stumps that meet at the grid between them.
 
-| Meaning                                     | Notation | Type            |
-| :------------------------------------------ | :------- | :-------------- |
-| Whether to place tile $t$ on empty grid $v$ | $x_{vt}$ | Binary variable |
+**Rooted forests** are used when something must be connected to a source. Each active node either becomes a root or chooses exactly one parent. A topological order prevents parent cycles, so every active node is grounded in a real source.
 
-Basic placement constraints:
+This is used for:
+
+- bloom propagation through roads;
+- connectivity scoring across roads and clearings.
+
+These two techniques keep tile definitions local. Adding a tile usually means updating the tile-flow tables, not rebuilding every rule.
+
+## Placement and Activation
+
+For an empty grid, the solver creates one binary decision for each tile in the tile pool. At most one of those decisions can be true.
+
+For a pre-placed grid, the solver creates one binary activation variable for the known tile. If the variable is true, the grid contributes that tile's flows to the model. If it is false, the grid is silent for this local solve.
+
+This is why the internal expression for "tile `t` is active on grid `v`" is more general than a normal placement variable. For empty grids it means "the solver selected this tile"; for pre-placed grids it means "the known tile is active in the current region."
+
+## Aligned Figures
+
+### Game Meaning
+
+Figures on adjacent tiles must align. If a road, clearing edge, or mixed figure reaches a shared edge, the neighboring tile must expose the same compatible figure on its side of that edge.
+
+### Modeling Idea
+
+Each tile emits an edge-flow code in each direction. Empty sides emit zero. Roads emit the road code. Clearing edges emit clearing codes that preserve their orientation.
+
+For each shared edge, the model collects the flow values contributed by the grids touching that edge. When the aligned-figures constraint is enabled, all collected values must be equal.
+
+This is the core trick: the solver does not need a compatibility matrix such as "tile A can touch tile B in direction east." It only needs local flow codes.
+
+### Variables Introduced
+
+No dedicated decision variable is needed for this rule. The edge-flow values are expressions derived from placement or activation variables.
+
+## Paired Stumps
+
+### Game Meaning
+
+Two stump tiles form a pair when their arrows point toward each other with exactly one road tile between them.
+
+### Modeling Idea
+
+This is also flow conservation, but the flow meets at the center grid instead of across a shared edge.
+
+The model uses grid-centered channels:
+
+- one horizontal channel receives stump-flow from the west and east neighbors;
+- one vertical channel receives stump-flow from the north and south neighbors.
+
+Matching stump arrows emit the same non-zero stump-flow code toward the center grid. Non-participating directions emit zero. When a channel has at least two contributors, all contributors in that channel must be equal.
+
+Singleton channels are ignored. A single stump contribution at a boundary cannot form a pair by itself, so there is no useful conservation constraint to add for that channel.
+
+When the paired-stump rule is enabled, any grid reached by stump-flow must be active as a road tile. The current implementation does not impose a separate "at most one stump pair through a center grid" rule.
+
+### Variables Introduced
+
+The model introduces `hasStumpFlow(v)`, a boolean expression telling whether any stump-flow reaches grid `v`. It is used both by the stump rule itself and by bloom, because a road between matched stumps becomes a bloom source.
+
+## Rooted Forests
+
+Bloom and connectivity both need the same shape of reasoning: an active node must either be a source or be connected back to a source.
+
+The model represents this as a directed forest. For each active grid `v`, the solver chooses one of two possibilities:
+
+- `v` is a root source;
+- `v` has one parent `u`.
+
+A parent relation is allowed only when the parent grid is active, the child grid is active, and the parent has the right one-way link toward the child. The parent does not need to check the child's reverse link. Reverse compatibility belongs to the figure-alignment rule, which can be enabled independently.
+
+The parent relation is auxiliary, so a placement may admit many different parent forests. To keep the forest meaningful, each parent must have a smaller topological order than its child. This removes cycles of parent pointers.
+
+Some forests also propagate a source property. Bloom propagates the id of the bloom source. Connectivity propagates whether the chosen root is an exit. When a possible transmission edge exists, the implementation can require both sides to agree on that property, not only when the edge is selected as the parent edge.
+
+## Bloom
+
+### Game Meaning
+
+Every active road tile must bloom.
+
+A road tile can bloom in three ways:
+
+- it lies between a matched stump pair;
+- it is a pre-placed blooming tile that can act as an external bloom source for this local region;
+- it receives bloom through road-flow from a blooming parent road.
+
+This external-source case exists because the modeled region may be only part of the full map. Bloom may have entered the current puzzle from outside.
+
+### Modeling Idea
+
+Bloom uses the rooted-forest template. The active nodes are road tiles. A road tile is valid if it is a bloom source or if it chooses one bloom parent.
+
+There are two kinds of bloom source in the implementation:
+
+- `selfAsBloomingSource`, for externally blooming pre-placed grids;
+- `stumpAsBloomingSource`, derived from `hasStumpFlow`.
+
+An externally blooming grid can act as a local source. If such a grid is also an exit, the implementation treats that external source as mandatory.
+
+Those source terms are both part of the root count for the bloom equation. A road tile must account for exactly one reason to bloom: external source, stump source, or one selected parent.
+
+The forest also propagates a `bloomSourceId`. When a grid is a bloom source, its source id is its own grid id. Parent-child bloom links copy the same source id from parent to child.
+
+The implementation also checks every possible bloom-parent edge and requires both sides to carry the same source id. This prevents the same road network from being compatible with multiple different bloom sources just because the auxiliary parent choices changed.
+
+### Variables Introduced
+
+Bloom introduces:
+
+- `isBloomParent(u, v)`: whether `u` is the bloom parent of `v`;
+- `canBloomParent(u, v)`: whether the active placement gives `u` a road-flow link toward `v`;
+- `bloomOrder(v)`: topological order used to prevent parent cycles;
+- `bloomSourceId(v)`: the id of the bloom source propagated to `v`;
+- `selfAsBloomingSource(v)`: whether `v` uses its pre-placed blooming status as a local source.
+
+## Connectivity
+
+### Game Meaning
+
+Connectivity is an optimization concept, not the same thing as a hard road-exit rule.
+
+The solver prefers fewer disconnected active figure components. A component can have a root anywhere, because "being connected" by itself does not say that an internal cycle or internal component is invalid.
+
+The optional `ROAD_MUST_EXIT` constraint adds the stricter game meaning: active road tiles must belong to a component whose root is an exit.
+
+### Modeling Idea
+
+Connectivity also uses the rooted-forest template. The active nodes are tiles that contain roads or clearings. A parent link is allowed when the parent has a positive figure-flow code toward the child.
+
+Every active connectivity node either becomes `asConnectSource` or selects one parent. The `MAX_CONNECTIVITY` goal minimizes the number of `asConnectSource` roots, which prefers fewer connected components.
+
+Each root also determines whether its component is exit-rooted. If a root is an exit grid, its propagated `isSourceExit` value is true; otherwise it is false. Parent links propagate this value through the forest.
+
+When `ROAD_MUST_EXIT` is enabled, each active road tile is constrained to have `isSourceExit = true`. This keeps the base connectivity model flexible while letting stages opt into stricter road-exit behavior.
+
+### Variables Introduced
+
+Connectivity introduces:
+
+- `isConnectParent(u, v)`: whether `u` is the connectivity parent of `v`;
+- `connectOrder(v)`: topological order used to prevent parent cycles;
+- `asConnectSource(v)`: whether `v` is a connectivity root;
+- `isSourceExit(v)`: whether `v`'s connectivity root is an exit.
+
+## Optimization Goals
+
+Goals are applied in order. The solver optimizes the first enabled goal, fixes its optimum value as a constraint, then optimizes the next goal. This gives lexicographic behavior without needing a weighted objective.
+
+### Max Connectivity
+
+Despite the name, this goal is implemented as a minimization: minimize the number of connectivity roots. Fewer roots means fewer disconnected active figure components.
+
+### Max Density
+
+This goal maximizes the number of active placement variables, so the solver prefers filling more empty grids and activating more compatible known tiles.
+
+### Min Unexplored
+
+The current expression counts unexplored pre-placed grids whose propagated connectivity source is an exit, and the solver maximizes that count.
+
+Operationally, this goal prefers solutions where unexplored boundary or frontier tiles are attached to exit-rooted connectivity structure.
+
+## Enumerating Placements
+
+The model has many auxiliary variables: parent choices, topological orders, source ids, and source flags. Two solver assignments can differ only in those auxiliary variables while representing the same tile placement.
+
+To avoid returning duplicates, enumeration cuts only placement and activation variables. After a solution is found, the solver adds a no-good cut that forbids exactly that binary placement pattern, while leaving auxiliary variables out of the cut.
+
+## Formal Reference
+
+This section collects the compact mathematical version of the model. It is meant for checking details after reading the narrative sections above.
+
+### Sets and Parameters
+
+| Meaning                                      | Notation                        |
+| :------------------------------------------- | :------------------------------ |
+| All grids in the modeled region              | $V$                             |
+| Empty grids                                  | $\hat{V}$                       |
+| Pre-placed grids                             | $\bar{V}$                       |
+| Cardinal directions                          | $D$                             |
+| Neighbors of grid $v$                        | $N(v)$                          |
+| Shared edge between adjacent grids $u,v$     | $e(u,v)$                        |
+| Stump-flow channels centered at grid $v$     | $C(v)$                          |
+| Contributors to channel $c$ centered at $v$  | $N_c(v)$                        |
+| Unique grid id                               | $\operatorname{id}(v)$          |
+| Tile pool for empty grids                    | $T$                             |
+| Road tile types                              | $T_R$                           |
+| Clearing tile types                          | $T_L$                           |
+| Connectable tile types                       | $T_C = T_R \cup T_L$            |
+| Known tile on pre-placed grid $v$            | $\tau(v)$                       |
+| Whether grid $v$ is an exit                  | $\operatorname{isExit}(v)$      |
+| Edge-flow code of tile $t$ in direction $d$  | $\operatorname{edgeFlow}(t,d)$  |
+| Stump-flow code of tile $t$ in direction $d$ | $\operatorname{stumpFlow}(t,d)$ |
+
+### Placement and Activation
+
+For an empty grid:
 
 $$
-\forall v \in \hat{V}, \quad \sum_{t \in T} x_{vt} \le 1
+x_{vt} \in \{0,1\}, \quad v \in \hat{V}, t \in T
 $$
 
-Use equality instead of inequality when a stage or region must be completely filled.
+For a pre-placed grid:
+
+$$
+y_v \in \{0,1\}, \quad v \in \bar{V}
+$$
+
+The unified active-placement expression is:
+
+$$
+p_{vt} =
+\begin{cases}
+x_{vt}, & v \in \hat{V} \\
+y_v, & v \in \bar{V}, t = \tau(v) \\
+0, & v \in \bar{V}, t \ne \tau(v)
+\end{cases}
+$$
+
+At most one tile can be selected or activated per grid:
+
+$$
+\forall v \in V, \quad \sum_t p_{vt} \le 1
+$$
+
+When paired stumps are enabled, pre-placed stump activations are required:
+
+$$
+\forall v \in \bar{V}, \tau(v) \in T_{\text{stump}}, \quad y_v = 1
+$$
 
 ### Derived Expressions
 
-| Meaning                                                                | Notation                            | Type                       |
-| :--------------------------------------------------------------------- | :---------------------------------- | :------------------------- |
-| Edge-flow value shown by grid $v$ on edge $e$                          | $a_{ve}$                            | Integer expression         |
-| All edge-flow values on edge $e$                                       | $F^E_e$                             | Set of integer expressions |
-| Stump-flow value contributed toward grid $v$ from adjacent grid $u$    | $s_{uv}$                            | Integer expression         |
-| Stump-flow values in channel $c$ centered at grid $v$                  | $F^S_{vc}$                          | Set of integer expressions |
-| Whether channel $c$ carries a matched stump pair through grid $v$      | $\operatorname{pairStumpFlow}_{vc}$ | Boolean expression         |
-| Whether grid $v$ is between a matching stump pair                      | $\operatorname{hasStumpFlow}_v$     | Boolean expression         |
-| Whether grid $v$ contains a clearing                                  | $\operatorname{hasClearing}_v$      | Boolean expression         |
-| Whether road bloom is required on grid $v$                             | $\operatorname{needBloom}_v$        | Boolean expression         |
-| Whether grids $u$ and $v$ are connected by road                        | $\operatorname{roadLink}_{uv}$      | Boolean expression         |
-| Whether grid $v$ participates in the connectivity objective            | $\operatorname{needConnect}_v$      | Boolean expression         |
-| Whether grids $u$ and $v$ are connected for the connectivity objective | $\operatorname{connectLink}_{uv}$   | Boolean expression         |
-
-Definitions:
+The edge-flow shown by grid $v$ toward neighbor direction $d$ is:
 
 $$
-\forall v \in V, e \in E(v), \quad
-a_{ve} = \sum_{t \in T} p_{vt} \cdot \operatorname{edgeFlow}(t,D(v,e))
+a_{v,d} = \sum_t p_{vt} \cdot \operatorname{edgeFlow}(t,d)
+$$
+
+The stump-flow contributed by grid $u$ toward adjacent grid $v$ is:
+
+$$
+s_{u,v} = \sum_t p_{ut} \cdot \operatorname{stumpFlow}(t,D(u,v))
+$$
+
+Road, clearing, bloom, and connectivity activity are:
+
+$$
+\operatorname{isRoad}_v = \sum_{t \in T_R} p_{vt}
 $$
 
 $$
-\forall e \in E, \quad
-F^E_e = \{a_{ve} \mid v \in V,\ e \in E(v)\}
+\operatorname{isClearing}_v = \sum_{t \in T_L} p_{vt}
 $$
 
 $$
-\forall u \in V, v \in N(u), \quad
-s_{uv} = \sum_{t \in T} p_{ut} \cdot \operatorname{stumpFlow}(t,D(u,v))
+\operatorname{needBloom}_v = \operatorname{isRoad}_v
 $$
 
 $$
-\forall v \in V,\ c \in C(v), \quad
-F^S_{vc} = \{s_{uv} \mid u \in N_c(v)\}
-$$
-
-$$
-\forall v \in V,\ c \in C(v), \quad
-\operatorname{pairStumpFlow}_{vc} \equiv
-\mathbf{1}\left(\sum_{s \in F^S_{vc}} s > 0\right)
-$$
-
-$$
-\forall v \in V, \quad
-\operatorname{hasStumpFlow}_v \equiv
-\mathbf{1}\left(
-\sum_{c \in C(v)} \operatorname{pairStumpFlow}_{vc} > 0
-\right)
-$$
-
-$$
-\forall v \in V, \quad
-\operatorname{needBloom}_v = \sum_{t \in T_R} p_{vt}
-$$
-
-$$
-\forall v \in V, \quad
-\operatorname{hasClearing}_v = \sum_{t \in T_L} p_{vt}
-$$
-
-$$
-\forall u \in V, v \in N(u), \quad
-\operatorname{roadLink}_{uv} \equiv
-\left(\sum_{t \in T} p_{ut} \cdot \operatorname{roadEdge}(t,D(u,v)) = 1\right)
-\land
-\left(\sum_{t \in T} p_{vt} \cdot \operatorname{roadEdge}(t,D(v,u)) = 1\right)
-$$
-
-$$
-\forall v \in V, \quad
 \operatorname{needConnect}_v = \sum_{t \in T_C} p_{vt}
 $$
 
-$$
-\forall u \in V, v \in N(u), \quad
-\operatorname{connectLink}_{uv} \equiv a_{u,e(u,v)} > 0
-$$
-
-where $e(u,v)$ is the shared edge between adjacent grids $u$ and $v$.
-
-### Auxiliary Variables
-
-| Meaning                                                        | Notation                                   | Type             |
-| :------------------------------------------------------------- | :----------------------------------------- | :--------------- |
-| Whether grid $u$ is the bloom parent of grid $v$               | $\operatorname{isBloomParent}_{uv}$        | Binary variable  |
-| Topological order of grid $v$ in the bloom forest              | $\operatorname{bloomOrder}_v$              | Integer variable |
-| Bloom source id propagated to grid $v$                         | $\operatorname{bloomSource}_v$             | Integer variable |
-| Whether grid $v$ acts as a bloom source                        | $\operatorname{asBloomSource}_v$           | Binary variable  |
-| Whether grid $u$ is the connectivity parent of grid $v$        | $\operatorname{isConnectParent}_{uv}$      | Binary variable  |
-| Topological order of grid $v$ in the connectivity forest       | $\operatorname{connectOrder}_v$            | Integer variable |
-| Whether grid $v$ is an exit root in the connectivity forest    | $\operatorname{exitAsConnectSource}_v$     | Binary variable  |
-| Whether grid $v$ is a clearing root in the connectivity forest | $\operatorname{clearingAsConnectSource}_v$ | Binary variable  |
-| Whether the connectivity source of grid $v$ is an exit         | $\operatorname{isConnectSourceExit}_v$     | Binary variable  |
-
-The notation $\operatorname{isParent}_{uv}$ always means that $u$ is the parent and $v$ is the child.
-
-## Constraints
-
 ### Aligned Figures
 
-#### Requirement
-
-Figures on adjacent tiles must align.
-
-#### Naive Formulation
-
-If a grid selects tile $t$, then each adjacent grid can only select a compatible subset of tiles:
+For each shared edge, collect the flow values from all modeled grids incident to that edge:
 
 $$
-\forall (u,v) \in E,\ t \in T, \quad
-x_{ut} \le \sum_{t' \in \operatorname{subset}(T,t)} x_{vt'}
+F^E_e = \{a_{v,D(v,e)} \mid v \in V, e \in E(v)\}
 $$
 
-This has two drawbacks:
-
-- **Tight tile coupling**: adding a tile requires updating compatibility subsets for existing tiles.
-- **Weak propagation**: subset inequalities are usually weaker than equality over shared structure.
-
-#### Adopted Formulation
-
-Flow conservation describes figure compatibility. Each side of the same edge must expose the same edge-flow code:
+When aligned figures are enabled:
 
 $$
-\forall e \in E, \quad \operatorname{AllEqual}(F^E_e)
+\forall e, |F^E_e| \ge 2, \quad \operatorname{AllEqual}(F^E_e)
 $$
-
-To add a new tile type, only $\operatorname{edgeFlow}(t,d)$ and related tile parameters need to be defined.
 
 ### Paired Stumps
 
-#### Requirement
-
-Stump tiles must appear in matching pairs:
-
-- The arrows of the two stumps point toward each other.
-- Exactly one road tile lies between the matching stumps.
-
-#### Adopted Formulation
-
-Stump pairing is another flow-conservation rule, but the flow meets at a grid rather than across an edge. The key is to define sufficiently fine-grained flow sets. For example, one channel can contain only the left and right contributors to grid $v$, while another channel contains only the upper and lower contributors.
-
-Matching stump arrows emit the same non-zero stump-flow code toward the road tile between them; non-participating directions emit zero. Therefore each stump-flow channel is conserved by equality:
+For each grid-centered stump channel:
 
 $$
-\forall v \in V,\ c \in C(v), \quad
-\operatorname{AllEqual}(F^S_{vc})
+F^S_{v,c} = \{s_{u,v} \mid u \in N_c(v)\}
 $$
 
-With this formulation, a positive channel represents one matched stump pair through grid $v$, and zero means no stump pair exists on that channel:
+When paired stumps are enabled:
 
 $$
-\forall v \in V,\ c \in C(v), \quad
-\operatorname{pairStumpFlow}_{vc} \equiv
-\mathbf{1}\left(\sum_{s \in F^S_{vc}} s > 0\right)
+\forall v,c, |F^S_{v,c}| \ge 2, \quad \operatorname{AllEqual}(F^S_{v,c})
 $$
 
-The center grid can be between at most one stump pair:
+The implementation defines:
 
 $$
-\forall v \in V, \quad
-\sum_{c \in C(v)} \operatorname{pairStumpFlow}_{vc}
-\le 1
+\operatorname{hasStumpFlow}_v \equiv
+\left(\sum_{c \in C(v)} \sum_{s \in F^S_{v,c}} s > 0\right)
 $$
 
-If stump flow meets at a grid, that grid must be a road tile:
+and requires:
 
 $$
-\forall v \in V, \quad
-\operatorname{hasStumpFlow}_v \le \sum_{t \in T_R} p_{vt}
+\forall v, \quad \operatorname{hasStumpFlow}_v \le \operatorname{isRoad}_v
 $$
-
-In implementation, each $F^S_{vc}$ should include exactly the contributors that are allowed to match each other. This preserves the same flow-conservation idea used by edge alignment while avoiding a coarse set that mixes unrelated directions.
-
-For boundary cases, avoid singleton flow sets: either omit channels that cannot form a pair, or include fixed zero contributors for missing sides so that an unmatched stump cannot satisfy conservation vacuously.
 
 ### Rooted Forest Template
 
-Bloom and connectivity both use the same rooted-forest pattern. The tree structure is only the carrier; the modeled rule usually also needs a property to be grounded at roots and transmitted along parent-child edges.
-
-For an active node expression $A_v$, a root expression or variable $R_v$, a parent variable $P_{uv}$, and a link expression $L_{uv}$:
+For an active expression $A_v$, a root expression $R_v$, parent variable $P_{uv}$, and one-way link expression $L_{uv}$:
 
 $$
-\forall v \in V, \quad
-A_v = R_v + \sum_{u \in N(v)} P_{uv}
+\forall v, \quad A_v = R_v + \sum_{u \in N(v)} P_{uv}
 $$
 
-Each active node is either a root or chooses exactly one parent. Inactive nodes choose neither.
-
 $$
-\forall u \in V,\ v \in N(u), \quad
-P_{uv} \le A_u,\quad
-P_{uv} \le A_v,\quad
-P_{uv} \le L_{uv}
+\forall u,v, \quad P_{uv} \le A_u,\quad P_{uv} \le A_v,\quad P_{uv} \le L_{uv}
 $$
 
-Because $P_{uv}$ means "$u$ is the parent of $v$", the parent must have a smaller topological order:
+Topological order prevents cycles:
 
 $$
-\forall u \in V,\ v \in N(u), \quad
-P_{uv} \rightarrow \operatorname{order}_u + 1 \le \operatorname{order}_v
+\forall u,v, \quad P_{uv} \rightarrow \operatorname{order}_u + 1 \le \operatorname{order}_v
 $$
 
-The order constraint removes parent cycles. Without it, a cycle of non-root nodes could satisfy the parent equations without being grounded at a real source.
-
-If the rule transmits a property $Q_v$, the root defines the ground truth for that property:
+If a source property $Q_v$ is propagated:
 
 $$
-\forall v \in V, \quad
-R_v \rightarrow Q_v = \operatorname{rootValue}_v
-$$
-
-The parent-child relation transmits the same property:
-
-$$
-\forall u \in V,\ v \in N(u), \quad
 P_{uv} \rightarrow Q_u = Q_v
 $$
 
-For some mechanics, parent propagation is still not enough because parent variables are auxiliary. Given the same placement, changing $P_{uv}$ can change which rooted tree a node appears to belong to. To prevent a node or link from being compatible with multiple conflicting sources, every possible transmission edge must carry the same property:
-
-$$
-\forall u \in V,\ v \in N(u), \quad
-A_u \land A_v \land L_{uv} \rightarrow Q_u = Q_v
-$$
-
-This constraint is about possible membership, not only the selected parent tree. In the game, its bloom interpretation is: a road tile cannot connect to multiple bloom sources.
-
 ### Bloom
 
-#### Requirement
-
-Every road tile must bloom. A road tile blooms if it is:
-
-- between a matching stump pair, which makes it a bloom source; or
-- road-connected to another blooming road tile.
-
-A road-connected component cannot contain multiple bloom sources.
-
-#### Adopted Formulation
-
-Use the rooted-forest template with:
+Bloom uses:
 
 $$
 A_v = \operatorname{needBloom}_v
 $$
 
 $$
-R_v = \operatorname{asBloomSource}_v
+R_v = \operatorname{selfAsBloomingSource}_v + \operatorname{hasStumpFlow}_v
 $$
 
-$$
-P_{uv} = \operatorname{isBloomParent}_{uv}
-$$
+External bloom sources are constrained by pre-placed bloom status:
 
 $$
-L_{uv} = \operatorname{roadLink}_{uv}
+\operatorname{selfAsBloomingSource}_v \le \operatorname{isBlooming}(v)
 $$
 
-Each road tile is either a selected bloom source or has one blooming parent:
+If a blooming grid is also an exit, the implementation fixes it as an external source:
 
 $$
-\forall v \in V, \quad
-\operatorname{needBloom}_v =
-\operatorname{asBloomSource}_v +
-\sum_{u \in N(v)} \operatorname{isBloomParent}_{uv}
-$$
-
-Every matched stump pair is intrinsically a bloom source:
-
-$$
-\forall v \in V, \quad
-\operatorname{asBloomSource}_v =
-\operatorname{hasStumpFlow}_v
-$$
-
-This equality is required by the game semantics. If two matched stump pairs are connected by the same road network, both pairs are active bloom sources; the solver must not be allowed to turn one source off through an auxiliary variable.
-
-Parent selection is only allowed along road connections:
-
-$$
-\forall u \in V,\ v \in N(u), \quad
-\operatorname{isBloomParent}_{uv}
-\le \operatorname{needBloom}_u
-$$
-
-$$
-\forall u \in V,\ v \in N(u), \quad
-\operatorname{isBloomParent}_{uv}
-\le \operatorname{needBloom}_v
-$$
-
-$$
-\forall u \in V,\ v \in N(u), \quad
-\operatorname{isBloomParent}_{uv}
-\le \operatorname{roadLink}_{uv}
-$$
-
-Bloom source labels are grounded at selected bloom sources and propagated through parent links:
-
-$$
-\forall v \in V, \quad
-\operatorname{asBloomSource}_v \rightarrow
-\operatorname{bloomSource}_v = \operatorname{id}(v)
-$$
-
-$$
-\forall u \in V,\ v \in N(u), \quad
-\operatorname{isBloomParent}_{uv} \rightarrow
-\operatorname{bloomSource}_u = \operatorname{bloomSource}_v
-$$
-
-Cycles are forbidden by the bloom order:
-
-$$
-\forall u \in V,\ v \in N(u), \quad
-\operatorname{isBloomParent}_{uv} \rightarrow
-\operatorname{bloomOrder}_u + 1 \le \operatorname{bloomOrder}_v
-$$
-
-All possible road-transmission edges must carry the same bloom source:
-
-$$
-\forall u \in V,\ v \in N(u), \quad
-\operatorname{needBloom}_u \land
-\operatorname{needBloom}_v \land
-\operatorname{roadLink}_{uv}
+\operatorname{isBlooming}(v) \land \operatorname{isExit}(v)
 \rightarrow
-\operatorname{bloomSource}_u = \operatorname{bloomSource}_v
+\operatorname{selfAsBloomingSource}_v = 1
 $$
 
-The last constraint is the key guardrail for the bloom model. Given a fixed placement, the parent variables can often be changed to attach a road tile to different rooted trees. Requiring every possible road-transmission edge to carry the same source removes that ambiguity: a road tile cannot be compatible with multiple bloom sources. Zero sources are still rejected by the parent/root equation, and two matched stump pairs connected through the same road network would force two different source ids to be equal.
+The one-way bloom link is true when parent `u` and child `v` are both active roads and `u` has road-flow toward `v`:
 
-## Optimization Goals
+$$
+\operatorname{canBloomParent}_{uv}
+\equiv
+\operatorname{needBloom}_u
+\land
+\operatorname{needBloom}_v
+\land
+a_{u,D(u,v)} = \operatorname{ROAD\_FLOW}
+$$
 
-### Max Connectivity
+Each active road has exactly one bloom reason:
 
-This goal prefers fewer disconnected figure components. The formulation below treats road components as exit-rooted components and counts how many exit roots are needed.
+$$
+\operatorname{needBloom}_v =
+\operatorname{selfAsBloomingSource}_v
++ \operatorname{hasStumpFlow}_v
++ \sum_{u \in N(v)} \operatorname{isBloomParent}_{uv}
+$$
 
-Use the rooted-forest template with:
+Bloom source ids are grounded at sources:
+
+$$
+\operatorname{selfAsBloomingSource}_v \lor \operatorname{hasStumpFlow}_v
+\rightarrow
+\operatorname{bloomSourceId}_v = \operatorname{id}(v)
+$$
+
+Selected parents propagate the same source id:
+
+$$
+\operatorname{isBloomParent}_{uv}
+\rightarrow
+\operatorname{bloomSourceId}_u = \operatorname{bloomSourceId}_v
+$$
+
+Every possible bloom-parent edge also carries the same source id:
+
+$$
+\operatorname{canBloomParent}_{uv}
+\rightarrow
+\operatorname{bloomSourceId}_u = \operatorname{bloomSourceId}_v
+$$
+
+### Connectivity
+
+Connectivity uses:
 
 $$
 A_v = \operatorname{needConnect}_v
 $$
 
 $$
-R_v =
-\operatorname{exitAsConnectSource}_v +
-\operatorname{clearingAsConnectSource}_v
+R_v = \operatorname{asConnectSource}_v
 $$
 
-$$
-P_{uv} = \operatorname{isConnectParent}_{uv}
-$$
+The one-way connectivity link is true when parent `u` has positive figure-flow toward child `v`:
 
 $$
-L_{uv} = \operatorname{connectLink}_{uv}
+\operatorname{connectLink}_{uv} \equiv a_{u,D(u,v)} > 0
 $$
 
-Each active connectivity node is either a root or has one parent:
+Each active connectable grid is either a root or has one parent:
 
 $$
-\forall v \in V, \quad
 \operatorname{needConnect}_v =
-\operatorname{exitAsConnectSource}_v +
-\operatorname{clearingAsConnectSource}_v +
-\sum_{u \in N(v)} \operatorname{isConnectParent}_{uv}
+\operatorname{asConnectSource}_v
++ \sum_{u \in N(v)} \operatorname{isConnectParent}_{uv}
 $$
 
-Only exits can be exit roots:
+A root determines whether the component is exit-rooted:
 
 $$
-\forall v \in V, \quad
-\operatorname{exitAsConnectSource}_v \le \operatorname{isExit}(v)
-$$
-
-Only clearings can be clearing roots:
-
-$$
-\forall v \in V, \quad
-\operatorname{clearingAsConnectSource}_v \le
-\operatorname{hasClearing}_v
-$$
-
-Parent selection is only allowed through connected figures:
-
-$$
-\forall u \in V,\ v \in N(u), \quad
-\operatorname{isConnectParent}_{uv}
-\le \operatorname{needConnect}_u
-$$
-
-$$
-\forall u \in V,\ v \in N(u), \quad
-\operatorname{isConnectParent}_{uv}
-\le \operatorname{needConnect}_v
-$$
-
-$$
-\forall u \in V,\ v \in N(u), \quad
-\operatorname{isConnectParent}_{uv}
-\le \operatorname{connectLink}_{uv}
-$$
-
-Root type is propagated through the forest:
-
-$$
-\forall v \in V, \quad
-\operatorname{exitAsConnectSource}_v
+\operatorname{asConnectSource}_v
 \rightarrow
-\operatorname{isConnectSourceExit}_v = 1
+\operatorname{isSourceExit}_v = \operatorname{isExit}(v)
 $$
 
-$$
-\forall v \in V, \quad
-\operatorname{clearingAsConnectSource}_v
-\rightarrow
-\operatorname{isConnectSourceExit}_v = 0
-$$
+Parents propagate that property:
 
 $$
-\forall u \in V,\ v \in N(u), \quad
 \operatorname{isConnectParent}_{uv}
 \rightarrow
-\operatorname{isConnectSourceExit}_u =
-\operatorname{isConnectSourceExit}_v
+\operatorname{isSourceExit}_u = \operatorname{isSourceExit}_v
 $$
 
-Cycles are forbidden by the connectivity order:
+The optional road-exit constraint is:
 
 $$
-\forall u \in V,\ v \in N(u), \quad
-\operatorname{isConnectParent}_{uv}
-\rightarrow
-\operatorname{connectOrder}_u + 1 \le
-\operatorname{connectOrder}_v
+\operatorname{isRoad}_v \le \operatorname{isSourceExit}_v
 $$
 
-All active nodes connected by a valid figure link must agree on whether their component is exit-rooted:
+### Objective Expressions
+
+Max connectivity minimizes root count:
 
 $$
-\forall u \in V,\ v \in N(u), \quad
-\operatorname{needConnect}_u \land
-\operatorname{needConnect}_v \land
-\operatorname{connectLink}_{uv}
-\rightarrow
-\operatorname{isConnectSourceExit}_u =
-\operatorname{isConnectSourceExit}_v
+\operatorname{connectivityScore}
+=
+\sum_{v \in V} \operatorname{asConnectSource}_v
 $$
 
-If road components must be exit-rooted, add:
+Max density maximizes active placement:
 
 $$
-\forall v \in V, \quad
-\sum_{t \in T_R} p_{vt} = 1
-\rightarrow
-\operatorname{isConnectSourceExit}_v = 1
+\operatorname{densityScore}
+=
+\sum_{v \in V} \sum_t p_{vt}
 $$
 
-The connectivity score is the number of exit-rooted components:
+`MIN_UNEXPLORED` currently maximizes:
 
 $$
-\operatorname{connectivityScore} =
-\sum_{v \in V} \operatorname{exitAsConnectSource}_v
+\operatorname{exitedUnexploreScore}
+=
+\sum_{\substack{v \in \bar{V} \\
+\operatorname{status}(v)=\operatorname{UNEXPLORED}}}
+\operatorname{isSourceExit}_v
 $$
 
-Max Connectivity minimizes this score.
+### Cascading Optimization
 
-Modeling note: this objective minimizes the number of exit-rooted components. If the intended metric later becomes "maximize the number of road tiles connected to exits", then unconnected road components should remain feasible and a separate expression such as $\sum_v \operatorname{connectedRoad}_v$ should be maximized instead.
+For enabled goals $(g_1,\dots,g_k)$:
 
-### Max Density
+1. Optimize $g_i$.
+2. Add a constraint fixing $g_i$ to its optimum value.
+3. Continue with $g_{i+1}$.
 
-The density score is the number of placed tiles in originally empty grids:
+### Placement No-Good Cuts
 
-$$
-\operatorname{densityScore} =
-\sum_{v \in \hat{V},\ t \in T} x_{vt}
-$$
-
-Max Density maximizes this score.
-
-## Cascading Optimization
-
-When multiple optimization goals are enabled, apply them lexicographically:
-
-1. Solve and optimize the first enabled goal.
-2. Fix that goal's optimum value as an additional constraint.
-3. Optimize the next enabled goal.
-4. Repeat until all enabled goals are fixed.
-
-This preserves priority order while still allowing later goals to refine the solution set.
-
-## No-Good Cuts for Placement Enumeration
-
-The model uses auxiliary variables such as parents, orders, and source labels. Standard solution enumeration may therefore return the same tile placement multiple times with different auxiliary assignments.
-
-To enumerate unique placements, cut only the binary placement variables. Given binary variables $(b_1,\dots,b_n)$ and a found assignment $(y_1,\dots,y_n)$:
+Given placement and activation variables $(b_1,\dots,b_n)$ and a found assignment $(y_1,\dots,y_n)$:
 
 $$
 \sum_i
-\left[
-\mathbf{1}(y_i = 1)b_i +
-\mathbf{1}(y_i = 0)(1-b_i)
-\right]
+\begin{cases}
+b_i, & y_i = 1 \\
+1 - b_i, & y_i = 0
+\end{cases}
 \le n - 1
 $$
 
-For placement enumeration, use $b_i \in \{x_{vt} \mid v \in \hat{V},\ t \in T\}$.
+Only placement and activation variables are included in the cut. Auxiliary forest variables are intentionally ignored.
