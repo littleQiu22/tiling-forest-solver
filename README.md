@@ -19,15 +19,16 @@ The project consists of two core components:
 
   - **Aligned Figures**: Figures on adjacent tiles must align.
     - _Recommendation_: **Always keep enabled**, as this represents the fundamental challenge of the game.
+  - **Road Must Exit**: Road components must be connected to an exit source.
+    - _Recommendation_: **Always keep enabled**, as this represents the fundamental challenge of the game.
   - **Paired Stumps**: Stump tiles must always appear in matching pairs.
-    - _Recommendation_: Enable this once stump tiles are unlocked.
   - **Bloom**: Every road tile should bloom.
-    - _Recommendation_: Enable this once all tile types are unlocked.
 
 - **Cascading Optimization Goals**: Multiple valid solutions often exist under the same rules. You can toggle on/off and chain optimization goals to filter and prioritize results:
 
   - **Max Connectivity**: Prefer road networks with fewer disconnected components.
   - **Max Density**: Fill as many empty spaces as possible.
+  - **Min Unexplored**: Prefer road networks with fewer unexplored tiles.
 
 - **Multi-Region Joint Solving**: Since placement in one puzzle region can affect adjacent ones, the GUI allows selecting and solving multiple interconnected regions simultaneously.
 
@@ -37,7 +38,14 @@ The project consists of two core components:
 
 ## Under the Hood
 
-The solver formulates the puzzle as a constraint programming model. For those interested, check out the [Full Modeling Details](docs/modeling/MODELING.md).
+The solver formulates the puzzle as a constraint programming model:
+
+- **Flow Conservation**: Figure alignment and paired stumps are represented as flow codes that must be conserved across compatible edges or grid-centered channels.
+- **Rooted Forests**: Bloom and connectivity are modeled as directed forests. Each active grid either chooses one parent through a valid link or becomes a root source.
+- **Cascading Optimization**: Enabled goals are solved lexicographically. Each optimum is fixed before optimizing the next goal.
+- **Placement Enumeration**: No-good cuts are applied to placement and activation variables so equivalent auxiliary assignments do not duplicate the same result.
+
+For a deeper description of the modeling ideas, check out the [Full Modeling Details](docs/modeling/MODELING.md). The document explains the main techniques, while the code remains the source of truth for implementation details.
 
 ## Tech Stack & Dependencies
 

@@ -12,7 +12,7 @@ class MODELING:
     class GOAL(IntEnum):
         MAX_CONNECTIVITY = 1
         MAX_DENSITY = 2
-        MAX_EXITED_UNEXPLORE = 3
+        MIN_UNEXPLORE = 3
 
 
 @dataclass

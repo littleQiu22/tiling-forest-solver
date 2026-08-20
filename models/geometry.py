@@ -32,22 +32,13 @@ class DIRECTION(IntEnum):
                 return DIRECTION.NORTH
 
 
-@dataclass
-class Edge:
-    row1: int
-    col1: int
-    row2: int
-    col2: int
-
-
 @dataclass(slots=True, frozen=True)
 class Grid:
     row: int
     col: int
 
-    def edge(self, direction: DIRECTION) -> Edge:
-        dr, dc = direction.delta
-        return Edge(self.row, self.col, self.row + dr, self.col + dc)
+    def edge(self, direction: DIRECTION) -> "Edge":
+        return Edge.between(self, self.neighbor(direction))
 
     def neighbor(self, direction: DIRECTION) -> "Grid":
         dr, dc = direction.delta
@@ -55,3 +46,15 @@ class Grid:
 
     def neighbors(self) -> list["Grid"]:
         return [self.neighbor(d) for d in DIRECTION]
+
+
+@dataclass(slots=True, frozen=True)
+class Edge:
+    grid1: Grid
+    grid2: Grid
+
+    @classmethod
+    def between(cls, grid1: Grid, grid2: Grid) -> "Edge":
+        if (grid2.row, grid2.col) < (grid1.row, grid1.col):
+            grid1, grid2 = grid2, grid1
+        return cls(grid1, grid2)

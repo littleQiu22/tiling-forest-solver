@@ -38,11 +38,11 @@ class TilingSolver:
         self._needBloomPerGrid = {}
 
         self._asConnectSourcePerGrid = {}
-        self._isConnectParentsPerGrid = defaultdict(defaultdict)
+        self._isConnectParentsPerGrid = defaultdict(dict)
         self._isSourceExitPerGrid = {}
 
-        self._flowsPerEdge = defaultdict(defaultdict[EDGE_CHANNEL, list])
-        self._flowsPerGrid = defaultdict(defaultdict[GRID_CHANNEL, list])
+        self._flowsPerEdge = defaultdict(lambda: defaultdict(list))
+        self._flowsPerGrid = defaultdict(lambda: defaultdict(list))
 
         self._connectivityMetrics = None
 
@@ -172,7 +172,8 @@ class TilingSolver:
         bloomSourceIdPerGrid = {}
 
         for i, v in enumerate(self._puzzle.grids):
-            bloomOrderPerGrid[v] = cp.boolvar(
+            bloomOrderPerGrid[v] = cp.intvar(
+                1, self._puzzle.gridCount,
                 name=f"bloomOrder({v.row},{v.col})")
             bloomSourceIdPerGrid[v] = cp.intvar(
                 1, self._puzzle.gridCount, name=f"bloomSourceId({v.row},{v.col})")
@@ -211,12 +212,12 @@ class TilingSolver:
                 isParent = cp.boolvar(
                     name=f"isBloomParent[({u.row},{u.col}),({v.row},{v.col})]")
                 canParents.append(canParent)
-                isParents.append(isParents)
+                isParents.append(isParent)
 
                 # Parent qualification
                 xs = self._xsPerGrid[u]
                 roadFlow = sum([x * getEdgeFlow(EDGE_CHANNEL.CONNECT_CHANNEL, x.tile, d.opposite())
-                               for x in xs if x in TILE.ROADS])
+                               for x in xs if x.tile in TILE.ROADS])
                 self._model.add(canParent ==
                                 self._needBloomPerGrid[u] & self._needBloomPerGrid[v] & (roadFlow > EDGE_FLOW.NO_FLOW))
                 self._model.add(isParent <= canParent)
@@ -314,7 +315,7 @@ class TilingSolver:
         objValue = None
         solution = {}
 
-        match self._model.status():
+        match self._model.status().exitstatus:
             case ExitStatus.FEASIBLE:
                 if self._model.has_objective():
                     status = SOLVER_STATUS.TIME_LIMIT
@@ -345,7 +346,7 @@ class TilingSolver:
             case MODELING.GOAL.MAX_DENSITY:
                 density = sum([sum(xs) for xs in self._xsPerGrid.values()])
                 self._model.add(density == bound)
-            case MODELING.GOAL.MAX_EXITED_UNEXPLORE:
+            case MODELING.GOAL.MIN_UNEXPLORE:
                 exitedUnexplore = sum(
                     [isSourceExit for v, isSourceExit in self._isSourceExitPerGrid.items()
                      if (vData := self._puzzle.getGridData(v)) is not None and vData.status == TILE.STATUS.UNEXPLORED])
@@ -369,6 +370,7 @@ class TilingSolver:
             remainingTime = self._remainingTime(startedAt)
             if remainingTime is not None and remainingTime <= 0:
                 self._guardedCallback(SOLVER_STATUS.TIME_LIMIT)
+                return
             self._setGoal(goal)
             status, objValue, solution = self._simpleSolve(remainingTime)
 
@@ -385,10 +387,15 @@ class TilingSolver:
         if lastSolution is not None:
             self._solutions.append(lastSolution)
         solutionLimit = self._option.solutionLimit
-        while solutionLimit is not None and len(self._solutions) < solutionLimit:
+        while True:
+            if solutionLimit is not None and len(self._solutions) >= solutionLimit:
+                self._guardedCallback(SOLVER_STATUS.SOLUTION_LIMIT)
+                return
+
             remainingTime = self._remainingTime(startedAt)
             if remainingTime is not None and remainingTime <= 0:
                 self._guardedCallback(SOLVER_STATUS.TIME_LIMIT)
+                return
 
             if lastSolution is not None:
                 self._addPlacementNoGoods()
@@ -411,9 +418,6 @@ class TilingSolver:
             self._guardedCallback(SOLVER_STATUS.FOUND_SOLUTION)
             lastSolution = solution
 
-        if solutionLimit is not None:
-            self._guardedCallback(SOLVER_STATUS.SOLUTION_LIMIT)
-
     def _remainingTime(self, startedAt):
         if self._option.timeLimit is None:
             return None
@@ -426,12 +430,11 @@ class TilingSolver:
     def _setGoal(self, goal: MODELING.GOAL):
         match goal:
             case MODELING.GOAL.MAX_CONNECTIVITY:
-                if self._connectivityMetrics is not None and type(self._connectivityMetrics) != int:
-                    self._guaredSetObjective(self._connectivityMetrics, True)
+                self._guaredSetObjective(self._connectivityMetrics, True)
             case MODELING.GOAL.MAX_DENSITY:
                 density = sum([sum(xs) for xs in self._xsPerGrid.values()])
                 self._guaredSetObjective(density, False)
-            case MODELING.GOAL.MAX_EXITED_UNEXPLORE:
+            case MODELING.GOAL.MIN_UNEXPLORE:
                 exitedUnexplore = sum(
                     [isSourceExit for v, isSourceExit in self._isSourceExitPerGrid.items()
                      if (vData := self._puzzle.getGridData(v)) is not None and vData.status == TILE.STATUS.UNEXPLORED])
