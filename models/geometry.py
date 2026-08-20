@@ -20,6 +20,17 @@ class DIRECTION(IntEnum):
             case DIRECTION.SOUTH:
                 return (1, 0)
 
+    def opposite(self) -> "DIRECTION":
+        match self:
+            case DIRECTION.EAST:
+                return DIRECTION.WEST
+            case DIRECTION.WEST:
+                return DIRECTION.EAST
+            case DIRECTION.NORTH:
+                return DIRECTION.SOUTH
+            case DIRECTION.SOUTH:
+                return DIRECTION.NORTH
+
 
 @dataclass
 class Edge:

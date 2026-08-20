@@ -7,16 +7,17 @@ class MODELING:
         FIGURE_ALIGNED = 1
         STUMP_PAIRED = 2
         ROAD_BLOOM = 3
+        ROAD_MUST_EXIT = 4
 
     class GOAL(IntEnum):
         MAX_CONNECTIVITY = 1
         MAX_DENSITY = 2
-        MIN_UNEXPLORED_ROAD = 3
+        MAX_EXITED_UNEXPLORE = 3
 
 
 @dataclass
 class SolverOption:
     constraints: list[MODELING.CONSTRAINT]
     goals: list[MODELING.GOAL]
-    timeLimit: int
-    solutionLimit: int
+    timeLimit: int | None
+    solutionLimit: int | None
