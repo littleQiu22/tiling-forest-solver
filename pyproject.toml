@@ -9,3 +9,8 @@ dependencies = [
     "ortools>=9.8",
     "pyside6>=6.6",
 ]
+
+[dependency-groups]
+dev = [
+    "pyinstaller>=6.22.2",
+]
