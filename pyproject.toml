@@ -1,0 +1,11 @@
+[project]
+name = "tiling-forest-solver"
+version = "0.1.0"
+description = "A GUI solver for puzzle game _Tiling Forest_ by _muratsubo Games_"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "cpmpy>=1.0",
+    "ortools>=9.8",
+    "pyside6>=6.6",
+]
