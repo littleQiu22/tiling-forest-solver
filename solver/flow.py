@@ -1,10 +1,10 @@
-from enum import IntEnum
+from enum import Enum, IntEnum
 
 from models.geometry import DIRECTION
 from models.tile import TILE
 
 
-class EDGE_CHANNEL(IntEnum):
+class EDGE_CHANNEL(Enum):
     CONNECT_CHANNEL = 1
 
 
@@ -20,7 +20,7 @@ class EDGE_FLOW(IntEnum):
     CLEARING_FULL_FLOW = 15
 
 
-class GRID_CHANNEL(IntEnum):
+class GRID_CHANNEL(Enum):
     STUMP_HORIZONTAL_CHANNEL = 1
     STUMP_VERTICAL_CHANNEL = 2
 
@@ -107,6 +107,12 @@ _EDGE_FLOW_CONFIG = {
             DIRECTION.SOUTH: EDGE_FLOW.CLEARING_FULL_FLOW,
             DIRECTION.WEST: EDGE_FLOW.CLEARING_S_FLOW,
             DIRECTION.EAST: EDGE_FLOW.CLEARING_S_FLOW,
+        },
+        TILE.TYPE.CLEARING: {
+            DIRECTION.NORTH: EDGE_FLOW.CLEARING_FULL_FLOW,
+            DIRECTION.EAST: EDGE_FLOW.CLEARING_FULL_FLOW,
+            DIRECTION.SOUTH: EDGE_FLOW.CLEARING_FULL_FLOW,
+            DIRECTION.WEST: EDGE_FLOW.CLEARING_FULL_FLOW,
         },
 
         # Road & Clearing

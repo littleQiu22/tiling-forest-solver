@@ -5,6 +5,8 @@ from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
 
 from common import getQML
+# QML-decorated Python types
+import models.tile
 
 
 def configure_application() -> None:

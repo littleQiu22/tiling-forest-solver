@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from enum import IntEnum
+from enum import Enum
 
 
-class DIRECTION(IntEnum):
+class DIRECTION(Enum):
     NORTH = 1
     EAST = 2
     SOUTH = 3
