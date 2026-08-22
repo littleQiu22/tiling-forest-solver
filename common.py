@@ -18,3 +18,7 @@ def _joinPath(root: Path, *paths: str) -> str:
 
 def getQML(*paths: str):
     return _joinPath(QML_ROOT, *paths)
+
+
+def getAsset(*paths: str):
+    return _joinPath(ASSET_ROOT, *paths)

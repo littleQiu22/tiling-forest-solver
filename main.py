@@ -1,10 +1,10 @@
 import sys
 
 from PySide6.QtCore import QCoreApplication, QSettings
-from PySide6.QtGui import QGuiApplication
+from PySide6.QtGui import QGuiApplication, QIcon
 from PySide6.QtQml import QQmlApplicationEngine
 
-from common import getQML
+from common import getAsset, getQML
 # QML-decorated Python types
 import models.tile
 
@@ -26,6 +26,7 @@ def createQmlEngine() -> QQmlApplicationEngine:
 def main() -> int:
     app = QGuiApplication(sys.argv)
     configure_application()
+    app.setWindowIcon(QIcon(getAsset("logo.png")))
 
     engine = createQmlEngine()
     if not engine.rootObjects():
