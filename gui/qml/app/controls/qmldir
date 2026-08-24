@@ -1,0 +1,8 @@
+module app.controls
+AppMenuBar 1.0 AppMenuBar.qml
+AppMenu 1.0 AppMenu.qml
+AppMenuItem 1.0 AppMenuItem.qml
+AppButton 1.0 AppButton.qml
+FileMenu 1.0 FileMenu.qml
+AppDialog 1.0 AppDialog.qml
+AlterDialog 1.0 AlterDialog.qml

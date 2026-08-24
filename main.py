@@ -1,12 +1,12 @@
-import sys
-
-from PySide6.QtCore import QCoreApplication, QSettings
-from PySide6.QtGui import QGuiApplication, QIcon
-from PySide6.QtQml import QQmlApplicationEngine
-
-from common import getAsset, getQML
-# QML-decorated Python types
 import models.tile
+import manager.workspace_manager
+from common import getAsset, getQML
+from PySide6.QtQml import QQmlApplicationEngine
+from PySide6.QtGui import QGuiApplication, QIcon
+from PySide6.QtCore import QCoreApplication, QSettings
+import sys
+import signal
+signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 
 def configure_application() -> None:

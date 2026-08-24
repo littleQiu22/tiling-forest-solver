@@ -2,33 +2,48 @@ import QtQuick.Window
 
 import app.global
 import app.layout
+import app.controls
+import app.manager
 
 Window {
     id: root
     title: "Tiling Forest Solver"
     visible: false
 
-    AppLayout {
+    readonly property WorkspaceManager workspaceManager: WorkspaceManager {}
+
+    AlterDialog {
+        id: alterDialog
+    }
+
+    Rectangle {
         anchors.fill: parent
+        color: AppTheme.background
 
-        menuBar: Rectangle {
-            color: "red"
-            implicitHeight: 300
-        }
+        AppLayout {
+            anchors.fill: parent
 
-        tileEditor: Rectangle {
-            color: "blue"
-        }
+            workspaceManager: root.workspaceManager
 
-        puzzlePanel: Rectangle {
-            color: "yellow"
-            implicitWidth: 200
+            menuBar: AppMenuBar {
+                workspaceManager: root.workspaceManager
+            }
+
+            tileEditor: Rectangle {
+                color: "blue"
+            }
+
+            puzzlePanel: Rectangle {
+                color: "yellow"
+                implicitWidth: 200
+            }
         }
     }
 
     Component.onCompleted: {
         AppSettings.restoreWindow(root);
         visible = true;
+        alterDialog.alert("abc");
     }
 
     onClosing: AppSettings.saveWindow(root)

@@ -1,9 +1,13 @@
 import QtQuick
 import QtQuick.Layouts
 
+import app.manager
+
 ColumnLayout {
     id: root
     spacing: 0
+
+    required property WorkspaceManager workspaceManager
 
     property Component menuBar
     property Component tileEditor
