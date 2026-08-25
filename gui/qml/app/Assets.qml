@@ -7,6 +7,7 @@ QtObject {
     id: root
 
     readonly property url logo: Qt.resolvedUrl("assets/logo.png")
+    readonly property int tileSize: TileSpec.size
 
     function tileImage(tile) {
         switch (tile) {

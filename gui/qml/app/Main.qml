@@ -4,6 +4,7 @@ import app.global
 import app.layout
 import app.controls
 import app.manager
+import app.editor
 
 Window {
     id: root
@@ -37,8 +38,8 @@ Window {
                 workspaceManager: root.workspaceManager
             }
 
-            tileEditor: Rectangle {
-                color: "blue"
+            tileEditor: Editor {
+                workspace: root.workspaceManager.workspace
             }
 
             puzzlePanel: Rectangle {

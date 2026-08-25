@@ -94,7 +94,7 @@ def writeOptionalSvg(path: Path, text: str, shouldWrite: bool) -> None:
 def assetsQml(mapping: dict[str, str]) -> str:
     lines = [
         "pragma Singleton",
-        "import QtQml",
+        "import QtQuick",
         "",
         "import app.models",
         "",
@@ -102,6 +102,7 @@ def assetsQml(mapping: dict[str, str]) -> str:
         "    id: root",
         "",
         '    readonly property url logo: Qt.resolvedUrl("assets/logo.png")',
+        "    readonly property int tileSize: TileSpec.size",
         "",
         "    function tileImage(tile) {",
         "        switch (tile) {",
@@ -145,7 +146,7 @@ def generateAssets(size: int, *, shouldWriteSvg: bool = False) -> None:
 def main():
     parser = argparse.ArgumentParser(
         description="Generate project image assets.")
-    parser.add_argument("--size", type=int, default=64)
+    parser.add_argument("--size", type=int, default=TILE.SIZE)
     parser.add_argument("--write-svg", action="store_true")
     args = parser.parse_args()
 

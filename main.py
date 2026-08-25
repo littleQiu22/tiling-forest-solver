@@ -1,5 +1,6 @@
 import models.tile
 import manager.workspace_manager
+import models.workspace
 from common import getAsset, getQML
 from PySide6.QtQml import QQmlApplicationEngine
 from PySide6.QtGui import QGuiApplication, QIcon

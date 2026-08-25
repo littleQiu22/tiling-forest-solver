@@ -1,16 +1,19 @@
 from enum import Enum
 
-from PySide6.QtCore import QObject, QEnum
-from PySide6.QtQml import QmlNamedElement, QmlUncreatable
+from PySide6.QtCore import QObject, Property, QEnum
+from PySide6.QtQml import QmlNamedElement, QmlSingleton, QmlUncreatable
 
 
 QML_IMPORT_NAME = "app.models"
 QML_IMPORT_MAJOR_VERSION = 1
+TILE_SIZE = 64
 
 
 @QmlNamedElement("Tile")
 @QmlUncreatable("Tile enums only")
 class TILE(QObject):
+    SIZE = TILE_SIZE
+
     class STATUS(Enum):
         NORMAL = 1
         UNEXPLORED = 2
@@ -62,3 +65,11 @@ class TILE(QObject):
                         TYPE.CLEARING_WS, TYPE.CLEARING_E, TYPE.CLEARING_S, TYPE.CLEARING_W, TYPE.CLEARING_N,
                         TYPE.CLEARING}
     CLEARINGS = SIMPLE_CLEARINGS | MIXED_CLEARING_ROADS
+
+
+@QmlNamedElement("TileSpec")
+@QmlSingleton
+class TileSpec(QObject):
+    @Property(int, constant=True)
+    def size(self) -> int:
+        return TILE.SIZE

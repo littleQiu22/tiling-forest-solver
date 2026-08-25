@@ -1,0 +1,4 @@
+module app.editor
+Editor 1.0 Editor.qml
+Viewport 1.0 Viewport.qml
+ToolBrushBar 1.0 ToolBrushBar.qml
