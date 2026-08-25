@@ -55,8 +55,7 @@ MenuBar {
         workspaceManager: root.workspaceManager
     }
 
-    Menu {
-        id: editMenu
-        title: qsTr("Edit")
+    EditMenu {
+        workspaceManager: root.workspaceManager
     }
 }

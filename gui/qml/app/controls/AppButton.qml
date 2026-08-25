@@ -8,12 +8,11 @@ Button {
     id: root
 
     property var backgroundColor
-    property color defaultBackgroundColor: "transparent"
     property bool borderEnabled: true
 
     background: Rectangle {
         id: background
-        color: root.backgroundColor ?? root.defaultBackgroundColor
+        color: root.backgroundColor ?? "transparent"
         radius: 4
         border.color: root.borderEnabled ? AppTheme.border : "transparent"
 

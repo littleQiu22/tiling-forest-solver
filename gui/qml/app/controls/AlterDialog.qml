@@ -16,7 +16,7 @@ AppDialog {
         }
     ]
 
-    function alert(message) {
+    function showAlert(message) {
         root.text = message;
         root.open();
     }

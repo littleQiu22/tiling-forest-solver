@@ -14,6 +14,14 @@ Window {
 
     AlterDialog {
         id: alterDialog
+
+        Connections {
+            target: Services
+
+            function onAlertRequested(message) {
+                alterDialog.showAlert(message);
+            }
+        }
     }
 
     Rectangle {
@@ -43,7 +51,6 @@ Window {
     Component.onCompleted: {
         AppSettings.restoreWindow(root);
         visible = true;
-        alterDialog.alert("abc");
     }
 
     onClosing: AppSettings.saveWindow(root)

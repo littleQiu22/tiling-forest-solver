@@ -1,3 +1,4 @@
 module app.global
 singleton AppSettings 1.0 AppSettings.qml
 singleton AppTheme 1.0 AppTheme.qml
+singleton Services 1.0 Services.qml
