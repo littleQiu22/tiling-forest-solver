@@ -12,14 +12,16 @@ Item {
     property Workspace workspace
     clip: true
 
-    signal pointerPressed(real screenX, real screenY, int button)
+    signal pointerClicked(real screenX, real screenY, int button)
+    signal pointerDragStarted(real screenX, real screenY, int button)
     signal pointerDragged(real screenX, real screenY, real dx, real dy, int button)
-    signal pointerReleased(real screenX, real screenY, int button)
+    signal pointerDragEnded(real screenX, real screenY, int button)
     signal wheelMoved(real screenX, real screenY, real angleDeltaY)
 
-    signal gridPressed(int row, int col, int button)
-    signal gridEntered(int row, int col, int button)
-    signal gridReleased(int row, int col, int button)
+    signal gridClicked(int row, int col, int button)
+    signal gridStrokeStarted(int row, int col, int button)
+    signal gridStrokeEntered(int row, int col, int button)
+    signal gridStrokeEnded(int row, int col, int button)
 
     // Camera
     QtObject {
@@ -60,6 +62,7 @@ Item {
     }
 
     function zoomAt(screenX, screenY, angleDeltaY) {
+        // Let the same world point at the same screen position
         if (angleDeltaY === 0)
             return;
 
@@ -129,72 +132,123 @@ Item {
         }
     }
 
-    MouseArea {
-        id: pointerArea
-        anchors.fill: parent
-        acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
-        hoverEnabled: true
+    QtObject {
+        id: dragState
 
-        property int activeButton: Qt.NoButton
-        property real lastScreenX: 0
-        property real lastScreenY: 0
         property int lastGridRow: 0
         property int lastGridCol: 0
         property bool hasLastGrid: false
 
-        function updateLastGrid(screenX, screenY) {
-            let grid = root.screenToGrid(screenX, screenY);
+        function reset(handler) {
+            handler.lastTranslationX = 0;
+            handler.lastTranslationY = 0;
+            hasLastGrid = false;
+        }
+
+        function start(handler) {
+            let button = handler.activeButton;
+            if (button === Qt.NoButton)
+                return;
+
+            let pressPoint = handler.centroid.pressPosition;
+            let grid = root.screenToGrid(pressPoint.x, pressPoint.y);
             lastGridRow = grid.row;
             lastGridCol = grid.col;
             hasLastGrid = true;
-            return grid;
+
+            root.pointerDragStarted(handler.centroid.position.x, handler.centroid.position.y, button);
+            root.gridStrokeStarted(grid.row, grid.col, button);
         }
 
-        onPressed: function (mouse) {
-            activeButton = mouse.button;
-            lastScreenX = mouse.x;
-            lastScreenY = mouse.y;
-
-            let grid = updateLastGrid(mouse.x, mouse.y);
-            root.pointerPressed(mouse.x, mouse.y, mouse.button);
-            root.gridPressed(grid.row, grid.col, mouse.button);
-        }
-
-        onPositionChanged: function (mouse) {
-            if (activeButton === Qt.NoButton)
+        function move(handler) {
+            let button = handler.activeButton;
+            if (!handler.active || button === Qt.NoButton)
                 return;
 
-            let dx = mouse.x - lastScreenX;
-            let dy = mouse.y - lastScreenY;
-            lastScreenX = mouse.x;
-            lastScreenY = mouse.y;
-            root.pointerDragged(mouse.x, mouse.y, dx, dy, activeButton);
+            let dx = handler.translation.x - handler.lastTranslationX;
+            let dy = handler.translation.y - handler.lastTranslationY;
+            handler.lastTranslationX = handler.translation.x;
+            handler.lastTranslationY = handler.translation.y;
 
-            let grid = root.screenToGrid(mouse.x, mouse.y);
+            let point = handler.centroid.position;
+            root.pointerDragged(point.x, point.y, dx, dy, button);
+
+            let grid = root.screenToGrid(point.x, point.y);
             if (!hasLastGrid || grid.row !== lastGridRow || grid.col !== lastGridCol) {
                 lastGridRow = grid.row;
                 lastGridCol = grid.col;
                 hasLastGrid = true;
-                root.gridEntered(grid.row, grid.col, activeButton);
+                root.gridStrokeEntered(grid.row, grid.col, button);
             }
         }
 
-        onReleased: function (mouse) {
-            let grid = root.screenToGrid(mouse.x, mouse.y);
-            root.pointerReleased(mouse.x, mouse.y, mouse.button);
-            root.gridReleased(grid.row, grid.col, mouse.button);
-            activeButton = Qt.NoButton;
-            hasLastGrid = false;
+        function finish(handler) {
+            let button = handler.activeButton;
+            if (button === Qt.NoButton) {
+                reset(handler);
+                return;
+            }
+
+            let point = handler.centroid.position;
+            let grid = root.screenToGrid(point.x, point.y);
+            root.pointerDragEnded(point.x, point.y, button);
+            root.gridStrokeEnded(grid.row, grid.col, button);
+            reset(handler);
+        }
+    }
+
+    TapHandler {
+        acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
+
+        onTapped: function (eventPoint, button) {
+            let point = eventPoint.position;
+            let grid = root.screenToGrid(point.x, point.y);
+            root.pointerClicked(point.x, point.y, button);
+            root.gridClicked(grid.row, grid.col, button);
+        }
+    }
+
+    WheelHandler {
+        acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+
+        onWheel: function (event) {
+            root.wheelMoved(event.x, event.y, event.angleDelta.y);
+            event.accepted = true;
+        }
+    }
+
+    DragHandler {
+        id: dragHandler
+        target: null
+        acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
+
+        property int activeButton: Qt.NoButton
+        property real lastTranslationX: 0
+        property real lastTranslationY: 0
+
+        function firstPressedButton(buttons) {
+            if (buttons & Qt.LeftButton)
+                return Qt.LeftButton;
+            if (buttons & Qt.RightButton)
+                return Qt.RightButton;
+            if (buttons & Qt.MiddleButton)
+                return Qt.MiddleButton;
+            return Qt.NoButton;
         }
 
-        onCanceled: {
-            activeButton = Qt.NoButton;
-            hasLastGrid = false;
+        onTranslationChanged: function () {
+            dragState.move(dragHandler);
         }
 
-        onWheel: function (wheel) {
-            root.wheelMoved(wheel.x, wheel.y, wheel.angleDelta.y);
-            wheel.accepted = true;
+        onActiveChanged: {
+            if (dragHandler.active) {
+                dragHandler.activeButton = dragHandler.firstPressedButton(dragHandler.centroid.pressedButtons);
+                dragState.reset(dragHandler);
+                dragState.start(dragHandler);
+            } else {
+                dragState.finish(dragHandler);
+                dragHandler.activeButton = Qt.NoButton;
+            }
         }
     }
 }

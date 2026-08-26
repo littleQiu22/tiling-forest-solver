@@ -12,47 +12,34 @@ Rectangle {
 
     required property Workspace workspace
     property string toolMode: "view"
-    property string currentTileGroup: "road"
-    property int currentTile: Tile.ROAD_WS
-
-    signal paintTileRequested(int row, int col, int tile)
-    signal eraseTileRequested(int row, int col)
-    signal selectOrCreatePuzzleRequested(int row, int col)
-    signal deletePuzzleRequested(int row, int col)
-
-    function callWorkspace(method, args) {
-        if (!root.workspace)
-            return false;
-
-        let fn = root.workspace[method];
-        if (typeof fn !== "function")
-            return false;
-
-        fn.apply(root.workspace, args);
-        return true;
-    }
+    property int currentTile: Tile.GRASSLAND
 
     function paintTile(row, col) {
-        root.paintTileRequested(row, col, root.currentTile);
-        root.callWorkspace("paintTile", [row, col, root.currentTile]);
+        root.workspace.paintTile(row, col, root.currentTile);
     }
 
     function eraseTile(row, col) {
-        root.eraseTileRequested(row, col);
-        root.callWorkspace("eraseTile", [row, col]);
+        root.workspace.eraseTile(row, col);
     }
 
     function selectOrCreatePuzzle(row, col) {
-        root.selectOrCreatePuzzleRequested(row, col);
-        root.callWorkspace("selectOrCreatePuzzle", [row, col]);
+        root.workspace.selectOrCreatePuzzle(row, col);
     }
 
     function deletePuzzle(row, col) {
-        root.deletePuzzleRequested(row, col);
-        root.callWorkspace("deletePuzzle", [row, col]);
+        root.workspace.deletePuzzle(row, col);
     }
 
-    function routeGridAction(row, col, button, isDrag) {
+    function handleGridClick(row, col, button) {
+        if (root.toolMode === "puzzle") {
+            if (button === Qt.LeftButton) {
+                root.selectOrCreatePuzzle(row, col);
+            } else if (button === Qt.RightButton) {
+                root.deletePuzzle(row, col);
+            }
+            return;
+        }
+
         if (root.toolMode === "tile") {
             if (button === Qt.LeftButton) {
                 root.paintTile(row, col);
@@ -61,16 +48,16 @@ Rectangle {
             }
             return;
         }
+    }
 
-        if (isDrag)
+    function handleGridStroke(row, col, button) {
+        if (root.toolMode !== "tile")
             return;
 
-        if (root.toolMode === "puzzle") {
-            if (button === Qt.LeftButton) {
-                root.selectOrCreatePuzzle(row, col);
-            } else if (button === Qt.RightButton) {
-                root.deletePuzzle(row, col);
-            }
+        if (button === Qt.LeftButton) {
+            root.paintTile(row, col);
+        } else if (button === Qt.RightButton) {
+            root.eraseTile(row, col);
         }
     }
 
@@ -89,12 +76,16 @@ Rectangle {
                 viewport.panBy(dx, dy);
         }
 
-        onGridPressed: function (row, col, button) {
-            root.routeGridAction(row, col, button, false);
+        onGridClicked: function (row, col, button) {
+            root.handleGridClick(row, col, button);
         }
 
-        onGridEntered: function (row, col, button) {
-            root.routeGridAction(row, col, button, true);
+        onGridStrokeStarted: function (row, col, button) {
+            root.handleGridStroke(row, col, button);
+        }
+
+        onGridStrokeEntered: function (row, col, button) {
+            root.handleGridStroke(row, col, button);
         }
     }
 
@@ -105,21 +96,12 @@ Rectangle {
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 24
 
-        toolMode: root.toolMode
-        currentGroup: root.currentTileGroup
-        currentTile: root.currentTile
-
         onToolModeRequested: function (mode) {
             root.toolMode = mode;
         }
 
-        onTileGroupRequested: function (group) {
-            root.currentTileGroup = group;
-        }
-
         onTileRequested: function (tile) {
             root.currentTile = tile;
-            root.toolMode = "tile";
         }
     }
 }

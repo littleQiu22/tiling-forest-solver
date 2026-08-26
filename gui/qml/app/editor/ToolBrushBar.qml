@@ -1,3 +1,4 @@
+pragma ComponentBehavior: Bound
 import QtQuick
 
 import app
@@ -7,13 +8,110 @@ import app.models
 Item {
     id: root
 
-    property string toolMode: "view"
-    property string currentGroup: "road"
-    property int currentTile: Tile.ROAD_WS
-
     signal toolModeRequested(string mode)
     signal tileRequested(int tile)
-    signal tileGroupRequested(string group)
+
+    QtObject {
+        id: selection
+
+        property int primaryIndex: 0
+        property int secondaryIndex: 0
+
+        readonly property var primaryItems: [
+            {
+                "mode": "view",
+                "label": "View"
+            },
+            {
+                "mode": "puzzle",
+                "label": "Puzzle"
+            },
+            {
+                "mode": "tile",
+                "tile": Tile.GRASSLAND,
+                "secondaryItems": tileItems([Tile.GRASSLAND, Tile.CLEARING])
+            },
+            {
+                "mode": "tile",
+                "tile": Tile.ROAD_E,
+                "secondaryItems": tileItems([Tile.ROAD_E, Tile.ROAD_W, Tile.ROAD_N, Tile.ROAD_S])
+            },
+            {
+                "mode": "tile",
+                "tile": Tile.ROAD_WE,
+                "secondaryItems": tileItems([Tile.ROAD_WE, Tile.ROAD_NS, Tile.ROAD_WS, Tile.ROAD_WN, Tile.ROAD_ES, Tile.ROAD_EN])
+            },
+            {
+                "mode": "tile",
+                "tile": Tile.CLEARING_EN,
+                "secondaryItems": tileItems([Tile.CLEARING_EN, Tile.CLEARING_ES, Tile.CLEARING_WS, Tile.CLEARING_WN])
+            },
+            {
+                "mode": "tile",
+                "tile": Tile.CLEARING_E,
+                "secondaryItems": tileItems([Tile.CLEARING_E, Tile.CLEARING_W, Tile.CLEARING_S, Tile.CLEARING_N])
+            },
+            {
+                "mode": "tile",
+                "tile": Tile.STUMP_E,
+                "secondaryItems": tileItems([Tile.STUMP_W, Tile.STUMP_E, Tile.STUMP_N, Tile.STUMP_S])
+            },
+            {
+                "mode": "tile",
+                "tile": Tile.CLEARING_W_ROAD_E,
+                "secondaryItems": tileItems([Tile.CLEARING_E_ROAD_W, Tile.CLEARING_W_ROAD_E, Tile.CLEARING_S_ROAD_N, Tile.CLEARING_N_ROAD_S])
+            }
+        ]
+
+        property var primaryItem: primaryItems[primaryIndex]
+        property var secondaryItems: primaryItem.secondaryItems
+
+        function tileItems(tiles) {
+            let items = [];
+            for (let index = 0; index < tiles.length; index++) {
+                items.push({
+                    "tile": tiles[index]
+                });
+            }
+            return items;
+        }
+
+        function wrapIndex(index, count) {
+            if (count <= 0)
+                return 0;
+            return (index % count + count) % count;
+        }
+
+        function setPrimaryIndex(index) {
+            let oldPrimaryIndex = primaryIndex;
+            primaryIndex = wrapIndex(index, primaryItems.length);
+
+            if (primaryIndex !== oldPrimaryIndex) {
+                setSecondaryIndex(0);
+            }
+        }
+
+        function setSecondaryIndex(index) {
+            let secondaryItems = getSecondaryItems();
+            if (!!secondaryItems) {
+                secondaryIndex = wrapIndex(index, secondaryItems.length);
+            }
+        }
+
+        function getPrimaryItem() {
+            return primaryItems[primaryIndex];
+        }
+
+        function getSecondaryItems() {
+            return getPrimaryItem().secondaryItems;
+        }
+
+        function getActiveItem() {
+            let primaryItem = getPrimaryItem();
+            let secondaryItems = getSecondaryItems();
+            return !!secondaryItems ? secondaryItems[secondaryIndex] : primaryItem;
+        }
+    }
 
     readonly property int primaryButtonSize: 48
     readonly property int secondaryButtonSize: 42
@@ -26,91 +124,33 @@ Item {
     implicitWidth: Math.max(primaryRow.implicitWidth, secondaryRow.implicitWidth)
     implicitHeight: secondaryButtonSize + rowSpacing + primaryButtonSize
 
-    readonly property var primaryItems: [
-        { "kind": "mode", "mode": "view", "label": "V" },
-        { "kind": "mode", "mode": "puzzle", "label": "P" },
-        { "kind": "tileGroup", "group": "road", "tile": Tile.ROAD_WS },
-        { "kind": "tileGroup", "group": "clearing", "tile": Tile.CLEARING },
-        { "kind": "tileGroup", "group": "stump", "tile": Tile.STUMP_N },
-        { "kind": "tileGroup", "group": "mixed", "tile": Tile.CLEARING_E_ROAD_W }
-    ]
-    property int hoveredPrimaryIndex: -1
-    property bool secondaryHovered: false
-    readonly property bool secondaryVisible: toolMode === "tile"
-                                             || secondaryHovered
-                                             || (hoveredPrimaryIndex >= 0
-                                                 && primaryItems[hoveredPrimaryIndex].kind === "tileGroup")
-
-    function groupTiles(group) {
-        switch (group) {
-        case "road":
-            return [
-                Tile.GRASSLAND,
-                Tile.ROAD_WS, Tile.ROAD_WE, Tile.ROAD_WN, Tile.ROAD_ES, Tile.ROAD_EN,
-                Tile.ROAD_NS, Tile.ROAD_E, Tile.ROAD_W, Tile.ROAD_N, Tile.ROAD_S
-            ];
-        case "clearing":
-            return [
-                Tile.CLEARING, Tile.CLEARING_EN, Tile.CLEARING_ES, Tile.CLEARING_WS,
-                Tile.CLEARING_WN, Tile.CLEARING_E, Tile.CLEARING_W, Tile.CLEARING_S, Tile.CLEARING_N
-            ];
-        case "stump":
-            return [Tile.STUMP_W, Tile.STUMP_E, Tile.STUMP_N, Tile.STUMP_S];
-        case "mixed":
-            return [
-                Tile.CLEARING_E_ROAD_W, Tile.CLEARING_W_ROAD_E,
-                Tile.CLEARING_S_ROAD_N, Tile.CLEARING_N_ROAD_S
-            ];
-        default:
-            return [];
+    function iconSource(item) {
+        if (item && item.tile !== undefined) {
+            return Assets.tileImage(item.tile);
         }
-    }
-
-    function currentPrimaryIndex() {
-        if (toolMode === "view")
-            return 0;
-        if (toolMode === "puzzle")
-            return 1;
-
-        for (let index = 0; index < primaryItems.length; index++) {
-            let item = primaryItems[index];
-            if (item.kind === "tileGroup" && item.group === currentGroup)
-                return index;
+        if (item && item.icon !== undefined) {
+            return item.icon;
         }
-        return 0;
+        return "";
     }
 
-    function choosePrimary(item) {
-        if (item.kind === "mode") {
-            root.toolModeRequested(item.mode);
-            return;
-        }
+    function requestCurrentAction() {
+        let primaryItem = selection.getPrimaryItem();
+        root.toolModeRequested(primaryItem.mode);
 
-        let tiles = groupTiles(item.group);
-        root.tileGroupRequested(item.group);
-        if (tiles.indexOf(currentTile) === -1)
-            root.tileRequested(tiles[0]);
-        else
-            root.toolModeRequested("tile");
+        let activeItem = selection.getActiveItem();
+        if (activeItem.tile !== undefined)
+            root.tileRequested(activeItem.tile);
     }
 
-    function selectPrimaryOffset(delta) {
-        let index = currentPrimaryIndex();
-        let nextIndex = (index + delta + primaryItems.length) % primaryItems.length;
-        choosePrimary(primaryItems[nextIndex]);
+    function choosePrimary(index) {
+        selection.setPrimaryIndex(index);
+        requestCurrentAction();
     }
 
-    function selectTileOffset(delta) {
-        let tiles = groupTiles(currentGroup);
-        if (tiles.length === 0)
-            return;
-
-        let index = tiles.indexOf(currentTile);
-        if (index === -1)
-            index = 0;
-        else
-            index = (index + delta + tiles.length) % tiles.length;
-        root.tileRequested(tiles[index]);
+    function chooseSecondary(index) {
+        selection.setSecondaryIndex(index);
+        requestCurrentAction();
     }
 
     Item {
@@ -120,40 +160,65 @@ Item {
             id: secondaryRow
             anchors.horizontalCenter: parent.horizontalCenter
             y: 0
-            visible: root.secondaryVisible
+            visible: !!selection.secondaryItems
             spacing: root.itemSpacing
 
             Repeater {
-                model: root.groupTiles(root.currentGroup)
+                model: selection.secondaryItems
 
                 delegate: Rectangle {
                     id: tileButton
+                    required property int index
+                    required property var modelData
                     width: root.secondaryButtonSize
                     height: root.secondaryButtonSize
                     radius: root.buttonRadius
-                    color: modelData === root.currentTile ? AppTheme.surfaceVariant : AppTheme.surface
-                    border.color: modelData === root.currentTile ? AppTheme.primary : AppTheme.border
+                    color: index === selection.secondaryIndex ? AppTheme.surfaceVariant : AppTheme.surface
+                    border.color: index === selection.secondaryIndex ? AppTheme.primary : AppTheme.border
 
-                    Image {
+                    Loader {
                         anchors.centerIn: parent
-                        width: root.secondaryIconSize
-                        height: root.secondaryIconSize
-                        source: Assets.tileImage(modelData)
-                        fillMode: Image.PreserveAspectFit
+                        sourceComponent: root.iconSource(modelData) !== "" ? secondaryIconComponent : (modelData.label !== undefined ? secondaryLabelComponent : null)
                     }
 
-                    MouseArea {
-                        anchors.fill: parent
-                        hoverEnabled: true
+                    Component {
+                        id: secondaryIconComponent
 
-                        onEntered: root.secondaryHovered = true
-                        onExited: root.secondaryHovered = false
-                        onClicked: root.tileRequested(modelData)
-                        onWheel: function(wheel) {
-                            root.selectTileOffset(wheel.angleDelta.y > 0 ? -1 : 1);
-                            wheel.accepted = true;
+                        Image {
+                            width: root.secondaryIconSize
+                            height: root.secondaryIconSize
+                            source: root.iconSource(modelData)
+                            fillMode: Image.PreserveAspectFit
                         }
                     }
+
+                    Component {
+                        id: secondaryLabelComponent
+
+                        Text {
+                            text: modelData.label
+                            color: AppTheme.textPrimary
+                            font.bold: true
+                            font.pixelSize: 10
+                        }
+                    }
+
+                    TapHandler {
+                        acceptedButtons: Qt.LeftButton
+                        onTapped: {
+                            root.chooseSecondary(index);
+                        }
+                    }
+                }
+            }
+
+            WheelHandler {
+                acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+
+                onWheel: function (event) {
+                    let delta = event.angleDelta.y > 0 ? -1 : 1;
+                    root.chooseSecondary(selection.secondaryIndex + delta);
+                    event.accepted = true;
                 }
             }
         }
@@ -165,52 +230,61 @@ Item {
             spacing: root.itemSpacing
 
             Repeater {
-                model: root.primaryItems
+                model: selection.primaryItems
 
                 delegate: Rectangle {
                     id: primaryButton
+                    required property int index
+                    required property var modelData
                     width: root.primaryButtonSize
                     height: root.primaryButtonSize
                     radius: root.buttonRadius
+                    color: index === selection.primaryIndex ? AppTheme.surfaceVariant : AppTheme.surface
+                    border.color: index === selection.primaryIndex ? AppTheme.primary : AppTheme.border
 
-                    readonly property bool selected: index === root.currentPrimaryIndex()
-
-                    color: selected ? AppTheme.surfaceVariant : AppTheme.surface
-                    border.color: selected ? AppTheme.primary : AppTheme.border
-
-                    Text {
+                    Loader {
                         anchors.centerIn: parent
-                        visible: modelData.kind === "mode"
-                        text: modelData.label
-                        color: AppTheme.textPrimary
-                        font.bold: true
-                        font.pixelSize: 18
+                        sourceComponent: root.iconSource(modelData) !== "" ? primaryIconComponent : (modelData.label !== undefined ? primaryLabelComponent : null)
                     }
 
-                    Image {
-                        anchors.centerIn: parent
-                        visible: modelData.kind === "tileGroup"
-                        width: root.primaryIconSize
-                        height: root.primaryIconSize
-                        source: modelData.kind === "tileGroup" ? Assets.tileImage(modelData.tile) : ""
-                        fillMode: Image.PreserveAspectFit
-                    }
+                    Component {
+                        id: primaryIconComponent
 
-                    MouseArea {
-                        anchors.fill: parent
-                        hoverEnabled: true
-
-                        onEntered: root.hoveredPrimaryIndex = index
-                        onExited: {
-                            if (root.hoveredPrimaryIndex === index)
-                                root.hoveredPrimaryIndex = -1;
-                        }
-                        onClicked: root.choosePrimary(modelData)
-                        onWheel: function(wheel) {
-                            root.selectPrimaryOffset(wheel.angleDelta.y > 0 ? -1 : 1);
-                            wheel.accepted = true;
+                        Image {
+                            width: root.primaryIconSize
+                            height: root.primaryIconSize
+                            source: root.iconSource(modelData)
+                            fillMode: Image.PreserveAspectFit
                         }
                     }
+
+                    Component {
+                        id: primaryLabelComponent
+
+                        Text {
+                            text: modelData.label
+                            color: AppTheme.textPrimary
+                            font.bold: true
+                            font.pixelSize: 14
+                        }
+                    }
+
+                    TapHandler {
+                        acceptedButtons: Qt.LeftButton
+                        onTapped: {
+                            root.choosePrimary(index);
+                        }
+                    }
+                }
+            }
+
+            WheelHandler {
+                acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+
+                onWheel: function (event) {
+                    let delta = event.angleDelta.y > 0 ? -1 : 1;
+                    root.choosePrimary(selection.primaryIndex + delta);
+                    event.accepted = true;
                 }
             }
         }
