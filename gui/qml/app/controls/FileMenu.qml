@@ -29,7 +29,7 @@ AppMenu {
         nameFilters: ["JSON files (*.json)", "All files (*)"]
         onAccepted: {
             openDocument(() => {
-                let response = root.workspaceManager.load(selectedFile);
+                let response = root.workspaceManager.load(selectedFile.toLocalFile());
                 if (!response.status) {
                     Services.alert(response.message);
                     return;
@@ -40,19 +40,17 @@ AppMenu {
     }
 
     FileDialog {
-        id: saveDialog
+        id: saveAsDialog
         title: qsTr("Save Workspace As")
-        fileMode: FileDialog.OpenFile
+        fileMode: FileDialog.SaveFile
         nameFilters: ["JSON files (*.json)", "All files (*)"]
         onAccepted: {
-            openDocument(() => {
-                let response = root.workspaceManager.load(selectedFile);
-                if (!response.status) {
-                    Services.alert(response.message);
-                    return;
-                }
-                AppSettings.addRecentFile(root.workspaceManager.filePath);
-            });
+            let response = root.workspaceManager.save(selectedFile.toLocalFile());
+            if (!response.status) {
+                Services.alert(response.message);
+                return;
+            }
+            AppSettings.addRecentFile(root.workspaceManager.filePath);
         }
     }
 
@@ -81,7 +79,7 @@ AppMenu {
                     Services.alert(response.message);
                 }
             } else {
-                saveDialog.open();
+                saveAsDialog.open();
             }
         }
     }

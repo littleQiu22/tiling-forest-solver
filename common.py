@@ -10,6 +10,7 @@ else:
 
 QML_ROOT = BASE_ROOT / "gui" / "qml"
 ASSET_ROOT = QML_ROOT / "app" / "assets"
+TEMPLATE_DIR = BASE_ROOT / "templates"
 
 
 def _joinPath(root: Path, *paths: str) -> str:
@@ -22,3 +23,7 @@ def getQML(*paths: str):
 
 def getAsset(*paths: str):
     return _joinPath(ASSET_ROOT, *paths)
+
+
+def getTemplate(*paths: str):
+    return _joinPath(TEMPLATE_DIR, *paths)

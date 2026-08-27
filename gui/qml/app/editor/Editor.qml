@@ -23,11 +23,14 @@ Rectangle {
     }
 
     function selectOrCreatePuzzle(row, col) {
-        root.workspace.selectOrCreatePuzzle(row, col);
+        const message = root.workspace.selectOrCreatePuzzle(row, col);
+        if (!!message) {
+            Services.alert(message);
+        }
     }
 
     function deletePuzzle(row, col) {
-        root.workspace.deletePuzzle(row, col);
+        root.workspace.deletePuzzleAt(row, col);
     }
 
     function handleGridClick(row, col, button) {
