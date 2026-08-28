@@ -12,16 +12,6 @@ AppMenu {
 
     property WorkspaceManager workspaceManager
 
-    // File/Confirm Dialogs
-    ConfirmDialog {
-        id: discardDialog
-        parent: Overlay.overlay
-        anchors.centerIn: parent
-
-        headerText: qsTr("Discard Unsaved Workspace?")
-        confirmText: qsTr("Discard && Continue")
-    }
-
     FileDialog {
         id: openDialog
         title: qsTr("Open Workspace...")
@@ -101,7 +91,12 @@ AppMenu {
                     return;
                 }
             } else {
-                discardDialog.showConfirm(loadFn, "The current workspace has unsaved changes and no file path. They will be discarded.");
+                Services.confirm(
+                    loadFn,
+                    qsTr("The current workspace has unsaved changes and no file path. They will be discarded."),
+                    qsTr("Discard Unsaved Workspace?"),
+                    qsTr("Discard && Continue")
+                );
                 return;
             }
         }

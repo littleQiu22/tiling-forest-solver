@@ -19,6 +19,7 @@ QML_IMPORT_MAJOR_VERSION = 1
 class WorkspaceManager(QObject):
     filePathChanged = Signal()
     templateNameChanged = Signal()
+    displayNameChanged = Signal()
 
     def __init__(self, parent: QObject | None = None) -> None:
         super().__init__(parent)
@@ -38,6 +39,14 @@ class WorkspaceManager(QObject):
     @Property(str, notify=templateNameChanged)
     def templateName(self) -> str:
         return self._templateName
+
+    @Property(str, notify=displayNameChanged)
+    def displayName(self) -> str:
+        if self._filePath:
+            return self._filePath
+        if self._templateName:
+            return self._templateName
+        return "Untitled"
 
     @Property("QStringList", constant=True)
     def templates(self) -> list[str]:
@@ -126,12 +135,14 @@ class WorkspaceManager(QObject):
             return
         self._filePath = filePath
         self.filePathChanged.emit()
+        self.displayNameChanged.emit()
 
     def _setTemplateName(self, templateName: str) -> None:
         if self._templateName == templateName:
             return
         self._templateName = templateName
         self.templateNameChanged.emit()
+        self.displayNameChanged.emit()
 
     def _discoverTemplates(self) -> list[str]:
         if not TEMPLATE_DIR.exists():

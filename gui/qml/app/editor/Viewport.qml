@@ -200,6 +200,7 @@ Item {
                 required property real svgWidth
                 required property real svgHeight
                 required property string solveStatus
+                required property var currentSolution
 
                 x: svgX
                 y: svgY
@@ -211,6 +212,7 @@ Item {
 
                     delegate: Shape {
                         id: puzzlePathShape
+                        z: 2
 
                         required property string modelData
 
@@ -239,6 +241,24 @@ Item {
                                 path: puzzlePathShape.modelData
                             }
                         }
+                    }
+                }
+
+                Repeater {
+                    model: puzzleDelegate.currentSolution
+
+                    delegate: Image {
+                        required property var modelData
+                        z: 1
+
+                        x: modelData.col * Assets.tileSize - puzzleDelegate.svgX
+                        y: modelData.row * Assets.tileSize - puzzleDelegate.svgY
+                        width: Assets.tileSize
+                        height: Assets.tileSize
+                        source: Assets.tileImage(modelData.tile)
+                        fillMode: Image.PreserveAspectFit
+                        smooth: true
+                        opacity: 0.82
                     }
                 }
             }

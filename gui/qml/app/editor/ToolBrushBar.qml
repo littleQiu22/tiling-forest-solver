@@ -234,6 +234,11 @@ Item {
                             root.chooseSecondary(index);
                         }
                     }
+
+                    HoverHandler {
+                        acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+                        blocking: true
+                    }
                 }
             }
 
@@ -302,6 +307,11 @@ Item {
                         onTapped: {
                             root.choosePrimary(index);
                         }
+                    }
+
+                    HoverHandler {
+                        acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+                        blocking: true
                     }
                 }
             }

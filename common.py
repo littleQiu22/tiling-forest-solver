@@ -1,9 +1,9 @@
 import sys
 from pathlib import Path
 
-_IS_RELEASE = getattr(sys, "frozen", False)
+IS_RELEASE = getattr(sys, "frozen", False)
 
-if _IS_RELEASE:
+if IS_RELEASE:
     BASE_ROOT = Path(getattr(sys, "_MEIPASS", Path(sys.executable).parent))
 else:
     BASE_ROOT = Path(__file__).parent
@@ -27,3 +27,9 @@ def getAsset(*paths: str):
 
 def getTemplate(*paths: str):
     return _joinPath(TEMPLATE_DIR, *paths)
+
+
+def solverWorkerCommand() -> tuple[str, list[str]]:
+    if IS_RELEASE:
+        return sys.executable, ["--solver-worker"]
+    return sys.executable, [str((BASE_ROOT / "solver" / "worker.py").resolve())]

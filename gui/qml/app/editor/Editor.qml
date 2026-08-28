@@ -36,7 +36,17 @@ Rectangle {
     }
 
     function deletePuzzle(row, col) {
-        root.workspace.deletePuzzleAt(row, col);
+        let reason = root.workspace.deletePuzzleAt(row, col, true);
+        if (!!reason) {
+            Services.confirm(
+                () => root.workspace.deletePuzzleAt(row, col),
+                reason,
+                qsTr("Confirm Action"),
+                qsTr("Continue")
+            );
+        } else {
+            root.workspace.deletePuzzleAt(row, col);
+        }
     }
 
     function makeGhostTile() {

@@ -1,4 +1,5 @@
 import QtQuick.Window
+import QtQuick.Controls
 
 import app.global
 import app.layout
@@ -12,6 +13,7 @@ Window {
     visible: false
 
     readonly property WorkspaceManager workspaceManager: WorkspaceManager {}
+    property bool closeConfirmed: false
 
     AlterDialog {
         id: alterDialog
@@ -21,6 +23,18 @@ Window {
 
             function onAlertRequested(message) {
                 alterDialog.showAlert(message);
+            }
+        }
+    }
+
+    ConfirmDialog {
+        id: confirmDialog
+
+        Connections {
+            target: Services
+
+            function onConfirmRequested(confirmAction, text, headerText, confirmText) {
+                confirmDialog.showConfirm(confirmAction, text, headerText, confirmText);
             }
         }
     }
@@ -42,9 +56,8 @@ Window {
                 workspace: root.workspaceManager.workspace
             }
 
-            puzzlePanel: Rectangle {
-                color: "yellow"
-                implicitWidth: 200
+            puzzlePanel: PuzzlePanel {
+                workspace: root.workspaceManager.workspace
             }
         }
     }
@@ -54,5 +67,17 @@ Window {
         visible = true;
     }
 
-    onClosing: AppSettings.saveWindow(root)
+    onClosing: function (close) {
+        AppSettings.saveWindow(root);
+        if (root.workspaceManager.workspace.isDirty && !root.closeConfirmed) {
+            close.accepted = false;
+            Services.confirm(() => {
+                root.workspaceManager.workspace.stopAllSolvers();
+                root.closeConfirmed = true;
+                root.close();
+            }, qsTr("The current workspace has unsaved changes. They will be discarded."), qsTr("Discard Unsaved Workspace?"), qsTr("Discard && Exit"));
+        } else {
+            root.workspaceManager.workspace.stopAllSolvers();
+        }
+    }
 }

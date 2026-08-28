@@ -12,16 +12,6 @@ AppMenu {
 
     property WorkspaceManager workspaceManager
 
-    // Confirm Dialogs
-    ConfirmDialog {
-        id: heavyDialog
-        parent: Overlay.overlay
-        anchors.centerIn: parent
-
-        headerText: qsTr("Confirm Action")
-        confirmText: qsTr("Continue")
-    }
-
     // === Actions ===
     property Action undoAction: Action {
         text: qsTr("Undo")
@@ -30,9 +20,9 @@ AppMenu {
             let ws = root.workspaceManager.workspace;
             let undoHeavyReason = ws.getUndoHeavyReason();
             if (!!undoHeavyReason) {
-                heavyDialog.showConfirm(() => {
+                Services.confirm(() => {
                     ws.undo();
-                }, undoHeavyReason);
+                }, undoHeavyReason, qsTr("Confirm Action"), qsTr("Continue"));
             } else {
                 ws.undo();
             }
@@ -47,21 +37,21 @@ AppMenu {
 
     property Action clearAction: Action {
         text: qsTr("Clear")
-        onTriggered: heavyDialog.showConfirm(() => {
+        onTriggered: Services.confirm(() => {
             let ws = root.workspaceManager.workspace;
             ws.clear();
-        }, "All tiles and puzzles will be removed. The action can still be undone afterwards.")
+        }, qsTr("All tiles and puzzles will be removed. The action can still be undone afterwards."), qsTr("Confirm Action"), qsTr("Continue"))
     }
 
     property Action revertAction: Action {
         id: revertAction
         text: qsTr("Revert")
-        onTriggered: heavyDialog.showConfirm(() => {
+        onTriggered: Services.confirm(() => {
             let response = root.workspaceManager.revert();
             if (!response.status) {
                 Services.alert(response.message);
             }
-        }, "The workspace will be restored to the state stored in the file.")
+        }, qsTr("The workspace will be restored to the state stored in the file."), qsTr("Confirm Action"), qsTr("Continue"))
     }
 
     // === UI ===

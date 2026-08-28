@@ -22,9 +22,11 @@ AppDialog {
         }
     ]
 
-    function showConfirm(confirmAction, text) {
+    function showConfirm(confirmAction, text, headerText, confirmText) {
         root.confirmAction = confirmAction;
         root.text = text;
+        root.headerText = headerText || qsTr("Confirm Action");
+        root.confirmText = confirmText || qsTr("Confirm");
         root.open();
     }
 }

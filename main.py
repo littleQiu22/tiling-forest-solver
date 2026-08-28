@@ -10,6 +10,11 @@ import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 
+def solverWorkerMain() -> int:
+    from solver.worker import main as workerMain
+    return workerMain()
+
+
 def configure_application() -> None:
     QCoreApplication.setOrganizationName("littleQJY")
     QCoreApplication.setOrganizationDomain("littleQJY.toy")
@@ -38,4 +43,6 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    if "--solver-worker" in sys.argv:
+        sys.exit(solverWorkerMain())
     sys.exit(main())

@@ -58,4 +58,18 @@ MenuBar {
     EditMenu {
         workspaceManager: root.workspaceManager
     }
+
+    Text {
+        parent: root
+        anchors.right: parent.right
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.rightMargin: 8
+        width: Math.min(360, Math.max(160, root.width * 0.36))
+        text: (root.workspaceManager.workspace.isDirty ? "* " : "") + root.workspaceManager.displayName
+        color: root.workspaceManager.workspace.isDirty ? AppTheme.warning : AppTheme.textSecondary
+        elide: Text.ElideMiddle
+        horizontalAlignment: Text.AlignRight
+        verticalAlignment: Text.AlignVCenter
+        font.pixelSize: 12
+    }
 }

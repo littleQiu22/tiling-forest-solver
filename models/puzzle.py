@@ -12,6 +12,7 @@ from PySide6.QtCore import (
     QModelIndex,
     QObject,
     Qt,
+    Signal,
 )
 from PySide6.QtQml import QmlNamedElement, QmlUncreatable
 
@@ -346,15 +347,141 @@ class PuzzleSolveStatus(Enum):
     SOLVED = "Solved"
 
 
+DEFAULT_OBJECTIVES = [
+    "MAX_CONNECTIVITY",
+    "MAX_DENSITY",
+    "MIN_UNEXPLORED",
+]
+DEFAULT_CONSTRAINTS = [
+    "FIGURE_ALIGNED",
+    "STUMP_PAIRED",
+    "ROAD_BLOOM",
+    "ROAD_MUST_EXIT",
+]
+TILE_POOL_CANDIDATES = [
+    TILE.TYPE.ROAD_WS,
+    TILE.TYPE.ROAD_WE,
+    TILE.TYPE.ROAD_WN,
+    TILE.TYPE.ROAD_ES,
+    TILE.TYPE.ROAD_EN,
+    TILE.TYPE.ROAD_NS,
+    TILE.TYPE.ROAD_E,
+    TILE.TYPE.ROAD_W,
+    TILE.TYPE.ROAD_N,
+    TILE.TYPE.ROAD_S,
+    TILE.TYPE.CLEARING_EN,
+    TILE.TYPE.CLEARING_ES,
+    TILE.TYPE.CLEARING_WS,
+    TILE.TYPE.CLEARING_WN,
+    TILE.TYPE.CLEARING_E,
+    TILE.TYPE.CLEARING_W,
+    TILE.TYPE.CLEARING_S,
+    TILE.TYPE.CLEARING_N,
+    TILE.TYPE.CLEARING_E_ROAD_W,
+    TILE.TYPE.CLEARING_W_ROAD_E,
+    TILE.TYPE.CLEARING_S_ROAD_N,
+    TILE.TYPE.CLEARING_N_ROAD_S,
+]
+
+
+def objectiveLabel(objective: str) -> str:
+    match objective:
+        case "MAX_CONNECTIVITY":
+            return "Max connectivity"
+        case "MAX_DENSITY":
+            return "Max density"
+        case "MIN_UNEXPLORED":
+            return "Min unexplored"
+        case _:
+            return objective
+
+
+def constraintLabel(constraint: str) -> str:
+    match constraint:
+        case "FIGURE_ALIGNED":
+            return "Figure aligned"
+        case "STUMP_PAIRED":
+            return "Stump paired"
+        case "ROAD_BLOOM":
+            return "Road bloom"
+        case "ROAD_MUST_EXIT":
+            return "Road must exit"
+        case _:
+            return constraint
+
+
+Solution = dict[Grid, TILE.TYPE]
+
+
 @dataclass(slots=True)
 class PuzzleState:
     isGeometryStaled: bool = False
     solveStatus: PuzzleSolveStatus = PuzzleSolveStatus.UNSOLVED
+    objectiveOrder: list[str] = field(default_factory=lambda: list(DEFAULT_OBJECTIVES))
+    enabledObjectives: set[str] = field(default_factory=set)
+    enabledConstraints: set[str] = field(default_factory=lambda: set(DEFAULT_CONSTRAINTS))
+    timeLimit: int = 30
+    solutionLimit: int = 20
+    solutions: list[Solution] = field(default_factory=list)
+    currentSolutionIndex: int = -1
+    solvingLog: str = ""
+
+    def toJson(self) -> dict[str, Any]:
+        return {
+            "isGeometryStaled": self.isGeometryStaled,
+            "solveStatus": PuzzleSolveStatus.UNSOLVED.value
+            if self.solveStatus == PuzzleSolveStatus.SOLVING
+            else self.solveStatus.value,
+            "objectiveOrder": self.objectiveOrder,
+            "enabledObjectives": sorted(self.enabledObjectives),
+            "enabledConstraints": sorted(self.enabledConstraints),
+            "timeLimit": self.timeLimit,
+            "solutionLimit": self.solutionLimit,
+            "solutions": [
+                [
+                    {
+                        "row": grid.row,
+                        "col": grid.col,
+                        "tile": tile.name,
+                    }
+                    for grid, tile in sorted(solution.items(), key=lambda item: (item[0].row, item[0].col))
+                ]
+                for solution in self.solutions
+            ],
+            "currentSolutionIndex": self.currentSolutionIndex,
+            "solvingLog": self.solvingLog,
+        }
+
+    @classmethod
+    def fromJson(cls, data: dict[str, Any]) -> "PuzzleState":
+        solveStatus = PuzzleSolveStatus(data.get("solveStatus", PuzzleSolveStatus.UNSOLVED.value))
+        if solveStatus == PuzzleSolveStatus.SOLVING:
+            solveStatus = PuzzleSolveStatus.UNSOLVED
+        return cls(
+            isGeometryStaled=bool(data.get("isGeometryStaled", False)),
+            solveStatus=solveStatus,
+            objectiveOrder=[str(item) for item in data.get("objectiveOrder", DEFAULT_OBJECTIVES)],
+            enabledObjectives={str(item) for item in data.get("enabledObjectives", [])},
+            enabledConstraints={str(item) for item in data.get("enabledConstraints", DEFAULT_CONSTRAINTS)},
+            timeLimit=int(data.get("timeLimit", 30)),
+            solutionLimit=int(data.get("solutionLimit", 20)),
+            solutions=[
+                {
+                    Grid(int(item["row"]), int(item["col"])): tileTypeFromJson(item["tile"])
+                    for item in solution
+                }
+                for solution in data.get("solutions", [])
+            ],
+            currentSolutionIndex=int(data.get("currentSolutionIndex", -1)),
+            solvingLog=str(data.get("solvingLog", "")),
+        )
 
 
 @QmlNamedElement("PuzzleListModel")
 @QmlUncreatable("Use Workspace.puzzles")
 class PuzzleListModel(QAbstractListModel):
+    puzzleStateChanged = Signal(str)
+
     IndexRole = Qt.ItemDataRole.UserRole.value + 1
     IdRole = IndexRole + 1
     NameRole = IndexRole + 2
@@ -371,6 +498,7 @@ class PuzzleListModel(QAbstractListModel):
     SvgYRole = IndexRole + 13
     SvgWidthRole = IndexRole + 14
     SvgHeightRole = IndexRole + 15
+    CurrentSolutionRole = IndexRole + 16
 
     def __init__(self, parent: QObject | None = None) -> None:
         super().__init__(parent)
@@ -427,13 +555,15 @@ class PuzzleListModel(QAbstractListModel):
                 return puzzle.svgWidth
             case self.SvgHeightRole:
                 return puzzle.svgHeight
+            case self.CurrentSolutionRole:
+                return self._currentSolutionForQml(puzzleState)
             case _:
                 return None
 
     def roleNames(self) -> dict[int, QByteArray]:
         return {
             self.IndexRole: QByteArray(b"index"),
-            self.IdRole: QByteArray(b"id"),
+            self.IdRole: QByteArray(b"puzzleId"),
             self.NameRole: QByteArray(b"name"),
             self.GridCountRole: QByteArray(b"gridCount"),
             self.EmptyGridCountRole: QByteArray(b"emptyGridCount"),
@@ -448,6 +578,7 @@ class PuzzleListModel(QAbstractListModel):
             self.SvgYRole: QByteArray(b"svgY"),
             self.SvgWidthRole: QByteArray(b"svgWidth"),
             self.SvgHeightRole: QByteArray(b"svgHeight"),
+            self.CurrentSolutionRole: QByteArray(b"currentSolution"),
         }
 
     def puzzles(self) -> list[Puzzle]:
@@ -473,14 +604,14 @@ class PuzzleListModel(QAbstractListModel):
         self.endInsertRows()
         return insertIndex
 
-    def insertPuzzle(self, index: int, puzzle: Puzzle) -> int:
+    def insertPuzzle(self, index: int, puzzle: Puzzle, state: PuzzleState | None = None) -> int:
         insertIndex = max(0, min(index, len(self._puzzles)))
         if not puzzle.name:
             puzzle.name = self._defaultPuzzleName(insertIndex)
 
         self.beginInsertRows(QModelIndex(), insertIndex, insertIndex)
         self._puzzles.insert(insertIndex, puzzle)
-        self._registerPuzzle(puzzle)
+        self._registerPuzzle(puzzle, state)
         self.endInsertRows()
         return insertIndex
 
@@ -528,6 +659,36 @@ class PuzzleListModel(QAbstractListModel):
     def puzzleStateById(self, puzzleId: str) -> PuzzleState | None:
         return self._stateByPuzzleId.get(puzzleId)
 
+    def setPuzzleName(self, puzzleId: str, name: str) -> bool:
+        index = self.indexById(puzzleId)
+        puzzle = self.puzzleAt(index)
+        if puzzle is None:
+            return False
+
+        nextName = name.strip() or self._defaultPuzzleName(index)
+        if puzzle.name == nextName:
+            return False
+
+        puzzle.name = nextName
+        self._emitRoles(index, [self.NameRole])
+        return True
+
+    def setPuzzleTilePool(self, puzzleId: str, tilePool: list[TILE.TYPE]) -> bool:
+        index = self.indexById(puzzleId)
+        puzzle = self.puzzleAt(index)
+        if puzzle is None or puzzle.tilePool == tilePool:
+            return False
+
+        puzzle.tilePool = tilePool
+        self._emitRoles(index, [self.TilePoolRole])
+        return True
+
+    def setPuzzleStateRoles(self, puzzleId: str, roles: list[int]) -> None:
+        index = self.indexById(puzzleId)
+        if index != -1:
+            self._emitRoles(index, roles)
+        self.puzzleStateChanged.emit(puzzleId)
+
     def markGeometryStaledByGrid(self, grid: Grid) -> str:
         puzzle = self._puzzleByGrid.get(grid)
         if puzzle is None:
@@ -561,6 +722,40 @@ class PuzzleListModel(QAbstractListModel):
     def toJson(self) -> list[dict[str, Any]]:
         return [puzzle.toJson() for puzzle in self._puzzles]
 
+    def statesToJson(self) -> dict[str, dict[str, Any]]:
+        return {
+            puzzleId: state.toJson()
+            for puzzleId, state in self._stateByPuzzleId.items()
+        }
+
+    def states(self) -> dict[str, PuzzleState]:
+        return self._stateByPuzzleId
+
+    def setStates(self, states: dict[str, PuzzleState]) -> None:
+        self._stateByPuzzleId = states
+        if self._puzzles:
+            topLeft = self.index(0, 0)
+            bottomRight = self.index(len(self._puzzles) - 1, 0)
+            self.dataChanged.emit(topLeft, bottomRight, [])
+
+    def loadStatesJson(self, data: dict[str, Any]) -> None:
+        for puzzleId, stateData in data.items():
+            if puzzleId in self._stateByPuzzleId and isinstance(stateData, dict):
+                self._stateByPuzzleId[puzzleId] = PuzzleState.fromJson(stateData)
+                self.puzzleStateChanged.emit(puzzleId)
+        if self._puzzles:
+            topLeft = self.index(0, 0)
+            bottomRight = self.index(len(self._puzzles) - 1, 0)
+            self.dataChanged.emit(
+                topLeft,
+                bottomRight,
+                [
+                    self.IsGeometryStaledRole,
+                    self.SolveStatusRole,
+                    self.CurrentSolutionRole,
+                ],
+            )
+
     def _ensurePuzzleNames(self) -> None:
         for index, puzzle in enumerate(self._puzzles):
             if not puzzle.name:
@@ -570,8 +765,8 @@ class PuzzleListModel(QAbstractListModel):
         for puzzle in self._puzzles:
             self._registerPuzzle(puzzle)
 
-    def _registerPuzzle(self, puzzle: Puzzle) -> None:
-        self._stateByPuzzleId.setdefault(puzzle.id, PuzzleState())
+    def _registerPuzzle(self, puzzle: Puzzle, state: PuzzleState | None = None) -> None:
+        self._stateByPuzzleId.setdefault(puzzle.id, state or PuzzleState())
         for grid in puzzle.grids:
             self._puzzleByGrid[grid] = puzzle
 
@@ -603,3 +798,21 @@ class PuzzleListModel(QAbstractListModel):
                 key=lambda item: (item[0].row, item[0].col),
             )
         ]
+
+    def _currentSolutionForQml(self, puzzleState: PuzzleState) -> list[dict[str, int]]:
+        if not 0 <= puzzleState.currentSolutionIndex < len(puzzleState.solutions):
+            return []
+
+        solution = puzzleState.solutions[puzzleState.currentSolutionIndex]
+        return [
+            {
+                "row": grid.row,
+                "col": grid.col,
+                "tile": tile.value,
+            }
+            for grid, tile in sorted(solution.items(), key=lambda item: (item[0].row, item[0].col))
+        ]
+
+    def _emitRoles(self, index: int, roles: list[int]) -> None:
+        modelIndex = self.index(index, 0)
+        self.dataChanged.emit(modelIndex, modelIndex, roles)
