@@ -1,4 +1,6 @@
+pragma ComponentBehavior: Bound
 import QtQuick
+import QtQuick.Shapes
 
 import app.models
 import app.global
@@ -10,6 +12,8 @@ Item {
     implicitHeight: 300
 
     property Workspace workspace
+    property var ghostTile: null
+    readonly property var hoveredGrid: hoverState.grid
     clip: true
 
     signal pointerClicked(real screenX, real screenY, int button)
@@ -73,29 +77,30 @@ Item {
         camera.worldY = worldPoint.y - screenY / camera.zoom;
     }
 
+    function puzzleStrokeColor(solveStatus) {
+        switch (solveStatus) {
+        case "Solving":
+            return AppTheme.primary;
+        case "Infeasible":
+            return AppTheme.danger;
+        case "TimeLimit":
+        case "SolutionLimit":
+            return AppTheme.warning;
+        case "Solved":
+            return AppTheme.success;
+        default:
+            return AppTheme.primary;
+        }
+    }
+
     Rectangle {
         anchors.fill: parent
         color: AppTheme.surface
     }
 
     Item {
-        // The container maps world coordinates to screen coordinates, so its children can use world coordinates.
-        id: worldContainer
-
-        x: Math.round(-camera.worldX * camera.zoom) // worldXOfPoint = 0 => screenX = - cameraWorldX * zoom
-        y: Math.round(-camera.worldY * camera.zoom) // worldXOfPoint = 0 => screenY = - cameraWorldY * zoom
-
-        scale: camera.zoom
-        transformOrigin: Item.TopLeft
-
-        // Tiles
-
-        // Puzzles
-
-    }
-
-    Item {
         id: gridOverlay
+        z: 10
         anchors.fill: parent
 
         readonly property real tileScreenSize: Assets.tileSize * camera.zoom
@@ -109,6 +114,8 @@ Item {
             model: gridOverlay.verticalLineCount
 
             delegate: Rectangle {
+                required property int index
+
                 x: Math.round(gridOverlay.startScreenX + index * gridOverlay.tileScreenSize)
                 y: 0
                 width: 2
@@ -122,12 +129,146 @@ Item {
             model: gridOverlay.horizontalLineCount
 
             delegate: Rectangle {
+                required property int index
+
                 x: 0
                 y: Math.round(gridOverlay.startScreenY + index * gridOverlay.tileScreenSize)
                 width: gridOverlay.width
                 height: 2
                 color: AppTheme.gridLine
                 opacity: gridOverlay.gridOpacity
+            }
+        }
+    }
+
+    Item {
+        // The container maps world coordinates to screen coordinates, so its children can use world coordinates.
+        id: worldContainer
+        z: 1
+
+        x: Math.round(-camera.worldX * camera.zoom) // worldXOfPoint = 0 => screenX = - cameraWorldX * zoom
+        y: Math.round(-camera.worldY * camera.zoom) // worldXOfPoint = 0 => screenY = - cameraWorldY * zoom
+
+        scale: camera.zoom
+        transformOrigin: Item.TopLeft
+
+        // Tiles
+        Repeater {
+            model: root.workspace ? root.workspace.tiles : null
+
+            delegate: Item {
+                required property int row
+                required property int col
+                required property int tile
+                required property int status
+
+                x: col * Assets.tileSize
+                y: row * Assets.tileSize
+                width: Assets.tileSize
+                height: Assets.tileSize
+
+                Image {
+                    anchors.fill: parent
+                    source: Assets.tileImage(parent.tile)
+                    fillMode: Image.PreserveAspectFit
+                    smooth: true
+                }
+
+                Image {
+                    width: parent.width * 0.52
+                    height: parent.height * 0.52
+                    anchors.centerIn: parent
+                    source: Assets.tileStatusImage(parent.status)
+                    fillMode: Image.PreserveAspectFit
+                    smooth: true
+                    visible: source !== ""
+                    opacity: 0.92
+                }
+            }
+        }
+
+        // Puzzles
+        Repeater {
+            model: root.workspace ? root.workspace.puzzles : null
+
+            delegate: Item {
+                id: puzzleDelegate
+
+                required property var svgPaths
+                required property real svgX
+                required property real svgY
+                required property real svgWidth
+                required property real svgHeight
+                required property string solveStatus
+
+                x: svgX
+                y: svgY
+                width: svgWidth
+                height: svgHeight
+
+                Repeater {
+                    model: puzzleDelegate.svgPaths
+
+                    delegate: Shape {
+                        id: puzzlePathShape
+
+                        required property string modelData
+
+                        anchors.fill: parent
+                        containsMode: Shape.FillContains
+
+                        ShapePath {
+                            fillColor: "transparent"
+                            strokeColor: root.puzzleStrokeColor(puzzleDelegate.solveStatus)
+                            strokeWidth: 4 / camera.zoom
+                            capStyle: ShapePath.RoundCap
+                            joinStyle: ShapePath.RoundJoin
+                            strokeStyle: puzzleDelegate.solveStatus === "Solving" ? ShapePath.DashLine : ShapePath.SolidLine
+                            dashPattern: puzzleDelegate.solveStatus === "Solving" ? [6, 4] : []
+                            dashOffset: 0
+
+                            NumberAnimation on dashOffset {
+                                from: 0
+                                to: 10
+                                duration: 900
+                                loops: Animation.Infinite
+                                running: puzzleDelegate.solveStatus === "Solving"
+                            }
+
+                            PathSvg {
+                                path: puzzlePathShape.modelData
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Ghost tile
+        Item {
+            visible: root.ghostTile !== null
+            x: visible ? root.ghostTile.col * Assets.tileSize : 0
+            y: visible ? root.ghostTile.row * Assets.tileSize : 0
+            width: Assets.tileSize
+            height: Assets.tileSize
+            opacity: 0.58
+
+            Image {
+                anchors.fill: parent
+                source: root.ghostTile && root.ghostTile.tile !== undefined ? Assets.tileImage(root.ghostTile.tile) : ""
+                fillMode: Image.PreserveAspectFit
+                smooth: true
+                visible: source !== ""
+            }
+
+            Image {
+                width: parent.width * 0.52
+                height: parent.height * 0.52
+                anchors.centerIn: parent
+                source: root.ghostTile && root.ghostTile.status !== undefined ? Assets.tileStatusImage(root.ghostTile.status) : ""
+                fillMode: Image.PreserveAspectFit
+                smooth: true
+                visible: source !== ""
             }
         }
     }
@@ -214,6 +355,36 @@ Item {
         onWheel: function (event) {
             root.wheelMoved(event.x, event.y, event.angleDelta.y);
             event.accepted = true;
+        }
+    }
+
+    HoverHandler {
+        acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+
+        onPointChanged: {
+            let grid = root.screenToGrid(point.position.x, point.position.y);
+            hoverState.setGrid(grid.row, grid.col);
+        }
+
+        onHoveredChanged: {
+            if (!hovered)
+                hoverState.grid = null;
+        }
+    }
+
+    QtObject {
+        id: hoverState
+
+        property var grid: null
+
+        function setGrid(row, col) {
+            if (grid !== null && grid.row === row && grid.col === col)
+                return;
+
+            grid = {
+                "row": row,
+                "col": col
+            };
         }
     }
 

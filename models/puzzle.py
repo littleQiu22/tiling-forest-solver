@@ -16,11 +16,12 @@ from PySide6.QtCore import (
 from PySide6.QtQml import QmlNamedElement, QmlUncreatable
 
 from models.geometry import BoundingBox, Grid
-from models.tile import TILE, TileData, tileStatusFromJson, tileTypeFromJson
+from models.tile import TILE, TILE_SIZE, TileData, tileStatusFromJson, tileTypeFromJson
 
 
 QML_IMPORT_NAME = "app.models"
 QML_IMPORT_MAJOR_VERSION = 1
+PUZZLE_SVG_PADDING = 16
 
 
 @dataclass(frozen=True)
@@ -52,6 +53,14 @@ class Puzzle:
     tilePool: list[TILE.TYPE] = field(default_factory=list)
     name: str = ""
     id: str = field(default_factory=lambda: uuid4().hex)
+    svgPaths: list[str] = field(default_factory=list)
+    svgX: int = 0
+    svgY: int = 0
+    svgWidth: int = 0
+    svgHeight: int = 0
+
+    def __post_init__(self) -> None:
+        self.rebuildSvgPaths()
 
     @property
     def grids(self):
@@ -66,6 +75,14 @@ class Puzzle:
 
     def getGridData(self, grid: Grid) -> GridData | None:
         return self.placedGrids.get(grid, None)
+
+    def rebuildSvgPaths(self) -> None:
+        svgGeometry = buildPuzzleSvgGeometry(self.emptyGrids, self.placedGrids)
+        self.svgPaths = svgGeometry.paths
+        self.svgX = svgGeometry.x
+        self.svgY = svgGeometry.y
+        self.svgWidth = svgGeometry.width
+        self.svgHeight = svgGeometry.height
 
     def toJson(self) -> dict[str, Any]:
         return {
@@ -104,6 +121,121 @@ class Puzzle:
             name=str(data.get("name", "")),
             id=str(data.get("id", uuid4().hex)),
         )
+
+
+Point = tuple[int, int]
+Segment = tuple[Point, Point]
+
+
+@dataclass(slots=True)
+class PuzzleSvgGeometry:
+    paths: list[str] = field(default_factory=list)
+    x: int = 0
+    y: int = 0
+    width: int = 0
+    height: int = 0
+
+
+def buildPuzzleSvgGeometry(
+    emptyGrids: set[Grid],
+    placedGrids: dict[Grid, GridData],
+) -> PuzzleSvgGeometry:
+    segments: list[Segment] = []
+
+    for emptyGrid in emptyGrids:
+        row = emptyGrid.row
+        col = emptyGrid.col
+        left = col * TILE_SIZE
+        right = (col + 1) * TILE_SIZE
+        top = row * TILE_SIZE
+        bottom = (row + 1) * TILE_SIZE
+
+        if Grid(row - 1, col) in placedGrids:
+            segments.append(((left, top), (right, top)))
+        if Grid(row, col + 1) in placedGrids:
+            segments.append(((right, top), (right, bottom)))
+        if Grid(row + 1, col) in placedGrids:
+            segments.append(((right, bottom), (left, bottom)))
+        if Grid(row, col - 1) in placedGrids:
+            segments.append(((left, bottom), (left, top)))
+
+    if not segments:
+        return PuzzleSvgGeometry()
+
+    points = [point for segment in segments for point in segment]
+    minX = min(point[0] for point in points) - PUZZLE_SVG_PADDING
+    maxX = max(point[0] for point in points) + PUZZLE_SVG_PADDING
+    minY = min(point[1] for point in points) - PUZZLE_SVG_PADDING
+    maxY = max(point[1] for point in points) + PUZZLE_SVG_PADDING
+
+    shiftedPaths = []
+    for loopPoints in _buildSegmentLoops(segments):
+        shiftedPoints = [(x - minX, y - minY) for x, y in _compactPoints(loopPoints)]
+        if shiftedPoints:
+            shiftedPaths.append(_pointsToSvgPath(shiftedPoints))
+
+    return PuzzleSvgGeometry(
+        paths=shiftedPaths,
+        x=minX,
+        y=minY,
+        width=maxX - minX,
+        height=maxY - minY,
+    )
+
+
+def _buildSegmentLoops(segments: list[Segment]) -> list[list[Point]]:
+    segmentsByStart: dict[Point, list[Point]] = {}
+    for start, end in segments:
+        segmentsByStart.setdefault(start, []).append(end)
+
+    loops: list[list[Point]] = []
+    while segmentsByStart:
+        start = next(iter(segmentsByStart))
+        points = [start]
+
+        while start in segmentsByStart:
+            end = segmentsByStart[start].pop()
+            if not segmentsByStart[start]:
+                del segmentsByStart[start]
+
+            points.append(end)
+            start = end
+
+        loops.append(points)
+
+    return loops
+
+
+def _compactPoints(points: list[Point]) -> list[Point]:
+    if len(points) <= 2:
+        return points
+
+    compactPoints: list[Point] = []
+    pointCount = len(points)
+    isClosed = points[0] == points[-1]
+    actualLength = pointCount - 1 if isClosed else pointCount
+
+    for index in range(actualLength):
+        previousPoint = points[index - 1 if index > 0 else actualLength - 1]
+        currentPoint = points[index]
+        nextPoint = points[(index + 1) % actualLength]
+
+        isHorizontal = previousPoint[1] == currentPoint[1] == nextPoint[1]
+        isVertical = previousPoint[0] == currentPoint[0] == nextPoint[0]
+        if not (isHorizontal or isVertical):
+            compactPoints.append(currentPoint)
+
+    return compactPoints
+
+
+def _pointsToSvgPath(points: list[Point]) -> str:
+    if not points:
+        return ""
+
+    commands = [f"M {points[0][0]} {points[0][1]}"]
+    commands.extend(f"L {point[0]} {point[1]}" for point in points[1:])
+    commands.append("Z")
+    return " ".join(commands)
 
 
 @dataclass(slots=True)
@@ -195,13 +327,7 @@ def extractPuzzle(
                 else:
                     seedAdded = False
 
-    tilePool = [
-        gridData.tile
-        for _, gridData in sorted(
-            placedGrids.items(),
-            key=lambda item: (item[0].row, item[0].col),
-        )
-    ]
+    tilePool = []
     return PuzzleExtraction(
         puzzle=Puzzle(
             emptyGrids=emptyGrids,
@@ -240,6 +366,11 @@ class PuzzleListModel(QAbstractListModel):
     TilePoolRole = IndexRole + 8
     IsGeometryStaledRole = IndexRole + 9
     SolveStatusRole = IndexRole + 10
+    SvgPathsRole = IndexRole + 11
+    SvgXRole = IndexRole + 12
+    SvgYRole = IndexRole + 13
+    SvgWidthRole = IndexRole + 14
+    SvgHeightRole = IndexRole + 15
 
     def __init__(self, parent: QObject | None = None) -> None:
         super().__init__(parent)
@@ -286,6 +417,16 @@ class PuzzleListModel(QAbstractListModel):
                 return puzzleState.isGeometryStaled
             case self.SolveStatusRole:
                 return puzzleState.solveStatus.value
+            case self.SvgPathsRole:
+                return puzzle.svgPaths
+            case self.SvgXRole:
+                return puzzle.svgX
+            case self.SvgYRole:
+                return puzzle.svgY
+            case self.SvgWidthRole:
+                return puzzle.svgWidth
+            case self.SvgHeightRole:
+                return puzzle.svgHeight
             case _:
                 return None
 
@@ -302,6 +443,11 @@ class PuzzleListModel(QAbstractListModel):
             self.TilePoolRole: QByteArray(b"tilePool"),
             self.IsGeometryStaledRole: QByteArray(b"isGeometryStaled"),
             self.SolveStatusRole: QByteArray(b"solveStatus"),
+            self.SvgPathsRole: QByteArray(b"svgPaths"),
+            self.SvgXRole: QByteArray(b"svgX"),
+            self.SvgYRole: QByteArray(b"svgY"),
+            self.SvgWidthRole: QByteArray(b"svgWidth"),
+            self.SvgHeightRole: QByteArray(b"svgHeight"),
         }
 
     def puzzles(self) -> list[Puzzle]:

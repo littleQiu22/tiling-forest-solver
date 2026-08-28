@@ -8,7 +8,13 @@ from PySide6.QtQml import QmlElement
 
 from models.geometry import Grid
 from models.puzzle import Puzzle, PuzzleListModel, PuzzleSolveStatus, extractPuzzle
-from models.tile import TILE, TileData, TileListModel, tileTypeFromQml
+from models.tile import (
+    TILE,
+    TileData,
+    TileListModel,
+    tileStatusFromQml,
+    tileTypeFromQml,
+)
 
 
 QML_IMPORT_NAME = "app.models"
@@ -220,7 +226,7 @@ class Workspace(QObject):
         row: int,
         col: int,
         tile: int,
-        queryExecuteHeavyReason: bool = False,
+        isQueryHeavyReason: bool = False,
     ) -> str:
         grid = Grid(row, col)
         newTile = TileData(
@@ -235,7 +241,7 @@ class Workspace(QObject):
 
         return self._queryOrApplyOperation(
             EditTileOperation(grid, oldTile, newTile),
-            queryExecuteHeavyReason,
+            isQueryHeavyReason,
         )
 
     @Slot(int, int, result=str)
@@ -244,7 +250,7 @@ class Workspace(QObject):
         self,
         row: int,
         col: int,
-        queryExecuteHeavyReason: bool = False,
+        isQueryHeavyReason: bool = False,
     ) -> str:
         grid = Grid(row, col)
         oldTile = self._tiles.tileAt(grid)
@@ -253,7 +259,50 @@ class Workspace(QObject):
 
         return self._queryOrApplyOperation(
             EditTileOperation(grid, oldTile, None),
-            queryExecuteHeavyReason,
+            isQueryHeavyReason,
+        )
+
+    @Slot(int, int, int, result=str)
+    @Slot(int, int, int, bool, result=str)
+    def setTileStatus(
+        self,
+        row: int,
+        col: int,
+        status: int,
+        isQueryHeavyReason: bool = False,
+    ) -> str:
+        grid = Grid(row, col)
+        oldTile = self._tiles.tileAt(grid)
+        if oldTile is None:
+            return ""
+
+        newTile = TileData(
+            row=oldTile.row,
+            col=oldTile.col,
+            tile=oldTile.tile,
+            status=tileStatusFromQml(status),
+        )
+        if oldTile == newTile:
+            return ""
+
+        return self._queryOrApplyOperation(
+            EditTileOperation(grid, oldTile, newTile),
+            isQueryHeavyReason,
+        )
+
+    @Slot(int, int, result=str)
+    @Slot(int, int, bool, result=str)
+    def resetTileStatus(
+        self,
+        row: int,
+        col: int,
+        isQueryHeavyReason: bool = False,
+    ) -> str:
+        return self.setTileStatus(
+            row,
+            col,
+            TILE.STATUS.NORMAL.value,
+            isQueryHeavyReason,
         )
 
     @Slot(int, int, result=str)
@@ -262,7 +311,7 @@ class Workspace(QObject):
         self,
         row: int,
         col: int,
-        queryExecuteHeavyReason: bool = False,
+        isQueryHeavyReason: bool = False,
     ) -> str:
         grid = Grid(int(row), int(col))
         if self._puzzles.indexContaining(grid) != -1:
@@ -280,7 +329,7 @@ class Workspace(QObject):
 
         return self._queryOrApplyOperation(
             AddPuzzleOperation(extraction.puzzle),
-            queryExecuteHeavyReason,
+            isQueryHeavyReason,
         )
 
     @Slot(str, result=str)
@@ -288,7 +337,7 @@ class Workspace(QObject):
     def deletePuzzle(
         self,
         puzzleId: str,
-        queryExecuteHeavyReason: bool = False,
+        isQueryHeavyReason: bool = False,
     ) -> str:
         index = self._puzzles.indexById(puzzleId)
         if index == -1:
@@ -300,7 +349,7 @@ class Workspace(QObject):
 
         return self._queryOrApplyOperation(
             RemovePuzzleOperation(index, puzzle),
-            queryExecuteHeavyReason,
+            isQueryHeavyReason,
         )
 
     @Slot(int, int, result=str)
@@ -309,7 +358,7 @@ class Workspace(QObject):
         self,
         row: int,
         col: int,
-        queryExecuteHeavyReason: bool = False,
+        isQueryHeavyReason: bool = False,
     ) -> str:
         grid = Grid(row, col)
         index = self._puzzles.indexContaining(grid)
@@ -322,19 +371,19 @@ class Workspace(QObject):
 
         return self._queryOrApplyOperation(
             RemovePuzzleOperation(index, puzzle),
-            queryExecuteHeavyReason,
+            isQueryHeavyReason,
         )
 
     @Slot(result=str)
     @Slot(bool, result=str)
-    def clear(self, queryExecuteHeavyReason: bool = False) -> str:
+    def clear(self, isQueryHeavyReason: bool = False) -> str:
         if not self._tiles.tiles() and not self._puzzles.puzzles():
             return ""
 
         return self._queryOrApplyOperation(
             ClearWorkspaceOperation(
                 self._tiles.tiles(), self._puzzles.puzzles()),
-            queryExecuteHeavyReason,
+            isQueryHeavyReason,
         )
 
     @Slot()
@@ -391,9 +440,9 @@ class Workspace(QObject):
     def _queryOrApplyOperation(
         self,
         operation: Operation,
-        queryExecuteHeavyReason: bool,
+        isQueryHeavyReason: bool,
     ) -> str:
-        if queryExecuteHeavyReason:
+        if isQueryHeavyReason:
             return operation.executeHeavyReason(self)
 
         self._applyOperation(operation)

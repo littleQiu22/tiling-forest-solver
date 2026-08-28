@@ -11,15 +11,21 @@ Rectangle {
     border.color: AppTheme.border
 
     required property Workspace workspace
-    property string toolMode: "view"
-    property int currentTile: Tile.GRASSLAND
 
     function paintTile(row, col) {
-        root.workspace.paintTile(row, col, root.currentTile);
+        root.workspace.paintTile(row, col, toolBrushBar.currentTile);
     }
 
     function eraseTile(row, col) {
         root.workspace.eraseTile(row, col);
+    }
+
+    function setTileStatus(row, col) {
+        root.workspace.setTileStatus(row, col, toolBrushBar.currentStatus);
+    }
+
+    function resetTileStatus(row, col) {
+        root.workspace.resetTileStatus(row, col);
     }
 
     function selectOrCreatePuzzle(row, col) {
@@ -33,8 +39,32 @@ Rectangle {
         root.workspace.deletePuzzleAt(row, col);
     }
 
+    function makeGhostTile() {
+        if (viewport.hoveredGrid === null)
+            return null;
+
+        if (toolBrushBar.mode === "tile") {
+            return {
+                "row": viewport.hoveredGrid.row,
+                "col": viewport.hoveredGrid.col,
+                "tile": toolBrushBar.currentTile,
+                "status": Tile.NORMAL
+            };
+        }
+
+        if (toolBrushBar.mode === "tileStatus") {
+            return {
+                "row": viewport.hoveredGrid.row,
+                "col": viewport.hoveredGrid.col,
+                "status": toolBrushBar.currentStatus
+            };
+        }
+
+        return null;
+    }
+
     function handleGridClick(row, col, button) {
-        if (root.toolMode === "puzzle") {
+        if (toolBrushBar.mode === "puzzle") {
             if (button === Qt.LeftButton) {
                 root.selectOrCreatePuzzle(row, col);
             } else if (button === Qt.RightButton) {
@@ -43,7 +73,16 @@ Rectangle {
             return;
         }
 
-        if (root.toolMode === "tile") {
+        if (toolBrushBar.mode === "tileStatus") {
+            if (button === Qt.LeftButton) {
+                root.setTileStatus(row, col);
+            } else if (button === Qt.RightButton) {
+                root.resetTileStatus(row, col);
+            }
+            return;
+        }
+
+        if (toolBrushBar.mode === "tile") {
             if (button === Qt.LeftButton) {
                 root.paintTile(row, col);
             } else if (button === Qt.RightButton) {
@@ -54,7 +93,16 @@ Rectangle {
     }
 
     function handleGridStroke(row, col, button) {
-        if (root.toolMode !== "tile")
+        if (toolBrushBar.mode === "tileStatus") {
+            if (button === Qt.LeftButton) {
+                root.setTileStatus(row, col);
+            } else if (button === Qt.RightButton) {
+                root.resetTileStatus(row, col);
+            }
+            return;
+        }
+
+        if (toolBrushBar.mode !== "tile")
             return;
 
         if (button === Qt.LeftButton) {
@@ -69,13 +117,14 @@ Rectangle {
         anchors.fill: parent
         anchors.margins: root.border.width
         workspace: root.workspace
+        ghostTile: root.makeGhostTile()
 
         onWheelMoved: function (screenX, screenY, angleDeltaY) {
             viewport.zoomAt(screenX, screenY, angleDeltaY);
         }
 
         onPointerDragged: function (screenX, screenY, dx, dy, button) {
-            if (button === Qt.MiddleButton || (root.toolMode === "view" && button === Qt.LeftButton))
+            if (button === Qt.MiddleButton || (toolBrushBar.mode === "view" && button === Qt.LeftButton))
                 viewport.panBy(dx, dy);
         }
 
@@ -98,13 +147,5 @@ Rectangle {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 24
-
-        onToolModeRequested: function (mode) {
-            root.toolMode = mode;
-        }
-
-        onTileRequested: function (tile) {
-            root.currentTile = tile;
-        }
     }
 }

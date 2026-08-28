@@ -33,9 +33,8 @@ def main() -> int:
     if not engine.rootObjects():
         return 1
 
-    ex = app.exec()
-    del engine
-    return ex
+    app.aboutToQuit.connect(engine.deleteLater)
+    return app.exec()
 
 
 if __name__ == "__main__":

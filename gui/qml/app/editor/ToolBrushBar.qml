@@ -8,8 +8,9 @@ import app.models
 Item {
     id: root
 
-    signal toolModeRequested(string mode)
-    signal tileRequested(int tile)
+    readonly property string mode: selection.getMode()
+    readonly property int currentTile: selection.getTile()
+    readonly property int currentStatus: selection.getStatus()
 
     QtObject {
         id: selection
@@ -25,6 +26,11 @@ Item {
             {
                 "mode": "puzzle",
                 "label": "Puzzle"
+            },
+            {
+                "mode": "tileStatus",
+                "label": "Status",
+                "secondaryItems": statusItems([Tile.UNEXPLORED, Tile.BLOOMING])
             },
             {
                 "mode": "tile",
@@ -76,6 +82,16 @@ Item {
             return items;
         }
 
+        function statusItems(statuses) {
+            let items = [];
+            for (let index = 0; index < statuses.length; index++) {
+                items.push({
+                    "status": statuses[index]
+                });
+            }
+            return items;
+        }
+
         function wrapIndex(index, count) {
             if (count <= 0)
                 return 0;
@@ -111,6 +127,21 @@ Item {
             let secondaryItems = getSecondaryItems();
             return !!secondaryItems ? secondaryItems[secondaryIndex] : primaryItem;
         }
+
+        function getMode() {
+            let primaryItem = getPrimaryItem();
+            return primaryItem.mode !== undefined ? primaryItem.mode : "view";
+        }
+
+        function getTile() {
+            let activeItem = getActiveItem();
+            return activeItem.tile !== undefined ? activeItem.tile : Tile.GRASSLAND;
+        }
+
+        function getStatus() {
+            let activeItem = getActiveItem();
+            return activeItem.status !== undefined ? activeItem.status : Tile.UNEXPLORED;
+        }
     }
 
     readonly property int primaryButtonSize: 48
@@ -128,29 +159,21 @@ Item {
         if (item && item.tile !== undefined) {
             return Assets.tileImage(item.tile);
         }
+        if (item && item.status !== undefined) {
+            return Assets.tileStatusImage(item.status);
+        }
         if (item && item.icon !== undefined) {
             return item.icon;
         }
         return "";
     }
 
-    function requestCurrentAction() {
-        let primaryItem = selection.getPrimaryItem();
-        root.toolModeRequested(primaryItem.mode);
-
-        let activeItem = selection.getActiveItem();
-        if (activeItem.tile !== undefined)
-            root.tileRequested(activeItem.tile);
-    }
-
     function choosePrimary(index) {
         selection.setPrimaryIndex(index);
-        requestCurrentAction();
     }
 
     function chooseSecondary(index) {
         selection.setSecondaryIndex(index);
-        requestCurrentAction();
     }
 
     Item {
@@ -205,6 +228,8 @@ Item {
 
                     TapHandler {
                         acceptedButtons: Qt.LeftButton
+                        gesturePolicy: TapHandler.WithinBounds
+                        grabPermissions: PointerHandler.CanTakeOverFromAnything
                         onTapped: {
                             root.chooseSecondary(index);
                         }
@@ -214,6 +239,7 @@ Item {
 
             WheelHandler {
                 acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+                blocking: true
 
                 onWheel: function (event) {
                     let delta = event.angleDelta.y > 0 ? -1 : 1;
@@ -271,6 +297,8 @@ Item {
 
                     TapHandler {
                         acceptedButtons: Qt.LeftButton
+                        gesturePolicy: TapHandler.WithinBounds
+                        grabPermissions: PointerHandler.CanTakeOverFromAnything
                         onTapped: {
                             root.choosePrimary(index);
                         }
@@ -280,6 +308,7 @@ Item {
 
             WheelHandler {
                 acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+                blocking: true
 
                 onWheel: function (event) {
                     let delta = event.angleDelta.y > 0 ? -1 : 1;

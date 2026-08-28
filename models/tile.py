@@ -146,6 +146,10 @@ def tileTypeFromQml(value: int) -> TILE.TYPE:
     return TILE.TYPE(int(value))
 
 
+def tileStatusFromQml(value: int) -> TILE.STATUS:
+    return TILE.STATUS(int(value))
+
+
 def tileTypeFromJson(name: str) -> TILE.TYPE:
     return TILE.TYPE[str(name)]
 

@@ -71,4 +71,15 @@ QtObject {
             return "";
         }
     }
+
+    function tileStatusImage(status) {
+        switch (status) {
+        case Tile.UNEXPLORED:
+            return Qt.resolvedUrl("assets/tile_status/lock.png");
+        case Tile.BLOOMING:
+            return Qt.resolvedUrl("assets/tile_status/flower.png");
+        default:
+            return "";
+        }
+    }
 }
