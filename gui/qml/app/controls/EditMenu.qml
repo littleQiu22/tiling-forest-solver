@@ -37,10 +37,19 @@ AppMenu {
 
     property Action clearAction: Action {
         text: qsTr("Clear")
-        onTriggered: Services.confirm(() => {
+        onTriggered: {
             let ws = root.workspaceManager.workspace;
-            ws.clear();
-        }, qsTr("All tiles and puzzles will be removed. The action can still be undone afterwards."), qsTr("Confirm Action"), qsTr("Continue"))
+            let queryHeavyReason = true;
+            let executeHeavyReason = ws.clear(queryHeavyReason);
+            if (executeHeavyReason) {
+                Services.confirm(() => {
+                    let ws = root.workspaceManager.workspace;
+                    ws.clear();
+                }, executeHeavyReason, qsTr("Confirm Action"), qsTr("Continue"));
+            } else {
+                ws.clear();
+            }
+        }
     }
 
     property Action revertAction: Action {

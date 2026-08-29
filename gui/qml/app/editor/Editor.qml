@@ -38,12 +38,7 @@ Rectangle {
     function deletePuzzle(row, col) {
         let reason = root.workspace.deletePuzzleAt(row, col, true);
         if (!!reason) {
-            Services.confirm(
-                () => root.workspace.deletePuzzleAt(row, col),
-                reason,
-                qsTr("Confirm Action"),
-                qsTr("Continue")
-            );
+            Services.confirm(() => root.workspace.deletePuzzleAt(row, col), reason, qsTr("Confirm Action"), qsTr("Continue"));
         } else {
             root.workspace.deletePuzzleAt(row, col);
         }
@@ -112,13 +107,12 @@ Rectangle {
             return;
         }
 
-        if (toolBrushBar.mode !== "tile")
-            return;
-
-        if (button === Qt.LeftButton) {
-            root.paintTile(row, col);
-        } else if (button === Qt.RightButton) {
-            root.eraseTile(row, col);
+        if (toolBrushBar.mode === "tile") {
+            if (button === Qt.LeftButton) {
+                root.paintTile(row, col);
+            } else if (button === Qt.RightButton) {
+                root.eraseTile(row, col);
+            }
         }
     }
 
@@ -153,7 +147,6 @@ Rectangle {
 
     ToolBrushBar {
         id: toolBrushBar
-        z: 10
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 24

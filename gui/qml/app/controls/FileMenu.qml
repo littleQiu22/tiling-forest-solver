@@ -12,6 +12,18 @@ AppMenu {
 
     property WorkspaceManager workspaceManager
 
+    function localFilePath(fileUrl) {
+        let filePath = decodeURIComponent(String(fileUrl));
+        const filePrefix = "file://";
+        if (!filePath.startsWith(filePrefix))
+            return filePath;
+
+        filePath = filePath.slice(filePrefix.length);
+        if (/^\/[A-Za-z]:\//.test(filePath))
+            filePath = filePath.slice(1);
+        return filePath;
+    }
+
     FileDialog {
         id: openDialog
         title: qsTr("Open Workspace...")
@@ -19,7 +31,7 @@ AppMenu {
         nameFilters: ["JSON files (*.json)", "All files (*)"]
         onAccepted: {
             openDocument(() => {
-                let response = root.workspaceManager.load(selectedFile.toLocalFile());
+                let response = root.workspaceManager.load(root.localFilePath(selectedFile));
                 if (!response.status) {
                     Services.alert(response.message);
                     return;
@@ -35,7 +47,7 @@ AppMenu {
         fileMode: FileDialog.SaveFile
         nameFilters: ["JSON files (*.json)", "All files (*)"]
         onAccepted: {
-            let response = root.workspaceManager.save(selectedFile.toLocalFile());
+            let response = root.workspaceManager.save(root.localFilePath(selectedFile));
             if (!response.status) {
                 Services.alert(response.message);
                 return;
@@ -118,6 +130,7 @@ AppMenu {
 
     AppMenu {
         title: qsTr("Open Recent")
+        width: 360
 
         AppMenuItem {
             text: qsTr("Clear Recently Opened")
@@ -128,6 +141,7 @@ AppMenu {
             model: AppSettings.recentFiles
             delegate: AppMenuItem {
                 text: modelData
+                textElide: Text.ElideMiddle
 
                 onTriggered: openDocument(() => {
                     const filePath = modelData;
@@ -142,6 +156,7 @@ AppMenu {
 
     AppMenu {
         title: qsTr("Open Template")
+        width: 240
 
         Repeater {
             model: root.workspaceManager.templates

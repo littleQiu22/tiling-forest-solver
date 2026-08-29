@@ -12,7 +12,6 @@ from PySide6.QtCore import (
     QModelIndex,
     QObject,
     Qt,
-    Signal,
 )
 from PySide6.QtQml import QmlNamedElement, QmlUncreatable
 
@@ -171,7 +170,8 @@ def buildPuzzleSvgGeometry(
 
     shiftedPaths = []
     for loopPoints in _buildSegmentLoops(segments):
-        shiftedPoints = [(x - minX, y - minY) for x, y in _compactPoints(loopPoints)]
+        shiftedPoints = [(x - minX, y - minY)
+                         for x, y in _compactPoints(loopPoints)]
         if shiftedPoints:
             shiftedPaths.append(_pointsToSvgPath(shiftedPoints))
 
@@ -417,9 +417,11 @@ Solution = dict[Grid, TILE.TYPE]
 class PuzzleState:
     isGeometryStaled: bool = False
     solveStatus: PuzzleSolveStatus = PuzzleSolveStatus.UNSOLVED
-    objectiveOrder: list[str] = field(default_factory=lambda: list(DEFAULT_OBJECTIVES))
+    objectiveOrder: list[str] = field(
+        default_factory=lambda: list(DEFAULT_OBJECTIVES))
     enabledObjectives: set[str] = field(default_factory=set)
-    enabledConstraints: set[str] = field(default_factory=lambda: set(DEFAULT_CONSTRAINTS))
+    enabledConstraints: set[str] = field(
+        default_factory=lambda: set(DEFAULT_CONSTRAINTS))
     timeLimit: int = 30
     solutionLimit: int = 20
     solutions: list[Solution] = field(default_factory=list)
@@ -454,15 +456,19 @@ class PuzzleState:
 
     @classmethod
     def fromJson(cls, data: dict[str, Any]) -> "PuzzleState":
-        solveStatus = PuzzleSolveStatus(data.get("solveStatus", PuzzleSolveStatus.UNSOLVED.value))
+        solveStatus = PuzzleSolveStatus(
+            data.get("solveStatus", PuzzleSolveStatus.UNSOLVED.value))
         if solveStatus == PuzzleSolveStatus.SOLVING:
             solveStatus = PuzzleSolveStatus.UNSOLVED
         return cls(
             isGeometryStaled=bool(data.get("isGeometryStaled", False)),
             solveStatus=solveStatus,
-            objectiveOrder=[str(item) for item in data.get("objectiveOrder", DEFAULT_OBJECTIVES)],
-            enabledObjectives={str(item) for item in data.get("enabledObjectives", [])},
-            enabledConstraints={str(item) for item in data.get("enabledConstraints", DEFAULT_CONSTRAINTS)},
+            objectiveOrder=[str(item) for item in data.get(
+                "objectiveOrder", DEFAULT_OBJECTIVES)],
+            enabledObjectives={str(item)
+                               for item in data.get("enabledObjectives", [])},
+            enabledConstraints={str(item) for item in data.get(
+                "enabledConstraints", DEFAULT_CONSTRAINTS)},
             timeLimit=int(data.get("timeLimit", 30)),
             solutionLimit=int(data.get("solutionLimit", 20)),
             solutions=[
@@ -480,8 +486,6 @@ class PuzzleState:
 @QmlNamedElement("PuzzleListModel")
 @QmlUncreatable("Use Workspace.puzzles")
 class PuzzleListModel(QAbstractListModel):
-    puzzleStateChanged = Signal(str)
-
     IndexRole = Qt.ItemDataRole.UserRole.value + 1
     IdRole = IndexRole + 1
     NameRole = IndexRole + 2
@@ -499,6 +503,13 @@ class PuzzleListModel(QAbstractListModel):
     SvgWidthRole = IndexRole + 14
     SvgHeightRole = IndexRole + 15
     CurrentSolutionRole = IndexRole + 16
+    ObjectiveItemsRole = IndexRole + 17
+    ConstraintItemsRole = IndexRole + 18
+    TimeLimitRole = IndexRole + 19
+    SolutionLimitRole = IndexRole + 20
+    SolutionCountRole = IndexRole + 21
+    CurrentSolutionIndexRole = IndexRole + 22
+    SolvingLogRole = IndexRole + 23
 
     def __init__(self, parent: QObject | None = None) -> None:
         super().__init__(parent)
@@ -557,6 +568,20 @@ class PuzzleListModel(QAbstractListModel):
                 return puzzle.svgHeight
             case self.CurrentSolutionRole:
                 return self._currentSolutionForQml(puzzleState)
+            case self.ObjectiveItemsRole:
+                return puzzleState.objectiveOrder
+            case self.ConstraintItemsRole:
+                return sorted(puzzleState.enabledConstraints)
+            case self.TimeLimitRole:
+                return puzzleState.timeLimit
+            case self.SolutionLimitRole:
+                return puzzleState.solutionLimit
+            case self.SolutionCountRole:
+                return len(puzzleState.solutions)
+            case self.CurrentSolutionIndexRole:
+                return puzzleState.currentSolutionIndex
+            case self.SolvingLogRole:
+                return puzzleState.solvingLog
             case _:
                 return None
 
@@ -579,6 +604,13 @@ class PuzzleListModel(QAbstractListModel):
             self.SvgWidthRole: QByteArray(b"svgWidth"),
             self.SvgHeightRole: QByteArray(b"svgHeight"),
             self.CurrentSolutionRole: QByteArray(b"currentSolution"),
+            self.ObjectiveItemsRole: QByteArray(b"objectiveItems"),
+            self.ConstraintItemsRole: QByteArray(b"constraintItems"),
+            self.TimeLimitRole: QByteArray(b"timeLimit"),
+            self.SolutionLimitRole: QByteArray(b"solutionLimit"),
+            self.SolutionCountRole: QByteArray(b"solutionCount"),
+            self.CurrentSolutionIndexRole: QByteArray(b"currentSolutionIndex"),
+            self.SolvingLogRole: QByteArray(b"solvingLog"),
         }
 
     def puzzles(self) -> list[Puzzle]:
@@ -683,11 +715,45 @@ class PuzzleListModel(QAbstractListModel):
         self._emitRoles(index, [self.TilePoolRole])
         return True
 
-    def setPuzzleStateRoles(self, puzzleId: str, roles: list[int]) -> None:
+    def replacePuzzleGeometry(self, puzzleId: str, puzzle: Puzzle) -> bool:
+        index = self.indexById(puzzleId)
+        oldPuzzle = self.puzzleAt(index)
+        if oldPuzzle is None:
+            return False
+
+        puzzle.id = oldPuzzle.id
+        puzzle.name = oldPuzzle.name
+        puzzle.tilePool = oldPuzzle.tilePool
+
+        for grid in oldPuzzle.grids:
+            if self._puzzleByGrid.get(grid) is oldPuzzle:
+                del self._puzzleByGrid[grid]
+
+        self._puzzles[index] = puzzle
+        for grid in puzzle.grids:
+            self._puzzleByGrid[grid] = puzzle
+
+        self._emitRoles(
+            index,
+            [
+                self.GridCountRole,
+                self.EmptyGridCountRole,
+                self.PlacedGridCountRole,
+                self.EmptyGridsRole,
+                self.PlacedGridsRole,
+                self.SvgPathsRole,
+                self.SvgXRole,
+                self.SvgYRole,
+                self.SvgWidthRole,
+                self.SvgHeightRole,
+            ],
+        )
+        return True
+
+    def emitPuzzleChanged(self, puzzleId: str, roles: list[int]) -> None:
         index = self.indexById(puzzleId)
         if index != -1:
             self._emitRoles(index, roles)
-        self.puzzleStateChanged.emit(puzzleId)
 
     def markGeometryStaledByGrid(self, grid: Grid) -> str:
         puzzle = self._puzzleByGrid.get(grid)
@@ -741,8 +807,8 @@ class PuzzleListModel(QAbstractListModel):
     def loadStatesJson(self, data: dict[str, Any]) -> None:
         for puzzleId, stateData in data.items():
             if puzzleId in self._stateByPuzzleId and isinstance(stateData, dict):
-                self._stateByPuzzleId[puzzleId] = PuzzleState.fromJson(stateData)
-                self.puzzleStateChanged.emit(puzzleId)
+                self._stateByPuzzleId[puzzleId] = PuzzleState.fromJson(
+                    stateData)
         if self._puzzles:
             topLeft = self.index(0, 0)
             bottomRight = self.index(len(self._puzzles) - 1, 0)

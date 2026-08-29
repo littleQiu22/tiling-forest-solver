@@ -9,6 +9,7 @@ Button {
 
     property var backgroundColor
     property bool borderEnabled: true
+    property alias color: content.color
 
     background: Rectangle {
         id: background
@@ -23,6 +24,7 @@ Button {
     }
 
     contentItem: IconLabel {
+        id: content
         icon: root.icon
         text: root.text
         font: root.font

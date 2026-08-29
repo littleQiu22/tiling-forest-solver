@@ -130,6 +130,7 @@ class TilingSolver:
             self._hasStumpFlowPerGrid[v] = hasStumpFlow
 
         # Add Constraints
+        self._addNotFullyEmptyConstrs()
         self._addExclusiveConstrs()
         self._addConnectivityConstrs()
 
@@ -149,6 +150,14 @@ class TilingSolver:
     def _addExclusiveConstrs(self):
         for xs in self._xsPerGrid.values():
             self._model.add(sum(xs) <= 1)
+
+    def _addNotFullyEmptyConstrs(self):
+        placementVars = [
+            x
+            for grid in self._puzzle.emptyGrids
+            for x in self._xsPerGrid[grid]
+        ]
+        self._model.add(sum(placementVars) >= 1)
 
     def _addFigureAlignedConstrs(self):
         for flowsPerChannel in self._flowsPerEdge.values():
@@ -217,8 +226,14 @@ class TilingSolver:
                 xs = self._xsPerGrid[u]
                 roadFlow = sum([x * getEdgeFlow(EDGE_CHANNEL.CONNECT_CHANNEL, x.tile, d.opposite())
                                for x in xs if x.tile in TILE.ROADS])
-                self._model.add(canParent ==
-                                self._needBloomPerGrid[u] & self._needBloomPerGrid[v] & (roadFlow > EDGE_FLOW.NO_FLOW))
+                self._model.add(
+                    canParent
+                    == (
+                        (self._needBloomPerGrid[u] > 0)
+                        & (self._needBloomPerGrid[v] > 0)
+                        & (roadFlow > EDGE_FLOW.NO_FLOW)
+                    )
+                )
                 self._model.add(isParent <= canParent)
 
                 # Parent transmit sourceId property
@@ -352,7 +367,11 @@ class TilingSolver:
                 self._model.add(exitedUnexplore == bound)
 
     def _addPlacementNoGoods(self):
-        placementVars = [x for xs in self._xsPerGrid.values() for x in xs]
+        placementVars = [
+            x
+            for grid in self._puzzle.emptyGrids
+            for x in self._xsPerGrid[grid]
+        ]
         samePlacement = [var if abs(1 - var.value())
                          < 1e-2 else ~var for var in placementVars]
         self._model.add(sum(samePlacement) <= len(samePlacement) - 1)

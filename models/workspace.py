@@ -489,7 +489,7 @@ class Workspace(QObject):
             puzzleState.enabledObjectives.add(objective)
         else:
             puzzleState.enabledObjectives.discard(objective)
-        self._puzzles.setPuzzleStateRoles(puzzleId, [])
+        self._puzzles.emitPuzzleChanged(puzzleId, [PuzzleListModel.ObjectiveItemsRole])
         self._markBackgroundDirty()
 
     @Slot(str, str, int)
@@ -505,7 +505,7 @@ class Workspace(QObject):
 
         puzzleState.objectiveOrder.pop(oldIndex)
         puzzleState.objectiveOrder.insert(newIndex, objective)
-        self._puzzles.setPuzzleStateRoles(puzzleId, [])
+        self._puzzles.emitPuzzleChanged(puzzleId, [PuzzleListModel.ObjectiveItemsRole])
         self._markBackgroundDirty()
 
     @Slot(str, str, bool)
@@ -517,7 +517,7 @@ class Workspace(QObject):
             puzzleState.enabledConstraints.add(constraint)
         else:
             puzzleState.enabledConstraints.discard(constraint)
-        self._puzzles.setPuzzleStateRoles(puzzleId, [])
+        self._puzzles.emitPuzzleChanged(puzzleId, [PuzzleListModel.ConstraintItemsRole])
         self._markBackgroundDirty()
 
     @Slot(str, int)
@@ -526,7 +526,7 @@ class Workspace(QObject):
         if puzzleState is None:
             return
         puzzleState.timeLimit = max(0, int(timeLimit))
-        self._puzzles.setPuzzleStateRoles(puzzleId, [])
+        self._puzzles.emitPuzzleChanged(puzzleId, [PuzzleListModel.TimeLimitRole])
         self._markBackgroundDirty()
 
     @Slot(str, int)
@@ -535,7 +535,7 @@ class Workspace(QObject):
         if puzzleState is None:
             return
         puzzleState.solutionLimit = max(0, int(solutionLimit))
-        self._puzzles.setPuzzleStateRoles(puzzleId, [])
+        self._puzzles.emitPuzzleChanged(puzzleId, [PuzzleListModel.SolutionLimitRole])
         self._markBackgroundDirty()
 
     @Slot(str)
@@ -557,13 +557,24 @@ class Workspace(QObject):
             return
 
         puzzleState.currentSolutionIndex = max(0, min(int(solutionIndex), len(puzzleState.solutions) - 1))
-        self._puzzles.setPuzzleStateRoles(puzzleId, [PuzzleListModel.CurrentSolutionRole])
+        self._puzzles.emitPuzzleChanged(
+            puzzleId,
+            [
+                PuzzleListModel.CurrentSolutionRole,
+                PuzzleListModel.CurrentSolutionIndexRole,
+            ],
+        )
 
     @Slot(str)
     def solvePuzzle(self, puzzleId: str) -> None:
         puzzle = self._puzzles.puzzleById(puzzleId)
         puzzleState = self._puzzles.puzzleStateById(puzzleId)
         if puzzle is not None and puzzleState is not None:
+            if not self._rebuildPuzzleIfStaled(puzzle, puzzleState):
+                return
+            puzzle = self._puzzles.puzzleById(puzzleId)
+            if puzzle is None:
+                return
             self._solvingManager.start(puzzle, puzzleState)
 
     @Slot(str)
@@ -636,6 +647,71 @@ class Workspace(QObject):
         else:
             self._tiles.upsertTile(tile)
         staledPuzzleId = self._puzzles.markGeometryStaledByGrid(grid)
+
+    def _rebuildPuzzleIfStaled(
+        self,
+        puzzle: Puzzle,
+        puzzleState: PuzzleState,
+    ) -> bool:
+        if not puzzleState.isGeometryStaled:
+            return True
+
+        seed = next(
+            (
+                grid
+                for grid in sorted(puzzle.emptyGrids, key=lambda item: (item.row, item.col))
+                if self._tiles.tileAt(grid) is None
+            ),
+            None,
+        )
+        if seed is None:
+            self._setPuzzleSolveMessage(
+                puzzle.id,
+                puzzleState,
+                "Cannot rebuild stale puzzle: no empty seed grid remains.",
+            )
+            return False
+
+        extraction = extractPuzzle(
+            self._tiles.tileMap(),
+            self._tiles.boundingBox(),
+            seed,
+        )
+        if extraction.message:
+            self._setPuzzleSolveMessage(puzzle.id, puzzleState, extraction.message)
+            return False
+        if extraction.puzzle is None:
+            self._setPuzzleSolveMessage(
+                puzzle.id,
+                puzzleState,
+                "Cannot rebuild stale puzzle from the selected empty seed.",
+            )
+            return False
+
+        if self._puzzles.replacePuzzleGeometry(puzzle.id, extraction.puzzle):
+            puzzleState.isGeometryStaled = False
+            self._puzzles.emitPuzzleChanged(
+                puzzle.id,
+                [PuzzleListModel.IsGeometryStaledRole],
+            )
+            self._markBackgroundDirty()
+        return True
+
+    def _setPuzzleSolveMessage(
+        self,
+        puzzleId: str,
+        puzzleState: PuzzleState,
+        message: str,
+    ) -> None:
+        puzzleState.solveStatus = PuzzleSolveStatus.UNSOLVED
+        puzzleState.solvingLog = message + "\n"
+        self._puzzles.emitPuzzleChanged(
+            puzzleId,
+            [
+                PuzzleListModel.SolveStatusRole,
+                PuzzleListModel.SolvingLogRole,
+            ],
+        )
 
     def _setTiles(self, tiles: list[TileData]) -> None:
         self._tiles.setTiles(tiles)

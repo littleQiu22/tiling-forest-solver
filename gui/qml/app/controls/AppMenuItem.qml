@@ -8,6 +8,7 @@ MenuItem {
     id: root
 
     property string shortcutText: ""
+    property int textElide: Text.ElideRight
 
     leftPadding: 8
     rightPadding: 8
@@ -22,17 +23,16 @@ MenuItem {
     arrow: Item {}
 
     contentItem: RowLayout {
+        spacing: 8
 
         Text {
             id: itemText
             text: root.text
             font: root.font
             color: AppTheme.textPrimary
+            elide: root.textElide
             verticalAlignment: Text.AlignVCenter
             Layout.alignment: Qt.AlignVCenter
-        }
-
-        Item {
             Layout.fillWidth: true
         }
 

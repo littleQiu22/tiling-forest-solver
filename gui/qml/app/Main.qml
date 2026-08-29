@@ -9,7 +9,7 @@ import app.editor
 
 Window {
     id: root
-    title: "Tiling Forest Solver"
+    title: (root.workspaceManager.workspace.isDirty ? "* " : "") + root.workspaceManager.displayName + qsTr(" | Tiling Forest Solver")
     visible: false
 
     readonly property WorkspaceManager workspaceManager: WorkspaceManager {}

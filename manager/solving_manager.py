@@ -43,6 +43,9 @@ class SolvingManager(QObject):
                 PuzzleListModel.SolveStatusRole,
                 PuzzleListModel.IsGeometryStaledRole,
                 PuzzleListModel.CurrentSolutionRole,
+                PuzzleListModel.SolutionCountRole,
+                PuzzleListModel.CurrentSolutionIndexRole,
+                PuzzleListModel.SolvingLogRole,
             ],
         )
 
@@ -102,16 +105,19 @@ class SolvingManager(QObject):
         if not isinstance(puzzleId, str):
             return
 
-        self._buffers[process] = self._buffers.get(process, "") + bytes(
+        text = self._buffers.get(process, "") + bytes(
             process.readAllStandardOutput(),
         ).decode("utf-8")
-        lines = self._buffers[process].splitlines(keepends=True)
         self._buffers[process] = ""
-        for line in lines:
+
+        for line in text.splitlines(keepends=True):
             if not line.endswith("\n"):
                 self._buffers[process] = line
                 continue
-            self._handleEvent(puzzleId, json.loads(line))
+
+            line = line.strip()
+            if line:
+                self._handleEvent(puzzleId, json.loads(line))
 
     def _readStderr(self) -> None:
         process = self.sender()
@@ -150,32 +156,51 @@ class SolvingManager(QObject):
         match event.get("event"):
             case "status":
                 state.solveStatus = PuzzleSolveStatus(event.get("status", "Unsolved"))
-                self._emitStateChanged(puzzleId, [PuzzleListModel.SolveStatusRole])
+                self._emitStateChanged(
+                    puzzleId,
+                    [PuzzleListModel.SolveStatusRole],
+                )
             case "solution":
                 state.solutions.append(self._solutionFromJson(event.get("solution", [])))
                 if state.currentSolutionIndex == -1:
                     state.currentSolutionIndex = 0
                 self._workspace._markBackgroundDirty()
-                self._emitStateChanged(puzzleId, [PuzzleListModel.CurrentSolutionRole])
+                self._emitStateChanged(
+                    puzzleId,
+                    [
+                        PuzzleListModel.CurrentSolutionRole,
+                        PuzzleListModel.SolutionCountRole,
+                        PuzzleListModel.CurrentSolutionIndexRole,
+                    ],
+                )
             case "done":
                 state.solveStatus = PuzzleSolveStatus(event.get("status", "Unsolved"))
                 self._workspace._markBackgroundDirty()
-                self._emitStateChanged(puzzleId, [PuzzleListModel.SolveStatusRole])
+                self._emitStateChanged(
+                    puzzleId,
+                    [PuzzleListModel.SolveStatusRole],
+                )
             case "log":
                 state.solvingLog += str(event.get("message", "")) + "\n"
-                self._emitStateChanged(puzzleId, [])
+                self._emitStateChanged(puzzleId, [PuzzleListModel.SolvingLogRole])
             case "stderr":
                 state.solvingLog += str(event.get("message", ""))
-                self._emitStateChanged(puzzleId, [])
+                self._emitStateChanged(puzzleId, [PuzzleListModel.SolvingLogRole])
             case "error":
                 state.solveStatus = PuzzleSolveStatus.UNSOLVED
                 state.solvingLog += "Solver error: " + str(event.get("message", "")) + "\n"
-                self._emitStateChanged(puzzleId, [PuzzleListModel.SolveStatusRole])
+                self._emitStateChanged(
+                    puzzleId,
+                    [PuzzleListModel.SolveStatusRole, PuzzleListModel.SolvingLogRole],
+                )
             case "processFinished":
                 if state.solveStatus == PuzzleSolveStatus.SOLVING:
                     state.solveStatus = PuzzleSolveStatus.UNSOLVED
                     state.solvingLog += f"Solver stopped with exit code {event.get('exitCode', -1)}.\n"
-                    self._emitStateChanged(puzzleId, [PuzzleListModel.SolveStatusRole])
+                    self._emitStateChanged(
+                        puzzleId,
+                        [PuzzleListModel.SolveStatusRole, PuzzleListModel.SolvingLogRole],
+                    )
 
     def _solutionFromJson(self, data: list[dict[str, Any]]) -> Solution:
         return {
@@ -183,8 +208,12 @@ class SolvingManager(QObject):
             for item in data
         }
 
-    def _emitStateChanged(self, puzzleId: str, roles: list[int]) -> None:
-        self._workspace._puzzles.setPuzzleStateRoles(puzzleId, roles)
+    def _emitStateChanged(
+        self,
+        puzzleId: str,
+        roles: list[int],
+    ) -> None:
+        self._workspace._puzzles.emitPuzzleChanged(puzzleId, roles)
 
     def _dropProcess(self, process: QProcess) -> None:
         puzzleId = process.property("puzzleId")

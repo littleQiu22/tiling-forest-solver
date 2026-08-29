@@ -100,7 +100,6 @@ Item {
 
     Item {
         id: gridOverlay
-        z: 10
         anchors.fill: parent
 
         readonly property real tileScreenSize: Assets.tileSize * camera.zoom
@@ -144,7 +143,6 @@ Item {
     Item {
         // The container maps world coordinates to screen coordinates, so its children can use world coordinates.
         id: worldContainer
-        z: 1
 
         x: Math.round(-camera.worldX * camera.zoom) // worldXOfPoint = 0 => screenX = - cameraWorldX * zoom
         y: Math.round(-camera.worldY * camera.zoom) // worldXOfPoint = 0 => screenY = - cameraWorldY * zoom
@@ -212,7 +210,6 @@ Item {
 
                     delegate: Shape {
                         id: puzzlePathShape
-                        z: 2
 
                         required property string modelData
 
@@ -249,7 +246,6 @@ Item {
 
                     delegate: Image {
                         required property var modelData
-                        z: 1
 
                         x: modelData.col * Assets.tileSize - puzzleDelegate.svgX
                         y: modelData.row * Assets.tileSize - puzzleDelegate.svgY
