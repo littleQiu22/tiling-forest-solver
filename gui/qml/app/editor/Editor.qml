@@ -12,22 +12,6 @@ Rectangle {
 
     required property Workspace workspace
 
-    function paintTile(row, col) {
-        root.workspace.paintTile(row, col, toolBrushBar.currentTile);
-    }
-
-    function eraseTile(row, col) {
-        root.workspace.eraseTile(row, col);
-    }
-
-    function setTileStatus(row, col) {
-        root.workspace.setTileStatus(row, col, toolBrushBar.currentStatus);
-    }
-
-    function resetTileStatus(row, col) {
-        root.workspace.resetTileStatus(row, col);
-    }
-
     function selectOrCreatePuzzle(row, col) {
         const message = root.workspace.selectOrCreatePuzzle(row, col);
         if (!!message) {
@@ -41,6 +25,36 @@ Rectangle {
             Services.confirm(() => root.workspace.deletePuzzleAt(row, col), reason, qsTr("Confirm Action"), qsTr("Continue"));
         } else {
             root.workspace.deletePuzzleAt(row, col);
+        }
+    }
+
+    function focusPuzzleInViewport(puzzleId) {
+        const geometry = root.workspace.puzzles.geometryById(puzzleId);
+        if (viewport.isWorldRectFullyVisible(geometry.x, geometry.y, geometry.width, geometry.height))
+            return;
+
+        viewport.centerOnWorldRect(geometry.x, geometry.y, geometry.width, geometry.height);
+    }
+
+    function cameraState() {
+        return viewport.cameraState();
+    }
+
+    function restoreCameraState(state) {
+        viewport.restoreCameraState(state);
+    }
+
+    function applyBrush(row, col, button) {
+        if (toolBrushBar.mode === "tileStatus") {
+            if (button === Qt.LeftButton)
+                root.workspace.setTileStatus(row, col, toolBrushBar.currentStatus);
+            else if (button === Qt.RightButton)
+                root.workspace.resetTileStatus(row, col);
+        } else if (toolBrushBar.mode === "tile") {
+            if (button === Qt.LeftButton)
+                root.workspace.paintTile(row, col, toolBrushBar.currentTile);
+            else if (button === Qt.RightButton)
+                root.workspace.eraseTile(row, col);
         }
     }
 
@@ -78,42 +92,11 @@ Rectangle {
             return;
         }
 
-        if (toolBrushBar.mode === "tileStatus") {
-            if (button === Qt.LeftButton) {
-                root.setTileStatus(row, col);
-            } else if (button === Qt.RightButton) {
-                root.resetTileStatus(row, col);
-            }
-            return;
-        }
-
-        if (toolBrushBar.mode === "tile") {
-            if (button === Qt.LeftButton) {
-                root.paintTile(row, col);
-            } else if (button === Qt.RightButton) {
-                root.eraseTile(row, col);
-            }
-            return;
-        }
+        root.applyBrush(row, col, button);
     }
 
     function handleGridStroke(row, col, button) {
-        if (toolBrushBar.mode === "tileStatus") {
-            if (button === Qt.LeftButton) {
-                root.setTileStatus(row, col);
-            } else if (button === Qt.RightButton) {
-                root.resetTileStatus(row, col);
-            }
-            return;
-        }
-
-        if (toolBrushBar.mode === "tile") {
-            if (button === Qt.LeftButton) {
-                root.paintTile(row, col);
-            } else if (button === Qt.RightButton) {
-                root.eraseTile(row, col);
-            }
-        }
+        root.applyBrush(row, col, button);
     }
 
     Viewport {
@@ -150,5 +133,13 @@ Rectangle {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 24
+    }
+
+    Connections {
+        target: root.workspace.puzzleView
+
+        function onRequestPuzzleFocus(puzzleId) {
+            root.focusPuzzleInViewport(puzzleId);
+        }
     }
 }

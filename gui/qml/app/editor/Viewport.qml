@@ -16,16 +16,12 @@ Item {
     readonly property var hoveredGrid: hoverState.grid
     clip: true
 
-    signal pointerClicked(real screenX, real screenY, int button)
-    signal pointerDragStarted(real screenX, real screenY, int button)
     signal pointerDragged(real screenX, real screenY, real dx, real dy, int button)
-    signal pointerDragEnded(real screenX, real screenY, int button)
     signal wheelMoved(real screenX, real screenY, real angleDeltaY)
 
     signal gridClicked(int row, int col, int button)
     signal gridStrokeStarted(int row, int col, int button)
     signal gridStrokeEntered(int row, int col, int button)
-    signal gridStrokeEnded(int row, int col, int button)
 
     // Camera
     QtObject {
@@ -77,14 +73,53 @@ Item {
         camera.worldY = worldPoint.y - screenY / camera.zoom;
     }
 
+    function isWorldRectFullyVisible(worldX, worldY, worldWidth, worldHeight) {
+        if (worldWidth <= 0 || worldHeight <= 0)
+            return true;
+
+        let screenLeft = (worldX - camera.worldX) * camera.zoom;
+        let screenTop = (worldY - camera.worldY) * camera.zoom;
+        let screenRight = screenLeft + worldWidth * camera.zoom;
+        let screenBottom = screenTop + worldHeight * camera.zoom;
+
+        return screenLeft >= 0
+            && screenTop >= 0
+            && screenRight <= root.width
+            && screenBottom <= root.height;
+    }
+
+    function centerOnWorldRect(worldX, worldY, worldWidth, worldHeight) {
+        if (worldWidth <= 0 || worldHeight <= 0)
+            return;
+
+        camera.worldX = worldX + worldWidth / 2 - root.width / (2 * camera.zoom);
+        camera.worldY = worldY + worldHeight / 2 - root.height / (2 * camera.zoom);
+    }
+
+    function cameraState() {
+        return {
+            "worldX": camera.worldX,
+            "worldY": camera.worldY,
+            "zoom": camera.zoom
+        };
+    }
+
+    function restoreCameraState(state) {
+        camera.worldX = state?.worldX ?? 0;
+        camera.worldY = state?.worldY ?? 0;
+        camera.zoom = clamp(state?.zoom ?? 1, camera.minZoom, camera.maxZoom);
+    }
+
     function puzzleStrokeColor(solveStatus) {
         switch (solveStatus) {
         case "Solving":
             return AppTheme.primary;
         case "Infeasible":
+        case "InternalError":
             return AppTheme.danger;
         case "TimeLimit":
         case "SolutionLimit":
+        case "Interrupted":
             return AppTheme.warning;
         case "Solved":
             return AppTheme.success;
@@ -198,6 +233,7 @@ Item {
                 required property real svgWidth
                 required property real svgHeight
                 required property string solveStatus
+                required property bool isSelected
                 required property var currentSolution
 
                 x: svgX
@@ -217,9 +253,9 @@ Item {
                         containsMode: Shape.FillContains
 
                         ShapePath {
-                            fillColor: "transparent"
+                            fillColor: puzzleDelegate.isSelected ? Qt.rgba(0.23, 0.51, 0.96, 0.10) : "transparent"
                             strokeColor: root.puzzleStrokeColor(puzzleDelegate.solveStatus)
-                            strokeWidth: 4 / camera.zoom
+                            strokeWidth: (puzzleDelegate.isSelected ? 6 : 4) / camera.zoom
                             capStyle: ShapePath.RoundCap
                             joinStyle: ShapePath.RoundJoin
                             strokeStyle: puzzleDelegate.solveStatus === "Solving" ? ShapePath.DashLine : ShapePath.SolidLine
@@ -313,7 +349,6 @@ Item {
             lastGridCol = grid.col;
             hasLastGrid = true;
 
-            root.pointerDragStarted(handler.centroid.position.x, handler.centroid.position.y, button);
             root.gridStrokeStarted(grid.row, grid.col, button);
         }
 
@@ -346,10 +381,6 @@ Item {
                 return;
             }
 
-            let point = handler.centroid.position;
-            let grid = root.screenToGrid(point.x, point.y);
-            root.pointerDragEnded(point.x, point.y, button);
-            root.gridStrokeEnded(grid.row, grid.col, button);
             reset(handler);
         }
     }
@@ -360,7 +391,6 @@ Item {
         onTapped: function (eventPoint, button) {
             let point = eventPoint.position;
             let grid = root.screenToGrid(point.x, point.y);
-            root.pointerClicked(point.x, point.y, button);
             root.gridClicked(grid.row, grid.col, button);
         }
     }

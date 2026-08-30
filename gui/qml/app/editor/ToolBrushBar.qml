@@ -8,9 +8,9 @@ import app.models
 Item {
     id: root
 
-    readonly property string mode: selection.getMode()
-    readonly property int currentTile: selection.getTile()
-    readonly property int currentStatus: selection.getStatus()
+    readonly property string mode: selection.primaryItem?.mode ?? "view"
+    readonly property int currentTile: selection.activeItem?.tile ?? Tile.GRASSLAND
+    readonly property int currentStatus: selection.activeItem?.status ?? Tile.UNEXPLORED
 
     QtObject {
         id: selection
@@ -28,68 +28,57 @@ Item {
                 "label": "Puzzle"
             },
             {
-                "mode": "tileStatus",
-                "label": "Status",
-                "secondaryItems": statusItems([Tile.UNEXPLORED, Tile.BLOOMING])
-            },
-            {
                 "mode": "tile",
                 "tile": Tile.GRASSLAND,
-                "secondaryItems": tileItems([Tile.GRASSLAND, Tile.CLEARING])
+                "secondaryItems": items("tile", [Tile.GRASSLAND, Tile.CLEARING])
             },
             {
                 "mode": "tile",
                 "tile": Tile.ROAD_E,
-                "secondaryItems": tileItems([Tile.ROAD_E, Tile.ROAD_W, Tile.ROAD_N, Tile.ROAD_S])
+                "secondaryItems": items("tile", [Tile.ROAD_E, Tile.ROAD_W, Tile.ROAD_N, Tile.ROAD_S])
             },
             {
                 "mode": "tile",
                 "tile": Tile.ROAD_WE,
-                "secondaryItems": tileItems([Tile.ROAD_WE, Tile.ROAD_NS, Tile.ROAD_WS, Tile.ROAD_WN, Tile.ROAD_ES, Tile.ROAD_EN])
+                "secondaryItems": items("tile", [Tile.ROAD_WE, Tile.ROAD_NS, Tile.ROAD_WS, Tile.ROAD_WN, Tile.ROAD_ES, Tile.ROAD_EN])
             },
             {
                 "mode": "tile",
                 "tile": Tile.CLEARING_EN,
-                "secondaryItems": tileItems([Tile.CLEARING_EN, Tile.CLEARING_ES, Tile.CLEARING_WS, Tile.CLEARING_WN])
+                "secondaryItems": items("tile", [Tile.CLEARING_EN, Tile.CLEARING_ES, Tile.CLEARING_WS, Tile.CLEARING_WN])
             },
             {
                 "mode": "tile",
                 "tile": Tile.CLEARING_E,
-                "secondaryItems": tileItems([Tile.CLEARING_E, Tile.CLEARING_W, Tile.CLEARING_S, Tile.CLEARING_N])
+                "secondaryItems": items("tile", [Tile.CLEARING_E, Tile.CLEARING_W, Tile.CLEARING_S, Tile.CLEARING_N])
             },
             {
                 "mode": "tile",
                 "tile": Tile.STUMP_E,
-                "secondaryItems": tileItems([Tile.STUMP_W, Tile.STUMP_E, Tile.STUMP_N, Tile.STUMP_S])
+                "secondaryItems": items("tile", [Tile.STUMP_W, Tile.STUMP_E, Tile.STUMP_N, Tile.STUMP_S])
             },
             {
                 "mode": "tile",
                 "tile": Tile.CLEARING_W_ROAD_E,
-                "secondaryItems": tileItems([Tile.CLEARING_E_ROAD_W, Tile.CLEARING_W_ROAD_E, Tile.CLEARING_S_ROAD_N, Tile.CLEARING_N_ROAD_S])
-            }
+                "secondaryItems": items("tile", [Tile.CLEARING_E_ROAD_W, Tile.CLEARING_W_ROAD_E, Tile.CLEARING_S_ROAD_N, Tile.CLEARING_N_ROAD_S])
+            },
+            {
+                "mode": "tileStatus",
+                "status": Tile.UNEXPLORED,
+                "secondaryItems": items("status", [Tile.UNEXPLORED, Tile.BLOOMING])
+            },
         ]
 
-        property var primaryItem: primaryItems[primaryIndex]
-        property var secondaryItems: primaryItem.secondaryItems
+        readonly property var primaryItem: primaryItems[primaryIndex]
+        readonly property var secondaryItems: primaryItem?.secondaryItems ?? null
+        readonly property var activeItem: secondaryItems ? secondaryItems[secondaryIndex] : primaryItem
 
-        function tileItems(tiles) {
-            let items = [];
-            for (let index = 0; index < tiles.length; index++) {
-                items.push({
-                    "tile": tiles[index]
-                });
-            }
-            return items;
-        }
-
-        function statusItems(statuses) {
-            let items = [];
-            for (let index = 0; index < statuses.length; index++) {
-                items.push({
-                    "status": statuses[index]
-                });
-            }
-            return items;
+        function items(role, values) {
+            return values.map(value => {
+                let item = {};
+                item[role] = value;
+                return item;
+            });
         }
 
         function wrapIndex(index, count) {
@@ -108,39 +97,9 @@ Item {
         }
 
         function setSecondaryIndex(index) {
-            let secondaryItems = getSecondaryItems();
             if (!!secondaryItems) {
                 secondaryIndex = wrapIndex(index, secondaryItems.length);
             }
-        }
-
-        function getPrimaryItem() {
-            return primaryItems[primaryIndex];
-        }
-
-        function getSecondaryItems() {
-            return getPrimaryItem().secondaryItems;
-        }
-
-        function getActiveItem() {
-            let primaryItem = getPrimaryItem();
-            let secondaryItems = getSecondaryItems();
-            return !!secondaryItems ? secondaryItems[secondaryIndex] : primaryItem;
-        }
-
-        function getMode() {
-            let primaryItem = getPrimaryItem();
-            return primaryItem.mode !== undefined ? primaryItem.mode : "view";
-        }
-
-        function getTile() {
-            let activeItem = getActiveItem();
-            return activeItem.tile !== undefined ? activeItem.tile : Tile.GRASSLAND;
-        }
-
-        function getStatus() {
-            let activeItem = getActiveItem();
-            return activeItem.status !== undefined ? activeItem.status : Tile.UNEXPLORED;
         }
     }
 
@@ -166,14 +125,6 @@ Item {
             return item.icon;
         }
         return "";
-    }
-
-    function choosePrimary(index) {
-        selection.setPrimaryIndex(index);
-    }
-
-    function chooseSecondary(index) {
-        selection.setSecondaryIndex(index);
     }
 
     Item {
@@ -231,7 +182,7 @@ Item {
                         gesturePolicy: TapHandler.WithinBounds
                         grabPermissions: PointerHandler.CanTakeOverFromAnything
                         onTapped: {
-                            root.chooseSecondary(index);
+                            selection.setSecondaryIndex(index);
                         }
                     }
 
@@ -248,7 +199,7 @@ Item {
 
                 onWheel: function (event) {
                     let delta = event.angleDelta.y > 0 ? -1 : 1;
-                    root.chooseSecondary(selection.secondaryIndex + delta);
+                    selection.setSecondaryIndex(selection.secondaryIndex + delta);
                     event.accepted = true;
                 }
             }
@@ -305,7 +256,7 @@ Item {
                         gesturePolicy: TapHandler.WithinBounds
                         grabPermissions: PointerHandler.CanTakeOverFromAnything
                         onTapped: {
-                            root.choosePrimary(index);
+                            selection.setPrimaryIndex(index);
                         }
                     }
 
@@ -322,7 +273,7 @@ Item {
 
                 onWheel: function (event) {
                     let delta = event.angleDelta.y > 0 ? -1 : 1;
-                    root.choosePrimary(selection.primaryIndex + delta);
+                    selection.setPrimaryIndex(selection.primaryIndex + delta);
                     event.accepted = true;
                 }
             }

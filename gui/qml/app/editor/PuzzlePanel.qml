@@ -55,6 +55,18 @@ Rectangle {
         }
     }
 
+    function focusPuzzleRecord(puzzleId) {
+        let index = root.workspace.puzzles.indexById(puzzleId);
+        if (index < 0)
+            return;
+
+        let item = puzzleList.itemAtIndex(index);
+        if (item && item.y >= puzzleList.contentY && item.y + item.height <= puzzleList.contentY + puzzleList.height)
+            return;
+
+        puzzleList.positionViewAtIndex(index, ListView.Center);
+    }
+
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 8
@@ -81,12 +93,13 @@ Rectangle {
                 required property string name
                 required property string solveStatus
                 required property bool isGeometryStaled
+                required property bool isSelected
 
                 width: puzzleList.width
                 height: 36
                 radius: 4
-                color: root.workspace.puzzleView.puzzleId === puzzleId ? AppTheme.surfaceVariant : "transparent"
-                border.color: root.workspace.puzzleView.puzzleId === puzzleId ? AppTheme.primary : AppTheme.border
+                color: isSelected ? AppTheme.surfaceVariant : "transparent"
+                border.color: isSelected ? AppTheme.primary : AppTheme.border
 
                 RowLayout {
                     anchors.fill: parent
@@ -198,11 +211,23 @@ Rectangle {
                 spacing: 10
 
                 Label {
+                    id: summaryLabel
                     Layout.fillWidth: true
                     text: root.puzzleSummary()
-                    color: root.workspace.puzzleView.isGeometryStaled ? AppTheme.warning : AppTheme.textPrimary
+                    color: summaryHover.hovered ? AppTheme.primary : (root.workspace.puzzleView.isGeometryStaled ? AppTheme.warning : AppTheme.textPrimary)
                     font.bold: true
+                    font.underline: root.workspace.puzzleView.hasPuzzle
                     elide: Text.ElideRight
+
+                    HoverHandler {
+                        id: summaryHover
+                        acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+                    }
+
+                    TapHandler {
+                        acceptedButtons: Qt.LeftButton
+                        onTapped: root.workspace.selectPuzzle(root.workspace.puzzleView.puzzleId)
+                    }
                 }
 
                 ColumnLayout {
@@ -316,36 +341,86 @@ Rectangle {
                         font.bold: true
                     }
 
-                    RowLayout {
+                    ColumnLayout {
                         Layout.fillWidth: true
                         spacing: 6
 
-                        Label {
-                            text: qsTr("Time(s)")
-                            color: AppTheme.textSecondary
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 6
+
+                            CheckBox {
+                                text: qsTr("Time limit(s)")
+                                checked: root.workspace.puzzleView.hasTimeLimit
+                                onClicked: root.workspace.setPuzzleLimit(root.workspace.puzzleView.puzzleId, "time", checked, timeLimitSpinBox.value)
+                            }
+
+                            Item {
+                                Layout.fillWidth: true
+                            }
+
+                            Item {
+                                Layout.preferredWidth: 88
+                                Layout.preferredHeight: Math.max(timeLimitSpinBox.implicitHeight, timeLimitUnlimited.implicitHeight)
+
+                                SpinBox {
+                                    id: timeLimitSpinBox
+                                    anchors.fill: parent
+                                    visible: root.workspace.puzzleView.hasTimeLimit
+                                    editable: true
+                                    from: 1
+                                    to: 86400
+                                    value: root.workspace.puzzleView.timeLimit
+                                    onValueModified: root.workspace.setPuzzleLimit(root.workspace.puzzleView.puzzleId, "time", root.workspace.puzzleView.hasTimeLimit, value)
+                                }
+
+                                Label {
+                                    id: timeLimitUnlimited
+                                    anchors.centerIn: parent
+                                    visible: !root.workspace.puzzleView.hasTimeLimit
+                                    text: qsTr("Unlimited")
+                                    color: AppTheme.textSecondary
+                                }
+                            }
                         }
 
-                        SpinBox {
-                            Layout.preferredWidth: 88
-                            editable: true
-                            from: 0
-                            to: 86400
-                            value: root.workspace.puzzleView.timeLimit
-                            onValueModified: root.workspace.setPuzzleTimeLimit(root.workspace.puzzleView.puzzleId, value)
-                        }
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 6
 
-                        Label {
-                            text: qsTr("Solutions")
-                            color: AppTheme.textSecondary
-                        }
+                            CheckBox {
+                                text: qsTr("Solution limit")
+                                checked: root.workspace.puzzleView.hasSolutionLimit
+                                onClicked: root.workspace.setPuzzleLimit(root.workspace.puzzleView.puzzleId, "solution", checked, solutionLimitSpinBox.value)
+                            }
 
-                        SpinBox {
-                            Layout.preferredWidth: 88
-                            editable: true
-                            from: 0
-                            to: 10000
-                            value: root.workspace.puzzleView.solutionLimit
-                            onValueModified: root.workspace.setPuzzleSolutionLimit(root.workspace.puzzleView.puzzleId, value)
+                            Item {
+                                Layout.fillWidth: true
+                            }
+
+                            Item {
+                                Layout.preferredWidth: 88
+                                Layout.preferredHeight: Math.max(solutionLimitSpinBox.implicitHeight, solutionLimitUnlimited.implicitHeight)
+
+                                SpinBox {
+                                    id: solutionLimitSpinBox
+                                    anchors.fill: parent
+                                    visible: root.workspace.puzzleView.hasSolutionLimit
+                                    editable: true
+                                    from: 1
+                                    to: 10000
+                                    value: root.workspace.puzzleView.solutionLimit
+                                    onValueModified: root.workspace.setPuzzleLimit(root.workspace.puzzleView.puzzleId, "solution", root.workspace.puzzleView.hasSolutionLimit, value)
+                                }
+
+                                Label {
+                                    id: solutionLimitUnlimited
+                                    anchors.centerIn: parent
+                                    visible: !root.workspace.puzzleView.hasSolutionLimit
+                                    text: qsTr("Unlimited")
+                                    color: AppTheme.textSecondary
+                                }
+                            }
                         }
                     }
 
@@ -424,6 +499,14 @@ Rectangle {
                     }
                 }
             }
+        }
+    }
+
+    Connections {
+        target: root.workspace.puzzleView
+
+        function onRequestPuzzleFocus(puzzleId) {
+            root.focusPuzzleRecord(puzzleId);
         }
     }
 }

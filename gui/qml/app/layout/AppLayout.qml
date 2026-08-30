@@ -12,6 +12,8 @@ ColumnLayout {
     property Component menuBar
     property Component tileEditor
     property Component puzzlePanel
+    readonly property Item tileEditorItem: tileEditorLoader.item
+    readonly property Item puzzlePanelItem: puzzlePanelLoader.item
 
     Loader {
         id: menuBarLoader

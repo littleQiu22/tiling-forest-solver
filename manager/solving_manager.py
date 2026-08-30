@@ -1,17 +1,15 @@
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from PySide6.QtCore import QObject, QProcess, Slot
 
 from common import solverWorkerCommand
 from models.geometry import Grid
-from models.puzzle import Puzzle, PuzzleListModel, PuzzleSolveStatus, PuzzleState, Solution
+from models.puzzle import Puzzle, PuzzleListModel, PuzzleState, Solution
 from models.tile import tileTypeFromJson
-
-if TYPE_CHECKING:
-    from models.workspace import Workspace
+from solver.status import SOLVER_STATUS
 
 
 class SolvingManager(QObject):
@@ -32,22 +30,19 @@ class SolvingManager(QObject):
         if puzzle.id in self._processes:
             return False
 
-        puzzleState.solveStatus = PuzzleSolveStatus.SOLVING
         puzzleState.solutions = []
         puzzleState.currentSolutionIndex = -1
-        puzzleState.solvingLog = "Solver starting...\n"
-        puzzleState.isGeometryStaled = False
+        puzzleState.solvingLog = ""
         self._emitStateChanged(
             puzzle.id,
             [
-                PuzzleListModel.SolveStatusRole,
-                PuzzleListModel.IsGeometryStaledRole,
                 PuzzleListModel.CurrentSolutionRole,
                 PuzzleListModel.SolutionCountRole,
                 PuzzleListModel.CurrentSolutionIndexRole,
                 PuzzleListModel.SolvingLogRole,
             ],
         )
+        self._workspace._markBackgroundDirty()
 
         program, arguments = solverWorkerCommand()
         process = QProcess(self)
@@ -63,12 +58,13 @@ class SolvingManager(QObject):
         if not process.waitForStarted(3000):
             self._dropProcess(process)
             self._handleEvent(puzzle.id, {
-                "event": "error",
+                "status": SOLVER_STATUS.INTERNAL_ERROR.value,
                 "message": "Failed to start solver process.",
             })
             return False
 
-        process.write(json.dumps(self._solverRequest(puzzle, puzzleState)).encode("utf-8"))
+        process.write(json.dumps(self._solverRequest(
+            puzzle, puzzleState)).encode("utf-8"))
         process.closeWriteChannel()
         return True
 
@@ -76,6 +72,10 @@ class SolvingManager(QObject):
     def stop(self, puzzleId: str) -> None:
         process = self._processes.get(puzzleId)
         if process is not None:
+            self._handleEvent(puzzleId, {
+                "status": SOLVER_STATUS.INTERRUPTED.value,
+                "message": "Solver interrupted.",
+            })
             process.kill()
 
     @Slot()
@@ -86,14 +86,17 @@ class SolvingManager(QObject):
     def _solverRequest(self, puzzle: Puzzle, puzzleState: PuzzleState) -> dict[str, Any]:
         return {
             "puzzle": puzzle.toJson(),
-            "constraints": sorted(puzzleState.enabledConstraints),
+            "constraints": [
+                constraint.name
+                for constraint in puzzleState.enabledConstraints
+            ],
             "objectives": [
-                objective
+                objective.name
                 for objective in puzzleState.objectiveOrder
                 if objective in puzzleState.enabledObjectives
             ],
-            "timeLimit": None if puzzleState.timeLimit <= 0 else puzzleState.timeLimit,
-            "solutionLimit": None if puzzleState.solutionLimit <= 0 else puzzleState.solutionLimit,
+            "timeLimit": puzzleState.timeLimit if puzzleState.isTimeLimitEnabled else None,
+            "solutionLimit": puzzleState.solutionLimit if puzzleState.isSolutionLimitEnabled else None,
         }
 
     def _readStdout(self) -> None:
@@ -131,76 +134,50 @@ class SolvingManager(QObject):
         text = bytes(process.readAllStandardError()).decode("utf-8")
         if text:
             self._handleEvent(puzzleId, {
-                "event": "stderr",
+                "status": SOLVER_STATUS.INTERNAL_ERROR.value,
                 "message": text,
             })
 
-    def _finished(self, exitCode: int, exitStatus: QProcess.ExitStatus) -> None:
+    def _finished(self, _exitCode: int, _exitStatus: QProcess.ExitStatus) -> None:
         process = self.sender()
         if not isinstance(process, QProcess):
             return
 
-        puzzleId = process.property("puzzleId")
         self._dropProcess(process)
-        if isinstance(puzzleId, str):
-            self._handleEvent(puzzleId, {
-                "event": "processFinished",
-                "exitCode": exitCode,
-            })
 
     def _handleEvent(self, puzzleId: str, event: dict[str, Any]) -> None:
         state = self._workspace._puzzles.puzzleStateById(puzzleId)
         if state is None:
             return
 
-        match event.get("event"):
-            case "status":
-                state.solveStatus = PuzzleSolveStatus(event.get("status", "Unsolved"))
-                self._emitStateChanged(
-                    puzzleId,
-                    [PuzzleListModel.SolveStatusRole],
-                )
-            case "solution":
-                state.solutions.append(self._solutionFromJson(event.get("solution", [])))
-                if state.currentSolutionIndex == -1:
-                    state.currentSolutionIndex = 0
-                self._workspace._markBackgroundDirty()
-                self._emitStateChanged(
-                    puzzleId,
-                    [
-                        PuzzleListModel.CurrentSolutionRole,
-                        PuzzleListModel.SolutionCountRole,
-                        PuzzleListModel.CurrentSolutionIndexRole,
-                    ],
-                )
-            case "done":
-                state.solveStatus = PuzzleSolveStatus(event.get("status", "Unsolved"))
-                self._workspace._markBackgroundDirty()
-                self._emitStateChanged(
-                    puzzleId,
-                    [PuzzleListModel.SolveStatusRole],
-                )
-            case "log":
-                state.solvingLog += str(event.get("message", "")) + "\n"
-                self._emitStateChanged(puzzleId, [PuzzleListModel.SolvingLogRole])
-            case "stderr":
-                state.solvingLog += str(event.get("message", ""))
-                self._emitStateChanged(puzzleId, [PuzzleListModel.SolvingLogRole])
-            case "error":
-                state.solveStatus = PuzzleSolveStatus.UNSOLVED
-                state.solvingLog += "Solver error: " + str(event.get("message", "")) + "\n"
-                self._emitStateChanged(
-                    puzzleId,
-                    [PuzzleListModel.SolveStatusRole, PuzzleListModel.SolvingLogRole],
-                )
-            case "processFinished":
-                if state.solveStatus == PuzzleSolveStatus.SOLVING:
-                    state.solveStatus = PuzzleSolveStatus.UNSOLVED
-                    state.solvingLog += f"Solver stopped with exit code {event.get('exitCode', -1)}.\n"
-                    self._emitStateChanged(
-                        puzzleId,
-                        [PuzzleListModel.SolveStatusRole, PuzzleListModel.SolvingLogRole],
-                    )
+        roles: list[int] = []
+
+        message = event.get("message", None)
+        if message is not None:
+            state.solvingLog += str(message) + "\n"
+            roles.append(PuzzleListModel.SolvingLogRole)
+
+        solution = event.get("solution", None)
+        if solution is not None:
+            state.solutions.append(self._solutionFromJson(solution))
+            if state.currentSolutionIndex == -1:
+                state.currentSolutionIndex = 0
+            roles.extend([
+                PuzzleListModel.CurrentSolutionRole,
+                PuzzleListModel.SolutionCountRole,
+                PuzzleListModel.CurrentSolutionIndexRole,
+            ])
+
+        status = event.get("status", None)
+        if status is not None:
+            state.solveStatus = SOLVER_STATUS(str(status))
+            roles.append(PuzzleListModel.SolveStatusRole)
+
+        if not roles:
+            return
+
+        self._workspace._markBackgroundDirty()
+        self._emitStateChanged(puzzleId, roles)
 
     def _solutionFromJson(self, data: list[dict[str, Any]]) -> Solution:
         return {

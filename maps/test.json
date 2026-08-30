@@ -1,0 +1,5911 @@
+{
+  "puzzleStates": {
+    "0ec597d21a1d4a3399f6f5f8d03477f5": {
+      "currentSolutionIndex": -1,
+      "enabledConstraints": [
+        "FIGURE_ALIGNED",
+        "ROAD_MUST_EXIT"
+      ],
+      "enabledObjectives": [],
+      "isGeometryStaled": false,
+      "isSolutionLimitEnabled": false,
+      "isTimeLimitEnabled": false,
+      "objectiveOrder": [
+        "MIN_UNEXPLORED",
+        "MAX_CONNECTIVITY",
+        "MAX_DENSITY"
+      ],
+      "solutionLimit": 20,
+      "solutions": [],
+      "solveStatus": "Unsolved",
+      "solvingLog": "",
+      "timeLimit": 30
+    },
+    "245a45906055416096593857aa3cd3b3": {
+      "currentSolutionIndex": -1,
+      "enabledConstraints": [
+        "FIGURE_ALIGNED",
+        "ROAD_MUST_EXIT"
+      ],
+      "enabledObjectives": [],
+      "isGeometryStaled": false,
+      "isSolutionLimitEnabled": false,
+      "isTimeLimitEnabled": false,
+      "objectiveOrder": [
+        "MIN_UNEXPLORED",
+        "MAX_CONNECTIVITY",
+        "MAX_DENSITY"
+      ],
+      "solutionLimit": 20,
+      "solutions": [],
+      "solveStatus": "Unsolved",
+      "solvingLog": "",
+      "timeLimit": 30
+    },
+    "2a834273338d4473a860111dd94427b7": {
+      "currentSolutionIndex": -1,
+      "enabledConstraints": [
+        "FIGURE_ALIGNED",
+        "ROAD_MUST_EXIT"
+      ],
+      "enabledObjectives": [],
+      "isGeometryStaled": false,
+      "isSolutionLimitEnabled": false,
+      "isTimeLimitEnabled": false,
+      "objectiveOrder": [
+        "MIN_UNEXPLORED",
+        "MAX_CONNECTIVITY",
+        "MAX_DENSITY"
+      ],
+      "solutionLimit": 20,
+      "solutions": [],
+      "solveStatus": "Unsolved",
+      "solvingLog": "",
+      "timeLimit": 30
+    },
+    "3541d7fafdbc48238a87aafb69e98485": {
+      "currentSolutionIndex": -1,
+      "enabledConstraints": [
+        "FIGURE_ALIGNED",
+        "ROAD_MUST_EXIT"
+      ],
+      "enabledObjectives": [],
+      "isGeometryStaled": false,
+      "isSolutionLimitEnabled": false,
+      "isTimeLimitEnabled": false,
+      "objectiveOrder": [
+        "MIN_UNEXPLORED",
+        "MAX_CONNECTIVITY",
+        "MAX_DENSITY"
+      ],
+      "solutionLimit": 20,
+      "solutions": [],
+      "solveStatus": "Unsolved",
+      "solvingLog": "",
+      "timeLimit": 30
+    },
+    "35c088af623448429c0351717715d135": {
+      "currentSolutionIndex": -1,
+      "enabledConstraints": [
+        "FIGURE_ALIGNED",
+        "ROAD_MUST_EXIT"
+      ],
+      "enabledObjectives": [],
+      "isGeometryStaled": false,
+      "isSolutionLimitEnabled": false,
+      "isTimeLimitEnabled": false,
+      "objectiveOrder": [
+        "MIN_UNEXPLORED",
+        "MAX_CONNECTIVITY",
+        "MAX_DENSITY"
+      ],
+      "solutionLimit": 20,
+      "solutions": [],
+      "solveStatus": "Unsolved",
+      "solvingLog": "",
+      "timeLimit": 30
+    },
+    "3d7339954b674313a10c8c156bf82b86": {
+      "currentSolutionIndex": -1,
+      "enabledConstraints": [
+        "FIGURE_ALIGNED",
+        "ROAD_MUST_EXIT"
+      ],
+      "enabledObjectives": [],
+      "isGeometryStaled": false,
+      "isSolutionLimitEnabled": false,
+      "isTimeLimitEnabled": false,
+      "objectiveOrder": [
+        "MIN_UNEXPLORED",
+        "MAX_CONNECTIVITY",
+        "MAX_DENSITY"
+      ],
+      "solutionLimit": 20,
+      "solutions": [],
+      "solveStatus": "Unsolved",
+      "solvingLog": "",
+      "timeLimit": 30
+    },
+    "3ee723177df440af933e4157a29cc62c": {
+      "currentSolutionIndex": -1,
+      "enabledConstraints": [
+        "FIGURE_ALIGNED",
+        "ROAD_MUST_EXIT"
+      ],
+      "enabledObjectives": [],
+      "isGeometryStaled": false,
+      "isSolutionLimitEnabled": false,
+      "isTimeLimitEnabled": false,
+      "objectiveOrder": [
+        "MIN_UNEXPLORED",
+        "MAX_CONNECTIVITY",
+        "MAX_DENSITY"
+      ],
+      "solutionLimit": 20,
+      "solutions": [],
+      "solveStatus": "Unsolved",
+      "solvingLog": "",
+      "timeLimit": 30
+    },
+    "44d29b7fcc59495db457916b8377401a": {
+      "currentSolutionIndex": -1,
+      "enabledConstraints": [
+        "FIGURE_ALIGNED",
+        "ROAD_MUST_EXIT"
+      ],
+      "enabledObjectives": [],
+      "isGeometryStaled": false,
+      "isSolutionLimitEnabled": false,
+      "isTimeLimitEnabled": false,
+      "objectiveOrder": [
+        "MIN_UNEXPLORED",
+        "MAX_CONNECTIVITY",
+        "MAX_DENSITY"
+      ],
+      "solutionLimit": 20,
+      "solutions": [],
+      "solveStatus": "Unsolved",
+      "solvingLog": "",
+      "timeLimit": 30
+    },
+    "58aa6df79e8f4664adc673d2c76ed3f7": {
+      "currentSolutionIndex": -1,
+      "enabledConstraints": [
+        "FIGURE_ALIGNED",
+        "ROAD_MUST_EXIT"
+      ],
+      "enabledObjectives": [],
+      "isGeometryStaled": false,
+      "isSolutionLimitEnabled": false,
+      "isTimeLimitEnabled": false,
+      "objectiveOrder": [
+        "MIN_UNEXPLORED",
+        "MAX_CONNECTIVITY",
+        "MAX_DENSITY"
+      ],
+      "solutionLimit": 20,
+      "solutions": [],
+      "solveStatus": "Unsolved",
+      "solvingLog": "",
+      "timeLimit": 30
+    },
+    "69270986fd7c404a8aa4990b649dbe61": {
+      "currentSolutionIndex": -1,
+      "enabledConstraints": [
+        "FIGURE_ALIGNED",
+        "ROAD_MUST_EXIT"
+      ],
+      "enabledObjectives": [],
+      "isGeometryStaled": false,
+      "isSolutionLimitEnabled": false,
+      "isTimeLimitEnabled": false,
+      "objectiveOrder": [
+        "MIN_UNEXPLORED",
+        "MAX_CONNECTIVITY",
+        "MAX_DENSITY"
+      ],
+      "solutionLimit": 20,
+      "solutions": [],
+      "solveStatus": "Unsolved",
+      "solvingLog": "",
+      "timeLimit": 30
+    },
+    "81f0613a845d4df3bb188e1086e626a1": {
+      "currentSolutionIndex": -1,
+      "enabledConstraints": [
+        "FIGURE_ALIGNED",
+        "ROAD_MUST_EXIT"
+      ],
+      "enabledObjectives": [],
+      "isGeometryStaled": false,
+      "isSolutionLimitEnabled": false,
+      "isTimeLimitEnabled": false,
+      "objectiveOrder": [
+        "MIN_UNEXPLORED",
+        "MAX_CONNECTIVITY",
+        "MAX_DENSITY"
+      ],
+      "solutionLimit": 20,
+      "solutions": [],
+      "solveStatus": "Unsolved",
+      "solvingLog": "",
+      "timeLimit": 30
+    },
+    "a20817724273418bac41b0bf309c9f8d": {
+      "currentSolutionIndex": -1,
+      "enabledConstraints": [
+        "FIGURE_ALIGNED",
+        "ROAD_MUST_EXIT"
+      ],
+      "enabledObjectives": [],
+      "isGeometryStaled": false,
+      "isSolutionLimitEnabled": false,
+      "isTimeLimitEnabled": false,
+      "objectiveOrder": [
+        "MIN_UNEXPLORED",
+        "MAX_CONNECTIVITY",
+        "MAX_DENSITY"
+      ],
+      "solutionLimit": 20,
+      "solutions": [],
+      "solveStatus": "Unsolved",
+      "solvingLog": "",
+      "timeLimit": 30
+    },
+    "b3fab965e5fc4b9eb12987a186bcd735": {
+      "currentSolutionIndex": -1,
+      "enabledConstraints": [
+        "FIGURE_ALIGNED",
+        "ROAD_MUST_EXIT"
+      ],
+      "enabledObjectives": [],
+      "isGeometryStaled": false,
+      "isSolutionLimitEnabled": false,
+      "isTimeLimitEnabled": false,
+      "objectiveOrder": [
+        "MIN_UNEXPLORED",
+        "MAX_CONNECTIVITY",
+        "MAX_DENSITY"
+      ],
+      "solutionLimit": 20,
+      "solutions": [],
+      "solveStatus": "Unsolved",
+      "solvingLog": "",
+      "timeLimit": 30
+    },
+    "be48c465c74c4759af4dc184aa8e5e8c": {
+      "currentSolutionIndex": -1,
+      "enabledConstraints": [
+        "FIGURE_ALIGNED",
+        "ROAD_MUST_EXIT"
+      ],
+      "enabledObjectives": [],
+      "isGeometryStaled": false,
+      "isSolutionLimitEnabled": false,
+      "isTimeLimitEnabled": false,
+      "objectiveOrder": [
+        "MIN_UNEXPLORED",
+        "MAX_CONNECTIVITY",
+        "MAX_DENSITY"
+      ],
+      "solutionLimit": 20,
+      "solutions": [],
+      "solveStatus": "Unsolved",
+      "solvingLog": "",
+      "timeLimit": 30
+    },
+    "bfab091e3e524566803f9e16391b101f": {
+      "currentSolutionIndex": -1,
+      "enabledConstraints": [
+        "FIGURE_ALIGNED",
+        "ROAD_MUST_EXIT"
+      ],
+      "enabledObjectives": [],
+      "isGeometryStaled": false,
+      "isSolutionLimitEnabled": false,
+      "isTimeLimitEnabled": false,
+      "objectiveOrder": [
+        "MIN_UNEXPLORED",
+        "MAX_CONNECTIVITY",
+        "MAX_DENSITY"
+      ],
+      "solutionLimit": 20,
+      "solutions": [],
+      "solveStatus": "Unsolved",
+      "solvingLog": "",
+      "timeLimit": 30
+    },
+    "c69d39281e4343cab985287ef4385330": {
+      "currentSolutionIndex": -1,
+      "enabledConstraints": [
+        "FIGURE_ALIGNED",
+        "ROAD_MUST_EXIT"
+      ],
+      "enabledObjectives": [],
+      "isGeometryStaled": false,
+      "isSolutionLimitEnabled": false,
+      "isTimeLimitEnabled": false,
+      "objectiveOrder": [
+        "MIN_UNEXPLORED",
+        "MAX_CONNECTIVITY",
+        "MAX_DENSITY"
+      ],
+      "solutionLimit": 20,
+      "solutions": [],
+      "solveStatus": "Unsolved",
+      "solvingLog": "",
+      "timeLimit": 30
+    },
+    "ccbc4512735a41d390cff45dcd99e6c1": {
+      "currentSolutionIndex": -1,
+      "enabledConstraints": [
+        "FIGURE_ALIGNED",
+        "ROAD_MUST_EXIT"
+      ],
+      "enabledObjectives": [],
+      "isGeometryStaled": false,
+      "isSolutionLimitEnabled": false,
+      "isTimeLimitEnabled": false,
+      "objectiveOrder": [
+        "MIN_UNEXPLORED",
+        "MAX_CONNECTIVITY",
+        "MAX_DENSITY"
+      ],
+      "solutionLimit": 20,
+      "solutions": [],
+      "solveStatus": "Unsolved",
+      "solvingLog": "",
+      "timeLimit": 30
+    },
+    "f73d9db0929d449dad7434563bafbcfc": {
+      "currentSolutionIndex": -1,
+      "enabledConstraints": [
+        "FIGURE_ALIGNED",
+        "ROAD_MUST_EXIT"
+      ],
+      "enabledObjectives": [],
+      "isGeometryStaled": false,
+      "isSolutionLimitEnabled": false,
+      "isTimeLimitEnabled": false,
+      "objectiveOrder": [
+        "MIN_UNEXPLORED",
+        "MAX_CONNECTIVITY",
+        "MAX_DENSITY"
+      ],
+      "solutionLimit": 20,
+      "solutions": [],
+      "solveStatus": "Unsolved",
+      "solvingLog": "",
+      "timeLimit": 30
+    },
+    "fe9ab3f81c5342a0a2dd7ed8cffcb86f": {
+      "currentSolutionIndex": -1,
+      "enabledConstraints": [
+        "FIGURE_ALIGNED",
+        "ROAD_MUST_EXIT"
+      ],
+      "enabledObjectives": [],
+      "isGeometryStaled": false,
+      "isSolutionLimitEnabled": false,
+      "isTimeLimitEnabled": false,
+      "objectiveOrder": [
+        "MIN_UNEXPLORED",
+        "MAX_CONNECTIVITY",
+        "MAX_DENSITY"
+      ],
+      "solutionLimit": 20,
+      "solutions": [],
+      "solveStatus": "Unsolved",
+      "solvingLog": "",
+      "timeLimit": 30
+    }
+  },
+  "puzzles": [
+    {
+      "emptyGrids": [
+        {
+          "col": 1,
+          "row": 1
+        },
+        {
+          "col": 2,
+          "row": 1
+        },
+        {
+          "col": 3,
+          "row": 1
+        }
+      ],
+      "id": "44d29b7fcc59495db457916b8377401a",
+      "name": "W-1",
+      "placedGrids": [
+        {
+          "col": 1,
+          "row": 0,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 2,
+          "row": 0,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 3,
+          "row": 0,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 0,
+          "row": 1,
+          "status": "NORMAL",
+          "tile": "ROAD_E"
+        },
+        {
+          "col": 4,
+          "row": 1,
+          "status": "NORMAL",
+          "tile": "ROAD_WE"
+        },
+        {
+          "col": 1,
+          "row": 2,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 2,
+          "row": 2,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 3,
+          "row": 2,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        }
+      ],
+      "tilePool": []
+    },
+    {
+      "emptyGrids": [
+        {
+          "col": 5,
+          "row": 1
+        },
+        {
+          "col": 6,
+          "row": 1
+        },
+        {
+          "col": 7,
+          "row": 1
+        }
+      ],
+      "id": "3541d7fafdbc48238a87aafb69e98485",
+      "name": "W-2",
+      "placedGrids": [
+        {
+          "col": 5,
+          "row": 0,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 6,
+          "row": 0,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 7,
+          "row": 0,
+          "status": "NORMAL",
+          "tile": "ROAD_NS"
+        },
+        {
+          "col": 4,
+          "row": 1,
+          "status": "NORMAL",
+          "tile": "ROAD_WE"
+        },
+        {
+          "col": 8,
+          "row": 1,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 5,
+          "row": 2,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 6,
+          "row": 2,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 7,
+          "row": 2,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        }
+      ],
+      "tilePool": []
+    },
+    {
+      "emptyGrids": [
+        {
+          "col": 6,
+          "row": -4
+        },
+        {
+          "col": 7,
+          "row": -4
+        },
+        {
+          "col": 8,
+          "row": -4
+        },
+        {
+          "col": 9,
+          "row": -4
+        },
+        {
+          "col": 10,
+          "row": -4
+        },
+        {
+          "col": 6,
+          "row": -3
+        },
+        {
+          "col": 7,
+          "row": -3
+        },
+        {
+          "col": 8,
+          "row": -3
+        },
+        {
+          "col": 9,
+          "row": -3
+        },
+        {
+          "col": 10,
+          "row": -3
+        },
+        {
+          "col": 6,
+          "row": -2
+        },
+        {
+          "col": 7,
+          "row": -2
+        },
+        {
+          "col": 8,
+          "row": -2
+        },
+        {
+          "col": 9,
+          "row": -2
+        },
+        {
+          "col": 10,
+          "row": -2
+        },
+        {
+          "col": 6,
+          "row": -1
+        },
+        {
+          "col": 7,
+          "row": -1
+        },
+        {
+          "col": 8,
+          "row": -1
+        }
+      ],
+      "id": "58aa6df79e8f4664adc673d2c76ed3f7",
+      "name": "W-3",
+      "placedGrids": [
+        {
+          "col": 6,
+          "row": -5,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 7,
+          "row": -5,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 8,
+          "row": -5,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 9,
+          "row": -5,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 10,
+          "row": -5,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 5,
+          "row": -4,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 11,
+          "row": -4,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 5,
+          "row": -3,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 11,
+          "row": -3,
+          "status": "NORMAL",
+          "tile": "ROAD_WE"
+        },
+        {
+          "col": 5,
+          "row": -2,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 11,
+          "row": -2,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 5,
+          "row": -1,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 9,
+          "row": -1,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 10,
+          "row": -1,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 6,
+          "row": 0,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 7,
+          "row": 0,
+          "status": "NORMAL",
+          "tile": "ROAD_NS"
+        },
+        {
+          "col": 8,
+          "row": 0,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        }
+      ],
+      "tilePool": []
+    },
+    {
+      "emptyGrids": [
+        {
+          "col": 7,
+          "row": -16
+        },
+        {
+          "col": 8,
+          "row": -16
+        },
+        {
+          "col": 5,
+          "row": -15
+        },
+        {
+          "col": 6,
+          "row": -15
+        },
+        {
+          "col": 7,
+          "row": -15
+        },
+        {
+          "col": 8,
+          "row": -15
+        },
+        {
+          "col": 9,
+          "row": -15
+        },
+        {
+          "col": 5,
+          "row": -14
+        },
+        {
+          "col": 6,
+          "row": -14
+        },
+        {
+          "col": 7,
+          "row": -14
+        },
+        {
+          "col": 8,
+          "row": -14
+        },
+        {
+          "col": 9,
+          "row": -14
+        },
+        {
+          "col": 5,
+          "row": -13
+        },
+        {
+          "col": 6,
+          "row": -13
+        },
+        {
+          "col": 7,
+          "row": -13
+        },
+        {
+          "col": 8,
+          "row": -13
+        },
+        {
+          "col": 9,
+          "row": -13
+        },
+        {
+          "col": 10,
+          "row": -13
+        },
+        {
+          "col": 6,
+          "row": -12
+        },
+        {
+          "col": 7,
+          "row": -12
+        },
+        {
+          "col": 8,
+          "row": -12
+        },
+        {
+          "col": 9,
+          "row": -12
+        },
+        {
+          "col": 10,
+          "row": -12
+        },
+        {
+          "col": 7,
+          "row": -11
+        },
+        {
+          "col": 8,
+          "row": -11
+        }
+      ],
+      "id": "f73d9db0929d449dad7434563bafbcfc",
+      "name": "W-4",
+      "placedGrids": [
+        {
+          "col": 7,
+          "row": -17,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 8,
+          "row": -17,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 5,
+          "row": -16,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 6,
+          "row": -16,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 9,
+          "row": -16,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 4,
+          "row": -15,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 10,
+          "row": -15,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 4,
+          "row": -14,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 10,
+          "row": -14,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 4,
+          "row": -13,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 11,
+          "row": -13,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 5,
+          "row": -12,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 11,
+          "row": -12,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 6,
+          "row": -11,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 9,
+          "row": -11,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 10,
+          "row": -11,
+          "status": "NORMAL",
+          "tile": "ROAD_NS"
+        },
+        {
+          "col": 7,
+          "row": -10,
+          "status": "NORMAL",
+          "tile": "ROAD_WS"
+        },
+        {
+          "col": 8,
+          "row": -10,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        }
+      ],
+      "tilePool": []
+    },
+    {
+      "emptyGrids": [
+        {
+          "col": 5,
+          "row": -9
+        },
+        {
+          "col": 6,
+          "row": -9
+        },
+        {
+          "col": 7,
+          "row": -9
+        },
+        {
+          "col": 8,
+          "row": -9
+        },
+        {
+          "col": 9,
+          "row": -9
+        },
+        {
+          "col": 10,
+          "row": -9
+        },
+        {
+          "col": 11,
+          "row": -9
+        },
+        {
+          "col": 5,
+          "row": -8
+        },
+        {
+          "col": 6,
+          "row": -8
+        },
+        {
+          "col": 8,
+          "row": -8
+        },
+        {
+          "col": 9,
+          "row": -8
+        },
+        {
+          "col": 10,
+          "row": -8
+        },
+        {
+          "col": 11,
+          "row": -8
+        },
+        {
+          "col": 5,
+          "row": -7
+        },
+        {
+          "col": 6,
+          "row": -7
+        },
+        {
+          "col": 7,
+          "row": -7
+        },
+        {
+          "col": 8,
+          "row": -7
+        },
+        {
+          "col": 9,
+          "row": -7
+        },
+        {
+          "col": 10,
+          "row": -7
+        },
+        {
+          "col": 7,
+          "row": -6
+        },
+        {
+          "col": 8,
+          "row": -6
+        },
+        {
+          "col": 9,
+          "row": -6
+        }
+      ],
+      "id": "69270986fd7c404a8aa4990b649dbe61",
+      "name": "W-5",
+      "placedGrids": [
+        {
+          "col": 5,
+          "row": -10,
+          "status": "NORMAL",
+          "tile": "ROAD_WE"
+        },
+        {
+          "col": 6,
+          "row": -10,
+          "status": "NORMAL",
+          "tile": "ROAD_WE"
+        },
+        {
+          "col": 7,
+          "row": -10,
+          "status": "NORMAL",
+          "tile": "ROAD_WS"
+        },
+        {
+          "col": 8,
+          "row": -10,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 9,
+          "row": -10,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 10,
+          "row": -10,
+          "status": "NORMAL",
+          "tile": "ROAD_NS"
+        },
+        {
+          "col": 11,
+          "row": -10,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 4,
+          "row": -9,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 12,
+          "row": -9,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 4,
+          "row": -8,
+          "status": "NORMAL",
+          "tile": "ROAD_WS"
+        },
+        {
+          "col": 7,
+          "row": -8,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 12,
+          "row": -8,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 4,
+          "row": -7,
+          "status": "NORMAL",
+          "tile": "ROAD_NS"
+        },
+        {
+          "col": 11,
+          "row": -7,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 5,
+          "row": -6,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 6,
+          "row": -6,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 10,
+          "row": -6,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 7,
+          "row": -5,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 8,
+          "row": -5,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 9,
+          "row": -5,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        }
+      ],
+      "tilePool": []
+    },
+    {
+      "emptyGrids": [
+        {
+          "col": 0,
+          "row": -10
+        },
+        {
+          "col": 1,
+          "row": -10
+        },
+        {
+          "col": 2,
+          "row": -10
+        },
+        {
+          "col": -1,
+          "row": -9
+        },
+        {
+          "col": 0,
+          "row": -9
+        },
+        {
+          "col": 1,
+          "row": -9
+        },
+        {
+          "col": 2,
+          "row": -9
+        },
+        {
+          "col": 3,
+          "row": -9
+        },
+        {
+          "col": -1,
+          "row": -8
+        },
+        {
+          "col": 0,
+          "row": -8
+        },
+        {
+          "col": 1,
+          "row": -8
+        },
+        {
+          "col": 2,
+          "row": -8
+        },
+        {
+          "col": 3,
+          "row": -8
+        },
+        {
+          "col": 1,
+          "row": -7
+        },
+        {
+          "col": 2,
+          "row": -7
+        },
+        {
+          "col": 3,
+          "row": -7
+        }
+      ],
+      "id": "bfab091e3e524566803f9e16391b101f",
+      "name": "W-6",
+      "placedGrids": [
+        {
+          "col": 0,
+          "row": -11,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 1,
+          "row": -11,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 2,
+          "row": -11,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": -1,
+          "row": -10,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 3,
+          "row": -10,
+          "status": "NORMAL",
+          "tile": "ROAD_WE"
+        },
+        {
+          "col": -2,
+          "row": -9,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 4,
+          "row": -9,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": -2,
+          "row": -8,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 4,
+          "row": -8,
+          "status": "NORMAL",
+          "tile": "ROAD_WS"
+        },
+        {
+          "col": -1,
+          "row": -7,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 0,
+          "row": -7,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 4,
+          "row": -7,
+          "status": "NORMAL",
+          "tile": "ROAD_NS"
+        },
+        {
+          "col": 1,
+          "row": -6,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 2,
+          "row": -6,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 3,
+          "row": -6,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        }
+      ],
+      "tilePool": []
+    },
+    {
+      "emptyGrids": [
+        {
+          "col": 0,
+          "row": -5
+        },
+        {
+          "col": 1,
+          "row": -5
+        },
+        {
+          "col": 3,
+          "row": -5
+        },
+        {
+          "col": 4,
+          "row": -5
+        },
+        {
+          "col": 0,
+          "row": -4
+        },
+        {
+          "col": 1,
+          "row": -4
+        },
+        {
+          "col": 2,
+          "row": -4
+        },
+        {
+          "col": 3,
+          "row": -4
+        },
+        {
+          "col": 4,
+          "row": -4
+        },
+        {
+          "col": 0,
+          "row": -3
+        },
+        {
+          "col": 1,
+          "row": -3
+        },
+        {
+          "col": 3,
+          "row": -3
+        },
+        {
+          "col": 4,
+          "row": -3
+        },
+        {
+          "col": 0,
+          "row": -2
+        },
+        {
+          "col": 1,
+          "row": -2
+        },
+        {
+          "col": 2,
+          "row": -2
+        },
+        {
+          "col": 3,
+          "row": -2
+        },
+        {
+          "col": 4,
+          "row": -2
+        },
+        {
+          "col": 0,
+          "row": -1
+        },
+        {
+          "col": 1,
+          "row": -1
+        },
+        {
+          "col": 3,
+          "row": -1
+        },
+        {
+          "col": 4,
+          "row": -1
+        }
+      ],
+      "id": "c69d39281e4343cab985287ef4385330",
+      "name": "W-7",
+      "placedGrids": [
+        {
+          "col": 0,
+          "row": -6,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 1,
+          "row": -6,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 3,
+          "row": -6,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 4,
+          "row": -6,
+          "status": "NORMAL",
+          "tile": "ROAD_NS"
+        },
+        {
+          "col": -1,
+          "row": -5,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 2,
+          "row": -5,
+          "status": "NORMAL",
+          "tile": "CLEARING_S"
+        },
+        {
+          "col": 5,
+          "row": -5,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": -1,
+          "row": -4,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 5,
+          "row": -4,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": -1,
+          "row": -3,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 2,
+          "row": -3,
+          "status": "NORMAL",
+          "tile": "STUMP_W"
+        },
+        {
+          "col": 5,
+          "row": -3,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": -1,
+          "row": -2,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 5,
+          "row": -2,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": -1,
+          "row": -1,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 2,
+          "row": -1,
+          "status": "NORMAL",
+          "tile": "CLEARING_N"
+        },
+        {
+          "col": 5,
+          "row": -1,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 0,
+          "row": 0,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 1,
+          "row": 0,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 3,
+          "row": 0,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 4,
+          "row": 0,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        }
+      ],
+      "tilePool": []
+    },
+    {
+      "emptyGrids": [
+        {
+          "col": 12,
+          "row": -4
+        },
+        {
+          "col": 13,
+          "row": -4
+        },
+        {
+          "col": 14,
+          "row": -4
+        },
+        {
+          "col": 15,
+          "row": -4
+        },
+        {
+          "col": 12,
+          "row": -3
+        },
+        {
+          "col": 13,
+          "row": -3
+        },
+        {
+          "col": 14,
+          "row": -3
+        },
+        {
+          "col": 15,
+          "row": -3
+        },
+        {
+          "col": 12,
+          "row": -2
+        },
+        {
+          "col": 13,
+          "row": -2
+        },
+        {
+          "col": 14,
+          "row": -2
+        },
+        {
+          "col": 15,
+          "row": -2
+        },
+        {
+          "col": 16,
+          "row": -2
+        },
+        {
+          "col": 12,
+          "row": -1
+        },
+        {
+          "col": 13,
+          "row": -1
+        },
+        {
+          "col": 14,
+          "row": -1
+        },
+        {
+          "col": 15,
+          "row": -1
+        },
+        {
+          "col": 16,
+          "row": -1
+        }
+      ],
+      "id": "a20817724273418bac41b0bf309c9f8d",
+      "name": "C-1",
+      "placedGrids": [
+        {
+          "col": 12,
+          "row": -5,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 13,
+          "row": -5,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 14,
+          "row": -5,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 15,
+          "row": -5,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 11,
+          "row": -4,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 16,
+          "row": -4,
+          "status": "NORMAL",
+          "tile": "ROAD_NS"
+        },
+        {
+          "col": 11,
+          "row": -3,
+          "status": "NORMAL",
+          "tile": "ROAD_WE"
+        },
+        {
+          "col": 16,
+          "row": -3,
+          "status": "NORMAL",
+          "tile": "ROAD_WN"
+        },
+        {
+          "col": 11,
+          "row": -2,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 17,
+          "row": -2,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 11,
+          "row": -1,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 17,
+          "row": -1,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 12,
+          "row": 0,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 13,
+          "row": 0,
+          "status": "NORMAL",
+          "tile": "ROAD_NS"
+        },
+        {
+          "col": 14,
+          "row": 0,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 15,
+          "row": 0,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 16,
+          "row": 0,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        }
+      ],
+      "tilePool": []
+    },
+    {
+      "emptyGrids": [
+        {
+          "col": 17,
+          "row": -6
+        },
+        {
+          "col": 18,
+          "row": -6
+        },
+        {
+          "col": 19,
+          "row": -6
+        },
+        {
+          "col": 20,
+          "row": -6
+        },
+        {
+          "col": 17,
+          "row": -5
+        },
+        {
+          "col": 18,
+          "row": -5
+        },
+        {
+          "col": 19,
+          "row": -5
+        },
+        {
+          "col": 20,
+          "row": -5
+        },
+        {
+          "col": 17,
+          "row": -4
+        },
+        {
+          "col": 18,
+          "row": -4
+        },
+        {
+          "col": 19,
+          "row": -4
+        },
+        {
+          "col": 20,
+          "row": -4
+        }
+      ],
+      "id": "3ee723177df440af933e4157a29cc62c",
+      "name": "C-2",
+      "placedGrids": [
+        {
+          "col": 17,
+          "row": -7,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 18,
+          "row": -7,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 19,
+          "row": -7,
+          "status": "NORMAL",
+          "tile": "ROAD_EN"
+        },
+        {
+          "col": 20,
+          "row": -7,
+          "status": "NORMAL",
+          "tile": "ROAD_WE"
+        },
+        {
+          "col": 16,
+          "row": -6,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 21,
+          "row": -6,
+          "status": "NORMAL",
+          "tile": "ROAD_NS"
+        },
+        {
+          "col": 16,
+          "row": -5,
+          "status": "NORMAL",
+          "tile": "ROAD_ES"
+        },
+        {
+          "col": 21,
+          "row": -5,
+          "status": "NORMAL",
+          "tile": "ROAD_EN"
+        },
+        {
+          "col": 16,
+          "row": -4,
+          "status": "NORMAL",
+          "tile": "ROAD_NS"
+        },
+        {
+          "col": 21,
+          "row": -4,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 17,
+          "row": -3,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 18,
+          "row": -3,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 19,
+          "row": -3,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 20,
+          "row": -3,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        }
+      ],
+      "tilePool": []
+    },
+    {
+      "emptyGrids": [
+        {
+          "col": 20,
+          "row": -1
+        },
+        {
+          "col": 21,
+          "row": -1
+        },
+        {
+          "col": 22,
+          "row": -1
+        },
+        {
+          "col": 23,
+          "row": -1
+        },
+        {
+          "col": 24,
+          "row": -1
+        }
+      ],
+      "id": "3d7339954b674313a10c8c156bf82b86",
+      "name": "C-3",
+      "placedGrids": [
+        {
+          "col": 20,
+          "row": -2,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 21,
+          "row": -2,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 22,
+          "row": -2,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 23,
+          "row": -2,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 24,
+          "row": -2,
+          "status": "NORMAL",
+          "tile": "ROAD_ES"
+        },
+        {
+          "col": 19,
+          "row": -1,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 25,
+          "row": -1,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 20,
+          "row": 0,
+          "status": "NORMAL",
+          "tile": "ROAD_NS"
+        },
+        {
+          "col": 21,
+          "row": 0,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 22,
+          "row": 0,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 23,
+          "row": 0,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 24,
+          "row": 0,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        }
+      ],
+      "tilePool": []
+    },
+    {
+      "emptyGrids": [
+        {
+          "col": 22,
+          "row": -6
+        },
+        {
+          "col": 23,
+          "row": -6
+        },
+        {
+          "col": 24,
+          "row": -6
+        },
+        {
+          "col": 22,
+          "row": -5
+        },
+        {
+          "col": 23,
+          "row": -5
+        },
+        {
+          "col": 24,
+          "row": -5
+        },
+        {
+          "col": 23,
+          "row": -4
+        },
+        {
+          "col": 24,
+          "row": -4
+        },
+        {
+          "col": 25,
+          "row": -4
+        },
+        {
+          "col": 23,
+          "row": -3
+        },
+        {
+          "col": 24,
+          "row": -3
+        },
+        {
+          "col": 25,
+          "row": -3
+        }
+      ],
+      "id": "81f0613a845d4df3bb188e1086e626a1",
+      "name": "C-4",
+      "placedGrids": [
+        {
+          "col": 22,
+          "row": -7,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 23,
+          "row": -7,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 24,
+          "row": -7,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 21,
+          "row": -6,
+          "status": "NORMAL",
+          "tile": "ROAD_NS"
+        },
+        {
+          "col": 25,
+          "row": -6,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 21,
+          "row": -5,
+          "status": "NORMAL",
+          "tile": "ROAD_EN"
+        },
+        {
+          "col": 25,
+          "row": -5,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 22,
+          "row": -4,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 26,
+          "row": -4,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 22,
+          "row": -3,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 26,
+          "row": -3,
+          "status": "NORMAL",
+          "tile": "ROAD_E"
+        },
+        {
+          "col": 23,
+          "row": -2,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 24,
+          "row": -2,
+          "status": "NORMAL",
+          "tile": "ROAD_ES"
+        },
+        {
+          "col": 25,
+          "row": -2,
+          "status": "NORMAL",
+          "tile": "ROAD_WN"
+        }
+      ],
+      "tilePool": []
+    },
+    {
+      "emptyGrids": [
+        {
+          "col": 18,
+          "row": -13
+        },
+        {
+          "col": 19,
+          "row": -13
+        },
+        {
+          "col": 20,
+          "row": -13
+        },
+        {
+          "col": 21,
+          "row": -13
+        },
+        {
+          "col": 22,
+          "row": -13
+        },
+        {
+          "col": 23,
+          "row": -13
+        },
+        {
+          "col": 18,
+          "row": -12
+        },
+        {
+          "col": 19,
+          "row": -12
+        },
+        {
+          "col": 20,
+          "row": -12
+        },
+        {
+          "col": 21,
+          "row": -12
+        },
+        {
+          "col": 22,
+          "row": -12
+        },
+        {
+          "col": 23,
+          "row": -12
+        },
+        {
+          "col": 18,
+          "row": -11
+        },
+        {
+          "col": 19,
+          "row": -11
+        },
+        {
+          "col": 22,
+          "row": -11
+        },
+        {
+          "col": 23,
+          "row": -11
+        },
+        {
+          "col": 18,
+          "row": -10
+        },
+        {
+          "col": 19,
+          "row": -10
+        },
+        {
+          "col": 22,
+          "row": -10
+        },
+        {
+          "col": 23,
+          "row": -10
+        },
+        {
+          "col": 18,
+          "row": -9
+        },
+        {
+          "col": 19,
+          "row": -9
+        },
+        {
+          "col": 20,
+          "row": -9
+        },
+        {
+          "col": 21,
+          "row": -9
+        },
+        {
+          "col": 22,
+          "row": -9
+        },
+        {
+          "col": 23,
+          "row": -9
+        },
+        {
+          "col": 18,
+          "row": -8
+        },
+        {
+          "col": 19,
+          "row": -8
+        },
+        {
+          "col": 20,
+          "row": -8
+        },
+        {
+          "col": 21,
+          "row": -8
+        },
+        {
+          "col": 22,
+          "row": -8
+        },
+        {
+          "col": 23,
+          "row": -8
+        }
+      ],
+      "id": "b3fab965e5fc4b9eb12987a186bcd735",
+      "name": "C-5",
+      "placedGrids": [
+        {
+          "col": 18,
+          "row": -14,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 19,
+          "row": -14,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 20,
+          "row": -14,
+          "status": "NORMAL",
+          "tile": "ROAD_EN"
+        },
+        {
+          "col": 21,
+          "row": -14,
+          "status": "NORMAL",
+          "tile": "ROAD_WE"
+        },
+        {
+          "col": 22,
+          "row": -14,
+          "status": "NORMAL",
+          "tile": "ROAD_WS"
+        },
+        {
+          "col": 23,
+          "row": -14,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 17,
+          "row": -13,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 24,
+          "row": -13,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 17,
+          "row": -12,
+          "status": "NORMAL",
+          "tile": "ROAD_ES"
+        },
+        {
+          "col": 24,
+          "row": -12,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 17,
+          "row": -11,
+          "status": "NORMAL",
+          "tile": "ROAD_NS"
+        },
+        {
+          "col": 20,
+          "row": -11,
+          "status": "NORMAL",
+          "tile": "CLEARING"
+        },
+        {
+          "col": 21,
+          "row": -11,
+          "status": "NORMAL",
+          "tile": "CLEARING"
+        },
+        {
+          "col": 24,
+          "row": -11,
+          "status": "NORMAL",
+          "tile": "ROAD_ES"
+        },
+        {
+          "col": 17,
+          "row": -10,
+          "status": "NORMAL",
+          "tile": "ROAD_WN"
+        },
+        {
+          "col": 20,
+          "row": -10,
+          "status": "NORMAL",
+          "tile": "CLEARING"
+        },
+        {
+          "col": 21,
+          "row": -10,
+          "status": "NORMAL",
+          "tile": "CLEARING"
+        },
+        {
+          "col": 24,
+          "row": -10,
+          "status": "NORMAL",
+          "tile": "ROAD_NS"
+        },
+        {
+          "col": 17,
+          "row": -9,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 24,
+          "row": -9,
+          "status": "NORMAL",
+          "tile": "ROAD_WN"
+        },
+        {
+          "col": 17,
+          "row": -8,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 24,
+          "row": -8,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 18,
+          "row": -7,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 19,
+          "row": -7,
+          "status": "NORMAL",
+          "tile": "ROAD_EN"
+        },
+        {
+          "col": 20,
+          "row": -7,
+          "status": "NORMAL",
+          "tile": "ROAD_WE"
+        },
+        {
+          "col": 21,
+          "row": -7,
+          "status": "NORMAL",
+          "tile": "ROAD_WS"
+        },
+        {
+          "col": 22,
+          "row": -7,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 23,
+          "row": -7,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        }
+      ],
+      "tilePool": []
+    },
+    {
+      "emptyGrids": [
+        {
+          "col": 13,
+          "row": -12
+        },
+        {
+          "col": 14,
+          "row": -12
+        },
+        {
+          "col": 13,
+          "row": -11
+        },
+        {
+          "col": 14,
+          "row": -11
+        },
+        {
+          "col": 15,
+          "row": -11
+        },
+        {
+          "col": 16,
+          "row": -11
+        },
+        {
+          "col": 13,
+          "row": -10
+        },
+        {
+          "col": 14,
+          "row": -10
+        },
+        {
+          "col": 15,
+          "row": -10
+        },
+        {
+          "col": 16,
+          "row": -10
+        },
+        {
+          "col": 13,
+          "row": -9
+        },
+        {
+          "col": 14,
+          "row": -9
+        },
+        {
+          "col": 15,
+          "row": -9
+        },
+        {
+          "col": 13,
+          "row": -8
+        },
+        {
+          "col": 14,
+          "row": -8
+        },
+        {
+          "col": 15,
+          "row": -8
+        },
+        {
+          "col": 13,
+          "row": -7
+        },
+        {
+          "col": 14,
+          "row": -7
+        },
+        {
+          "col": 15,
+          "row": -7
+        }
+      ],
+      "id": "245a45906055416096593857aa3cd3b3",
+      "name": "C-6",
+      "placedGrids": [
+        {
+          "col": 13,
+          "row": -13,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 14,
+          "row": -13,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 12,
+          "row": -12,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 15,
+          "row": -12,
+          "status": "NORMAL",
+          "tile": "ROAD_NS"
+        },
+        {
+          "col": 16,
+          "row": -12,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 12,
+          "row": -11,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 17,
+          "row": -11,
+          "status": "NORMAL",
+          "tile": "ROAD_NS"
+        },
+        {
+          "col": 12,
+          "row": -10,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 17,
+          "row": -10,
+          "status": "NORMAL",
+          "tile": "ROAD_WN"
+        },
+        {
+          "col": 12,
+          "row": -9,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 16,
+          "row": -9,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 12,
+          "row": -8,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 16,
+          "row": -8,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 12,
+          "row": -7,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 16,
+          "row": -7,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 13,
+          "row": -6,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 14,
+          "row": -6,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 15,
+          "row": -6,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        }
+      ],
+      "tilePool": []
+    },
+    {
+      "emptyGrids": [
+        {
+          "col": 12,
+          "row": -18
+        },
+        {
+          "col": 13,
+          "row": -18
+        },
+        {
+          "col": 14,
+          "row": -18
+        },
+        {
+          "col": 15,
+          "row": -18
+        },
+        {
+          "col": 12,
+          "row": -17
+        },
+        {
+          "col": 13,
+          "row": -17
+        },
+        {
+          "col": 14,
+          "row": -17
+        },
+        {
+          "col": 15,
+          "row": -17
+        },
+        {
+          "col": 16,
+          "row": -17
+        },
+        {
+          "col": 17,
+          "row": -17
+        },
+        {
+          "col": 12,
+          "row": -16
+        },
+        {
+          "col": 14,
+          "row": -16
+        },
+        {
+          "col": 15,
+          "row": -16
+        },
+        {
+          "col": 16,
+          "row": -16
+        },
+        {
+          "col": 17,
+          "row": -16
+        },
+        {
+          "col": 12,
+          "row": -15
+        },
+        {
+          "col": 13,
+          "row": -15
+        },
+        {
+          "col": 14,
+          "row": -15
+        },
+        {
+          "col": 15,
+          "row": -15
+        },
+        {
+          "col": 16,
+          "row": -15
+        },
+        {
+          "col": 17,
+          "row": -15
+        },
+        {
+          "col": 12,
+          "row": -14
+        },
+        {
+          "col": 13,
+          "row": -14
+        },
+        {
+          "col": 14,
+          "row": -14
+        },
+        {
+          "col": 15,
+          "row": -14
+        }
+      ],
+      "id": "0ec597d21a1d4a3399f6f5f8d03477f5",
+      "name": "N-1",
+      "placedGrids": [
+        {
+          "col": 12,
+          "row": -19,
+          "status": "NORMAL",
+          "tile": "CLEARING_ES"
+        },
+        {
+          "col": 13,
+          "row": -19,
+          "status": "NORMAL",
+          "tile": "CLEARING_WS"
+        },
+        {
+          "col": 14,
+          "row": -19,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 15,
+          "row": -19,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 11,
+          "row": -18,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 16,
+          "row": -18,
+          "status": "NORMAL",
+          "tile": "CLEARING_ES"
+        },
+        {
+          "col": 17,
+          "row": -18,
+          "status": "NORMAL",
+          "tile": "CLEARING_WS"
+        },
+        {
+          "col": 11,
+          "row": -17,
+          "status": "NORMAL",
+          "tile": "ROAD_WE"
+        },
+        {
+          "col": 18,
+          "row": -17,
+          "status": "NORMAL",
+          "tile": "ROAD_WN"
+        },
+        {
+          "col": 11,
+          "row": -16,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 13,
+          "row": -16,
+          "status": "NORMAL",
+          "tile": "CLEARING_W"
+        },
+        {
+          "col": 18,
+          "row": -16,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 11,
+          "row": -15,
+          "status": "NORMAL",
+          "tile": "ROAD_WE"
+        },
+        {
+          "col": 18,
+          "row": -15,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 11,
+          "row": -14,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 16,
+          "row": -14,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 17,
+          "row": -14,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 12,
+          "row": -13,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 13,
+          "row": -13,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 14,
+          "row": -13,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 15,
+          "row": -13,
+          "status": "NORMAL",
+          "tile": "ROAD_NS"
+        }
+      ],
+      "tilePool": []
+    },
+    {
+      "emptyGrids": [
+        {
+          "col": 5,
+          "row": -20
+        },
+        {
+          "col": 6,
+          "row": -20
+        },
+        {
+          "col": 7,
+          "row": -20
+        },
+        {
+          "col": 8,
+          "row": -20
+        },
+        {
+          "col": 9,
+          "row": -20
+        },
+        {
+          "col": 10,
+          "row": -20
+        },
+        {
+          "col": 5,
+          "row": -19
+        },
+        {
+          "col": 6,
+          "row": -19
+        },
+        {
+          "col": 7,
+          "row": -19
+        },
+        {
+          "col": 8,
+          "row": -19
+        },
+        {
+          "col": 9,
+          "row": -19
+        },
+        {
+          "col": 10,
+          "row": -19
+        },
+        {
+          "col": 5,
+          "row": -18
+        },
+        {
+          "col": 6,
+          "row": -18
+        },
+        {
+          "col": 7,
+          "row": -18
+        },
+        {
+          "col": 8,
+          "row": -18
+        },
+        {
+          "col": 9,
+          "row": -18
+        },
+        {
+          "col": 10,
+          "row": -18
+        }
+      ],
+      "id": "ccbc4512735a41d390cff45dcd99e6c1",
+      "name": "N-2",
+      "placedGrids": [
+        {
+          "col": 5,
+          "row": -21,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 6,
+          "row": -21,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 7,
+          "row": -21,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 8,
+          "row": -21,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 9,
+          "row": -21,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 10,
+          "row": -21,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 4,
+          "row": -20,
+          "status": "NORMAL",
+          "tile": "CLEARING_ES"
+        },
+        {
+          "col": 11,
+          "row": -20,
+          "status": "NORMAL",
+          "tile": "CLEARING_WS"
+        },
+        {
+          "col": 4,
+          "row": -19,
+          "status": "NORMAL",
+          "tile": "CLEARING_EN"
+        },
+        {
+          "col": 11,
+          "row": -19,
+          "status": "NORMAL",
+          "tile": "CLEARING_WN"
+        },
+        {
+          "col": 4,
+          "row": -18,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 11,
+          "row": -18,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 5,
+          "row": -17,
+          "status": "NORMAL",
+          "tile": "ROAD_WE"
+        },
+        {
+          "col": 6,
+          "row": -17,
+          "status": "NORMAL",
+          "tile": "ROAD_WN"
+        },
+        {
+          "col": 7,
+          "row": -17,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 8,
+          "row": -17,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 9,
+          "row": -17,
+          "status": "NORMAL",
+          "tile": "ROAD_EN"
+        },
+        {
+          "col": 10,
+          "row": -17,
+          "status": "NORMAL",
+          "tile": "ROAD_WE"
+        }
+      ],
+      "tilePool": []
+    },
+    {
+      "emptyGrids": [
+        {
+          "col": 0,
+          "row": -17
+        },
+        {
+          "col": 1,
+          "row": -17
+        },
+        {
+          "col": 2,
+          "row": -17
+        },
+        {
+          "col": -1,
+          "row": -16
+        },
+        {
+          "col": 0,
+          "row": -16
+        },
+        {
+          "col": 1,
+          "row": -16
+        },
+        {
+          "col": 2,
+          "row": -16
+        },
+        {
+          "col": 3,
+          "row": -16
+        },
+        {
+          "col": -1,
+          "row": -15
+        },
+        {
+          "col": 0,
+          "row": -15
+        },
+        {
+          "col": 1,
+          "row": -15
+        },
+        {
+          "col": 2,
+          "row": -15
+        },
+        {
+          "col": 3,
+          "row": -15
+        },
+        {
+          "col": -1,
+          "row": -14
+        },
+        {
+          "col": 0,
+          "row": -14
+        },
+        {
+          "col": 1,
+          "row": -14
+        },
+        {
+          "col": 2,
+          "row": -14
+        },
+        {
+          "col": 0,
+          "row": -13
+        },
+        {
+          "col": 1,
+          "row": -13
+        },
+        {
+          "col": 2,
+          "row": -13
+        },
+        {
+          "col": 1,
+          "row": -12
+        },
+        {
+          "col": 2,
+          "row": -12
+        }
+      ],
+      "id": "fe9ab3f81c5342a0a2dd7ed8cffcb86f",
+      "name": "N-3",
+      "placedGrids": [
+        {
+          "col": 0,
+          "row": -18,
+          "status": "NORMAL",
+          "tile": "CLEARING_ES"
+        },
+        {
+          "col": 1,
+          "row": -18,
+          "status": "NORMAL",
+          "tile": "CLEARING_WS"
+        },
+        {
+          "col": 2,
+          "row": -18,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": -1,
+          "row": -17,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 3,
+          "row": -17,
+          "status": "NORMAL",
+          "tile": "ROAD_WE"
+        },
+        {
+          "col": -2,
+          "row": -16,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 4,
+          "row": -16,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": -2,
+          "row": -15,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 4,
+          "row": -15,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": -2,
+          "row": -14,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 3,
+          "row": -14,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": -1,
+          "row": -13,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 3,
+          "row": -13,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 0,
+          "row": -12,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 3,
+          "row": -12,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 1,
+          "row": -11,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 2,
+          "row": -11,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        }
+      ],
+      "tilePool": []
+    },
+    {
+      "emptyGrids": [
+        {
+          "col": 17,
+          "row": -24
+        },
+        {
+          "col": 18,
+          "row": -24
+        },
+        {
+          "col": 15,
+          "row": -23
+        },
+        {
+          "col": 16,
+          "row": -23
+        },
+        {
+          "col": 17,
+          "row": -23
+        },
+        {
+          "col": 18,
+          "row": -23
+        },
+        {
+          "col": 15,
+          "row": -22
+        },
+        {
+          "col": 16,
+          "row": -22
+        },
+        {
+          "col": 17,
+          "row": -22
+        },
+        {
+          "col": 15,
+          "row": -21
+        },
+        {
+          "col": 16,
+          "row": -21
+        },
+        {
+          "col": 17,
+          "row": -21
+        },
+        {
+          "col": 18,
+          "row": -21
+        },
+        {
+          "col": 15,
+          "row": -20
+        },
+        {
+          "col": 16,
+          "row": -20
+        },
+        {
+          "col": 17,
+          "row": -20
+        },
+        {
+          "col": 18,
+          "row": -20
+        },
+        {
+          "col": 19,
+          "row": -20
+        }
+      ],
+      "id": "2a834273338d4473a860111dd94427b7",
+      "name": "N-4",
+      "placedGrids": [
+        {
+          "col": 17,
+          "row": -25,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 18,
+          "row": -25,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 15,
+          "row": -24,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 16,
+          "row": -24,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 19,
+          "row": -24,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 14,
+          "row": -23,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 19,
+          "row": -23,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 14,
+          "row": -22,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 18,
+          "row": -22,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 14,
+          "row": -21,
+          "status": "NORMAL",
+          "tile": "ROAD_WE"
+        },
+        {
+          "col": 19,
+          "row": -21,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 14,
+          "row": -20,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 20,
+          "row": -20,
+          "status": "NORMAL",
+          "tile": "ROAD_NS"
+        },
+        {
+          "col": 15,
+          "row": -19,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 16,
+          "row": -19,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 17,
+          "row": -19,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 18,
+          "row": -19,
+          "status": "NORMAL",
+          "tile": "ROAD_NS"
+        },
+        {
+          "col": 19,
+          "row": -19,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        }
+      ],
+      "tilePool": []
+    },
+    {
+      "emptyGrids": [
+        {
+          "col": 7,
+          "row": -25
+        },
+        {
+          "col": 8,
+          "row": -25
+        },
+        {
+          "col": 9,
+          "row": -25
+        },
+        {
+          "col": 10,
+          "row": -25
+        },
+        {
+          "col": 7,
+          "row": -24
+        },
+        {
+          "col": 8,
+          "row": -24
+        },
+        {
+          "col": 9,
+          "row": -24
+        },
+        {
+          "col": 10,
+          "row": -24
+        },
+        {
+          "col": 11,
+          "row": -24
+        },
+        {
+          "col": 12,
+          "row": -24
+        },
+        {
+          "col": 13,
+          "row": -24
+        },
+        {
+          "col": 7,
+          "row": -23
+        },
+        {
+          "col": 8,
+          "row": -23
+        },
+        {
+          "col": 9,
+          "row": -23
+        },
+        {
+          "col": 10,
+          "row": -23
+        },
+        {
+          "col": 11,
+          "row": -23
+        },
+        {
+          "col": 12,
+          "row": -23
+        },
+        {
+          "col": 13,
+          "row": -23
+        },
+        {
+          "col": 7,
+          "row": -22
+        },
+        {
+          "col": 8,
+          "row": -22
+        },
+        {
+          "col": 9,
+          "row": -22
+        },
+        {
+          "col": 11,
+          "row": -22
+        },
+        {
+          "col": 12,
+          "row": -22
+        }
+      ],
+      "id": "be48c465c74c4759af4dc184aa8e5e8c",
+      "name": "N-5",
+      "placedGrids": [
+        {
+          "col": 7,
+          "row": -26,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 8,
+          "row": -26,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 9,
+          "row": -26,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 10,
+          "row": -26,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 6,
+          "row": -25,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 11,
+          "row": -25,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 12,
+          "row": -25,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 13,
+          "row": -25,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 6,
+          "row": -24,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 14,
+          "row": -24,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 6,
+          "row": -23,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 14,
+          "row": -23,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 6,
+          "row": -22,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 10,
+          "row": -22,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 13,
+          "row": -22,
+          "status": "NORMAL",
+          "tile": "STUMP_W"
+        },
+        {
+          "col": 7,
+          "row": -21,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 8,
+          "row": -21,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 9,
+          "row": -21,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 11,
+          "row": -21,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 12,
+          "row": -21,
+          "status": "NORMAL",
+          "tile": "ROAD_EN"
+        }
+      ],
+      "tilePool": []
+    },
+    {
+      "emptyGrids": [
+        {
+          "col": 14,
+          "row": -28
+        },
+        {
+          "col": 15,
+          "row": -28
+        },
+        {
+          "col": 16,
+          "row": -28
+        },
+        {
+          "col": 17,
+          "row": -28
+        },
+        {
+          "col": 18,
+          "row": -28
+        },
+        {
+          "col": 19,
+          "row": -28
+        },
+        {
+          "col": 20,
+          "row": -28
+        },
+        {
+          "col": 21,
+          "row": -28
+        },
+        {
+          "col": 14,
+          "row": -27
+        },
+        {
+          "col": 15,
+          "row": -27
+        },
+        {
+          "col": 16,
+          "row": -27
+        },
+        {
+          "col": 17,
+          "row": -27
+        },
+        {
+          "col": 18,
+          "row": -27
+        },
+        {
+          "col": 19,
+          "row": -27
+        },
+        {
+          "col": 20,
+          "row": -27
+        },
+        {
+          "col": 21,
+          "row": -27
+        },
+        {
+          "col": 14,
+          "row": -26
+        },
+        {
+          "col": 15,
+          "row": -26
+        },
+        {
+          "col": 16,
+          "row": -26
+        },
+        {
+          "col": 17,
+          "row": -26
+        },
+        {
+          "col": 18,
+          "row": -26
+        },
+        {
+          "col": 19,
+          "row": -26
+        },
+        {
+          "col": 20,
+          "row": -26
+        },
+        {
+          "col": 21,
+          "row": -26
+        }
+      ],
+      "id": "35c088af623448429c0351717715d135",
+      "name": "N-6",
+      "placedGrids": [
+        {
+          "col": 14,
+          "row": -29,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 15,
+          "row": -29,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 16,
+          "row": -29,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 17,
+          "row": -29,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 18,
+          "row": -29,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 19,
+          "row": -29,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 20,
+          "row": -29,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 21,
+          "row": -29,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 13,
+          "row": -28,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 22,
+          "row": -28,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 13,
+          "row": -27,
+          "status": "NORMAL",
+          "tile": "ROAD_E"
+        },
+        {
+          "col": 22,
+          "row": -27,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 13,
+          "row": -26,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 22,
+          "row": -26,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 14,
+          "row": -25,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 15,
+          "row": -25,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 16,
+          "row": -25,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 17,
+          "row": -25,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 18,
+          "row": -25,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 19,
+          "row": -25,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        },
+        {
+          "col": 20,
+          "row": -25,
+          "status": "NORMAL",
+          "tile": "ROAD_NS"
+        },
+        {
+          "col": 21,
+          "row": -25,
+          "status": "NORMAL",
+          "tile": "GRASSLAND"
+        }
+      ],
+      "tilePool": []
+    }
+  ],
+  "tiles": [
+    {
+      "col": 13,
+      "row": -29,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 14,
+      "row": -29,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 15,
+      "row": -29,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 16,
+      "row": -29,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 17,
+      "row": -29,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 18,
+      "row": -29,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 19,
+      "row": -29,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 20,
+      "row": -29,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 21,
+      "row": -29,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 22,
+      "row": -29,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 13,
+      "row": -28,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 22,
+      "row": -28,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 13,
+      "row": -27,
+      "status": "NORMAL",
+      "tile": "ROAD_E"
+    },
+    {
+      "col": 22,
+      "row": -27,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 6,
+      "row": -26,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 7,
+      "row": -26,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 8,
+      "row": -26,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 9,
+      "row": -26,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 10,
+      "row": -26,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 11,
+      "row": -26,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 13,
+      "row": -26,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 22,
+      "row": -26,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 6,
+      "row": -25,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 11,
+      "row": -25,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 12,
+      "row": -25,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 13,
+      "row": -25,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 14,
+      "row": -25,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 15,
+      "row": -25,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 16,
+      "row": -25,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 17,
+      "row": -25,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 18,
+      "row": -25,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 19,
+      "row": -25,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 20,
+      "row": -25,
+      "status": "NORMAL",
+      "tile": "ROAD_NS"
+    },
+    {
+      "col": 21,
+      "row": -25,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 22,
+      "row": -25,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 6,
+      "row": -24,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 14,
+      "row": -24,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 15,
+      "row": -24,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 16,
+      "row": -24,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 19,
+      "row": -24,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 6,
+      "row": -23,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 14,
+      "row": -23,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 19,
+      "row": -23,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 6,
+      "row": -22,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 10,
+      "row": -22,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 13,
+      "row": -22,
+      "status": "NORMAL",
+      "tile": "STUMP_W"
+    },
+    {
+      "col": 14,
+      "row": -22,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 18,
+      "row": -22,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 19,
+      "row": -22,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 4,
+      "row": -21,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 5,
+      "row": -21,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 6,
+      "row": -21,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 7,
+      "row": -21,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 8,
+      "row": -21,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 9,
+      "row": -21,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 10,
+      "row": -21,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 11,
+      "row": -21,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 12,
+      "row": -21,
+      "status": "NORMAL",
+      "tile": "ROAD_EN"
+    },
+    {
+      "col": 13,
+      "row": -21,
+      "status": "NORMAL",
+      "tile": "ROAD_WE"
+    },
+    {
+      "col": 14,
+      "row": -21,
+      "status": "NORMAL",
+      "tile": "ROAD_WE"
+    },
+    {
+      "col": 19,
+      "row": -21,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 20,
+      "row": -21,
+      "status": "NORMAL",
+      "tile": "ROAD_NS"
+    },
+    {
+      "col": 4,
+      "row": -20,
+      "status": "NORMAL",
+      "tile": "CLEARING_ES"
+    },
+    {
+      "col": 11,
+      "row": -20,
+      "status": "NORMAL",
+      "tile": "CLEARING_WS"
+    },
+    {
+      "col": 14,
+      "row": -20,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 20,
+      "row": -20,
+      "status": "NORMAL",
+      "tile": "ROAD_NS"
+    },
+    {
+      "col": 4,
+      "row": -19,
+      "status": "NORMAL",
+      "tile": "CLEARING_EN"
+    },
+    {
+      "col": 11,
+      "row": -19,
+      "status": "NORMAL",
+      "tile": "CLEARING_WN"
+    },
+    {
+      "col": 12,
+      "row": -19,
+      "status": "NORMAL",
+      "tile": "CLEARING_ES"
+    },
+    {
+      "col": 13,
+      "row": -19,
+      "status": "NORMAL",
+      "tile": "CLEARING_WS"
+    },
+    {
+      "col": 14,
+      "row": -19,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 15,
+      "row": -19,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 16,
+      "row": -19,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 17,
+      "row": -19,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 18,
+      "row": -19,
+      "status": "NORMAL",
+      "tile": "ROAD_NS"
+    },
+    {
+      "col": 19,
+      "row": -19,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 20,
+      "row": -19,
+      "status": "NORMAL",
+      "tile": "ROAD_NS"
+    },
+    {
+      "col": -1,
+      "row": -18,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 0,
+      "row": -18,
+      "status": "NORMAL",
+      "tile": "CLEARING_ES"
+    },
+    {
+      "col": 1,
+      "row": -18,
+      "status": "NORMAL",
+      "tile": "CLEARING_WS"
+    },
+    {
+      "col": 2,
+      "row": -18,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 3,
+      "row": -18,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 4,
+      "row": -18,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 11,
+      "row": -18,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 16,
+      "row": -18,
+      "status": "NORMAL",
+      "tile": "CLEARING_ES"
+    },
+    {
+      "col": 17,
+      "row": -18,
+      "status": "NORMAL",
+      "tile": "CLEARING_WS"
+    },
+    {
+      "col": 18,
+      "row": -18,
+      "status": "NORMAL",
+      "tile": "ROAD_NS"
+    },
+    {
+      "col": -2,
+      "row": -17,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": -1,
+      "row": -17,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 3,
+      "row": -17,
+      "status": "NORMAL",
+      "tile": "ROAD_WE"
+    },
+    {
+      "col": 4,
+      "row": -17,
+      "status": "NORMAL",
+      "tile": "ROAD_WE"
+    },
+    {
+      "col": 5,
+      "row": -17,
+      "status": "NORMAL",
+      "tile": "ROAD_WE"
+    },
+    {
+      "col": 6,
+      "row": -17,
+      "status": "NORMAL",
+      "tile": "ROAD_WN"
+    },
+    {
+      "col": 7,
+      "row": -17,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 8,
+      "row": -17,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 9,
+      "row": -17,
+      "status": "NORMAL",
+      "tile": "ROAD_EN"
+    },
+    {
+      "col": 10,
+      "row": -17,
+      "status": "NORMAL",
+      "tile": "ROAD_WE"
+    },
+    {
+      "col": 11,
+      "row": -17,
+      "status": "NORMAL",
+      "tile": "ROAD_WE"
+    },
+    {
+      "col": 18,
+      "row": -17,
+      "status": "NORMAL",
+      "tile": "ROAD_WN"
+    },
+    {
+      "col": -2,
+      "row": -16,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 4,
+      "row": -16,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 5,
+      "row": -16,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 6,
+      "row": -16,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 9,
+      "row": -16,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 10,
+      "row": -16,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 11,
+      "row": -16,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 13,
+      "row": -16,
+      "status": "NORMAL",
+      "tile": "CLEARING_W"
+    },
+    {
+      "col": 18,
+      "row": -16,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": -2,
+      "row": -15,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 4,
+      "row": -15,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 10,
+      "row": -15,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 11,
+      "row": -15,
+      "status": "NORMAL",
+      "tile": "ROAD_WE"
+    },
+    {
+      "col": 18,
+      "row": -15,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": -2,
+      "row": -14,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 3,
+      "row": -14,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 4,
+      "row": -14,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 10,
+      "row": -14,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 11,
+      "row": -14,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 16,
+      "row": -14,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 17,
+      "row": -14,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 18,
+      "row": -14,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 19,
+      "row": -14,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 20,
+      "row": -14,
+      "status": "NORMAL",
+      "tile": "ROAD_EN"
+    },
+    {
+      "col": 21,
+      "row": -14,
+      "status": "NORMAL",
+      "tile": "ROAD_WE"
+    },
+    {
+      "col": 22,
+      "row": -14,
+      "status": "NORMAL",
+      "tile": "ROAD_WS"
+    },
+    {
+      "col": 23,
+      "row": -14,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 24,
+      "row": -14,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": -2,
+      "row": -13,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": -1,
+      "row": -13,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 3,
+      "row": -13,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 4,
+      "row": -13,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 11,
+      "row": -13,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 12,
+      "row": -13,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 13,
+      "row": -13,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 14,
+      "row": -13,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 15,
+      "row": -13,
+      "status": "NORMAL",
+      "tile": "ROAD_NS"
+    },
+    {
+      "col": 16,
+      "row": -13,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 17,
+      "row": -13,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 24,
+      "row": -13,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": -1,
+      "row": -12,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 0,
+      "row": -12,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 3,
+      "row": -12,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 4,
+      "row": -12,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 5,
+      "row": -12,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 11,
+      "row": -12,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 12,
+      "row": -12,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 15,
+      "row": -12,
+      "status": "NORMAL",
+      "tile": "ROAD_NS"
+    },
+    {
+      "col": 16,
+      "row": -12,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 17,
+      "row": -12,
+      "status": "NORMAL",
+      "tile": "ROAD_ES"
+    },
+    {
+      "col": 24,
+      "row": -12,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 0,
+      "row": -11,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 1,
+      "row": -11,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 2,
+      "row": -11,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 3,
+      "row": -11,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 5,
+      "row": -11,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 6,
+      "row": -11,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 9,
+      "row": -11,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 10,
+      "row": -11,
+      "status": "NORMAL",
+      "tile": "ROAD_NS"
+    },
+    {
+      "col": 11,
+      "row": -11,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 12,
+      "row": -11,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 17,
+      "row": -11,
+      "status": "NORMAL",
+      "tile": "ROAD_NS"
+    },
+    {
+      "col": 20,
+      "row": -11,
+      "status": "NORMAL",
+      "tile": "CLEARING"
+    },
+    {
+      "col": 21,
+      "row": -11,
+      "status": "NORMAL",
+      "tile": "CLEARING"
+    },
+    {
+      "col": 24,
+      "row": -11,
+      "status": "NORMAL",
+      "tile": "ROAD_ES"
+    },
+    {
+      "col": -2,
+      "row": -10,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": -1,
+      "row": -10,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 3,
+      "row": -10,
+      "status": "NORMAL",
+      "tile": "ROAD_WE"
+    },
+    {
+      "col": 4,
+      "row": -10,
+      "status": "NORMAL",
+      "tile": "ROAD_WE"
+    },
+    {
+      "col": 5,
+      "row": -10,
+      "status": "NORMAL",
+      "tile": "ROAD_WE"
+    },
+    {
+      "col": 6,
+      "row": -10,
+      "status": "NORMAL",
+      "tile": "ROAD_WE"
+    },
+    {
+      "col": 7,
+      "row": -10,
+      "status": "NORMAL",
+      "tile": "ROAD_WS"
+    },
+    {
+      "col": 8,
+      "row": -10,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 9,
+      "row": -10,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 10,
+      "row": -10,
+      "status": "NORMAL",
+      "tile": "ROAD_NS"
+    },
+    {
+      "col": 11,
+      "row": -10,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 12,
+      "row": -10,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 17,
+      "row": -10,
+      "status": "NORMAL",
+      "tile": "ROAD_WN"
+    },
+    {
+      "col": 20,
+      "row": -10,
+      "status": "NORMAL",
+      "tile": "CLEARING"
+    },
+    {
+      "col": 21,
+      "row": -10,
+      "status": "NORMAL",
+      "tile": "CLEARING"
+    },
+    {
+      "col": 24,
+      "row": -10,
+      "status": "NORMAL",
+      "tile": "ROAD_NS"
+    },
+    {
+      "col": -2,
+      "row": -9,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 4,
+      "row": -9,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 12,
+      "row": -9,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 16,
+      "row": -9,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 17,
+      "row": -9,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 24,
+      "row": -9,
+      "status": "NORMAL",
+      "tile": "ROAD_WN"
+    },
+    {
+      "col": -2,
+      "row": -8,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 4,
+      "row": -8,
+      "status": "NORMAL",
+      "tile": "ROAD_WS"
+    },
+    {
+      "col": 7,
+      "row": -8,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 12,
+      "row": -8,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 16,
+      "row": -8,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 17,
+      "row": -8,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 24,
+      "row": -8,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": -2,
+      "row": -7,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": -1,
+      "row": -7,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 0,
+      "row": -7,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 4,
+      "row": -7,
+      "status": "NORMAL",
+      "tile": "ROAD_NS"
+    },
+    {
+      "col": 11,
+      "row": -7,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 12,
+      "row": -7,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 16,
+      "row": -7,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 17,
+      "row": -7,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 18,
+      "row": -7,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 19,
+      "row": -7,
+      "status": "NORMAL",
+      "tile": "ROAD_EN"
+    },
+    {
+      "col": 20,
+      "row": -7,
+      "status": "NORMAL",
+      "tile": "ROAD_WE"
+    },
+    {
+      "col": 21,
+      "row": -7,
+      "status": "NORMAL",
+      "tile": "ROAD_WS"
+    },
+    {
+      "col": 22,
+      "row": -7,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 23,
+      "row": -7,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 24,
+      "row": -7,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 25,
+      "row": -7,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": -1,
+      "row": -6,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 0,
+      "row": -6,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 1,
+      "row": -6,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 2,
+      "row": -6,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 3,
+      "row": -6,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 4,
+      "row": -6,
+      "status": "NORMAL",
+      "tile": "ROAD_NS"
+    },
+    {
+      "col": 5,
+      "row": -6,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 6,
+      "row": -6,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 10,
+      "row": -6,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 11,
+      "row": -6,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 12,
+      "row": -6,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 13,
+      "row": -6,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 14,
+      "row": -6,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 15,
+      "row": -6,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 16,
+      "row": -6,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 21,
+      "row": -6,
+      "status": "NORMAL",
+      "tile": "ROAD_NS"
+    },
+    {
+      "col": 25,
+      "row": -6,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": -1,
+      "row": -5,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 2,
+      "row": -5,
+      "status": "NORMAL",
+      "tile": "CLEARING_S"
+    },
+    {
+      "col": 5,
+      "row": -5,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 6,
+      "row": -5,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 7,
+      "row": -5,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 8,
+      "row": -5,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 9,
+      "row": -5,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 10,
+      "row": -5,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 11,
+      "row": -5,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 12,
+      "row": -5,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 13,
+      "row": -5,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 14,
+      "row": -5,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 15,
+      "row": -5,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 16,
+      "row": -5,
+      "status": "NORMAL",
+      "tile": "ROAD_ES"
+    },
+    {
+      "col": 21,
+      "row": -5,
+      "status": "NORMAL",
+      "tile": "ROAD_EN"
+    },
+    {
+      "col": 25,
+      "row": -5,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 26,
+      "row": -5,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": -1,
+      "row": -4,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 5,
+      "row": -4,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 11,
+      "row": -4,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 16,
+      "row": -4,
+      "status": "NORMAL",
+      "tile": "ROAD_NS"
+    },
+    {
+      "col": 21,
+      "row": -4,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 22,
+      "row": -4,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 26,
+      "row": -4,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": -1,
+      "row": -3,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 2,
+      "row": -3,
+      "status": "NORMAL",
+      "tile": "STUMP_W"
+    },
+    {
+      "col": 5,
+      "row": -3,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 11,
+      "row": -3,
+      "status": "NORMAL",
+      "tile": "ROAD_WE"
+    },
+    {
+      "col": 16,
+      "row": -3,
+      "status": "NORMAL",
+      "tile": "ROAD_WN"
+    },
+    {
+      "col": 17,
+      "row": -3,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 18,
+      "row": -3,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 19,
+      "row": -3,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 20,
+      "row": -3,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 21,
+      "row": -3,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 22,
+      "row": -3,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 26,
+      "row": -3,
+      "status": "NORMAL",
+      "tile": "ROAD_E"
+    },
+    {
+      "col": -1,
+      "row": -2,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 5,
+      "row": -2,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 11,
+      "row": -2,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 17,
+      "row": -2,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 19,
+      "row": -2,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 20,
+      "row": -2,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 21,
+      "row": -2,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 22,
+      "row": -2,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 23,
+      "row": -2,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 24,
+      "row": -2,
+      "status": "NORMAL",
+      "tile": "ROAD_ES"
+    },
+    {
+      "col": 25,
+      "row": -2,
+      "status": "NORMAL",
+      "tile": "ROAD_WN"
+    },
+    {
+      "col": 26,
+      "row": -2,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": -1,
+      "row": -1,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 2,
+      "row": -1,
+      "status": "NORMAL",
+      "tile": "CLEARING_N"
+    },
+    {
+      "col": 5,
+      "row": -1,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 9,
+      "row": -1,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 10,
+      "row": -1,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 11,
+      "row": -1,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 17,
+      "row": -1,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 19,
+      "row": -1,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 25,
+      "row": -1,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": -1,
+      "row": 0,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 0,
+      "row": 0,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 1,
+      "row": 0,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 2,
+      "row": 0,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 3,
+      "row": 0,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 4,
+      "row": 0,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 5,
+      "row": 0,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 6,
+      "row": 0,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 7,
+      "row": 0,
+      "status": "NORMAL",
+      "tile": "ROAD_NS"
+    },
+    {
+      "col": 8,
+      "row": 0,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 9,
+      "row": 0,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 12,
+      "row": 0,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 13,
+      "row": 0,
+      "status": "NORMAL",
+      "tile": "ROAD_NS"
+    },
+    {
+      "col": 14,
+      "row": 0,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 15,
+      "row": 0,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 16,
+      "row": 0,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 17,
+      "row": 0,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 19,
+      "row": 0,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 20,
+      "row": 0,
+      "status": "NORMAL",
+      "tile": "ROAD_NS"
+    },
+    {
+      "col": 21,
+      "row": 0,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 22,
+      "row": 0,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 23,
+      "row": 0,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 24,
+      "row": 0,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 25,
+      "row": 0,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 0,
+      "row": 1,
+      "status": "NORMAL",
+      "tile": "ROAD_E"
+    },
+    {
+      "col": 4,
+      "row": 1,
+      "status": "NORMAL",
+      "tile": "ROAD_WE"
+    },
+    {
+      "col": 8,
+      "row": 1,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 0,
+      "row": 2,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 1,
+      "row": 2,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 2,
+      "row": 2,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 3,
+      "row": 2,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 4,
+      "row": 2,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 5,
+      "row": 2,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 6,
+      "row": 2,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 7,
+      "row": 2,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 8,
+      "row": 2,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": -1,
+      "row": 3,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 0,
+      "row": 3,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 4,
+      "row": 3,
+      "status": "NORMAL",
+      "tile": "ROAD_WS"
+    },
+    {
+      "col": 5,
+      "row": 3,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": -1,
+      "row": 4,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 5,
+      "row": 4,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": -1,
+      "row": 5,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 5,
+      "row": 5,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": -1,
+      "row": 6,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 3,
+      "row": 6,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 4,
+      "row": 6,
+      "status": "NORMAL",
+      "tile": "ROAD_EN"
+    },
+    {
+      "col": 5,
+      "row": 6,
+      "status": "NORMAL",
+      "tile": "ROAD_WE"
+    },
+    {
+      "col": -1,
+      "row": 7,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 0,
+      "row": 7,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 3,
+      "row": 7,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 0,
+      "row": 8,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    },
+    {
+      "col": 1,
+      "row": 8,
+      "status": "NORMAL",
+      "tile": "CLEARING_EN"
+    },
+    {
+      "col": 2,
+      "row": 8,
+      "status": "NORMAL",
+      "tile": "CLEARING_WN"
+    },
+    {
+      "col": 3,
+      "row": 8,
+      "status": "NORMAL",
+      "tile": "GRASSLAND"
+    }
+  ],
+  "version": 1
+}

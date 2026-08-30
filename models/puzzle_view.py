@@ -6,15 +6,13 @@ from PySide6.QtCore import QModelIndex, QObject, Property, Signal, Slot
 from PySide6.QtQml import QmlElement
 
 from models.puzzle import (
-    DEFAULT_CONSTRAINTS,
     TILE_POOL_CANDIDATES,
     Puzzle,
     PuzzleListModel,
     PuzzleSolveStatus,
     PuzzleState,
-    constraintLabel,
-    objectiveLabel,
 )
+from solver.option import MODELING
 
 if TYPE_CHECKING:
     from models.workspace import Workspace
@@ -24,8 +22,13 @@ QML_IMPORT_NAME = "app.models"
 QML_IMPORT_MAJOR_VERSION = 1
 
 
+def enumLabel(enumValue: MODELING.GOAL | MODELING.CONSTRAINT) -> str:
+    return enumValue.name.replace("_", " ").capitalize()
+
+
 @QmlElement
 class PuzzleView(QObject):
+    requestPuzzleFocus = Signal(str)
     puzzleIdChanged = Signal()
     hasPuzzleChanged = Signal()
     nameChanged = Signal()
@@ -73,10 +76,6 @@ class PuzzleView(QObject):
         state = self._state()
         return False if state is None else state.isGeometryStaled
 
-    @Property("QVariantList", constant=True)
-    def tilePoolCandidates(self) -> list[dict[str, Any]]:
-        return [{"tile": tile.value} for tile in TILE_POOL_CANDIDATES]
-
     @Property("QVariantList", notify=tilePoolItemsChanged)
     def tilePoolItems(self) -> list[dict[str, Any]]:
         puzzle = self._puzzle()
@@ -96,8 +95,8 @@ class PuzzleView(QObject):
             return []
         return [
             {
-                "key": objective,
-                "label": objectiveLabel(objective),
+                "key": objective.name,
+                "label": enumLabel(objective),
                 "enabled": objective in state.enabledObjectives,
             }
             for objective in state.objectiveOrder
@@ -106,25 +105,39 @@ class PuzzleView(QObject):
     @Property("QVariantList", notify=constraintItemsChanged)
     def constraintItems(self) -> list[dict[str, Any]]:
         state = self._state()
-        enabledConstraints = set(DEFAULT_CONSTRAINTS) if state is None else state.enabledConstraints
+        enabledConstraints = set() if state is None else state.enabledConstraints
         return [
             {
-                "key": constraint,
-                "label": constraintLabel(constraint),
+                "key": constraint.name,
+                "label": enumLabel(constraint),
                 "enabled": constraint in enabledConstraints,
             }
-            for constraint in DEFAULT_CONSTRAINTS
+            for constraint in MODELING.CONSTRAINT
         ]
+
+    @Property(bool, notify=timeLimitChanged)
+    def hasTimeLimit(self) -> bool:
+        state = self._state()
+        return state is not None and state.isTimeLimitEnabled
 
     @Property(int, notify=timeLimitChanged)
     def timeLimit(self) -> int:
         state = self._state()
-        return 0 if state is None else state.timeLimit
+        if state is None:
+            return 0
+        return state.timeLimit
+
+    @Property(bool, notify=solutionLimitChanged)
+    def hasSolutionLimit(self) -> bool:
+        state = self._state()
+        return state is not None and state.isSolutionLimitEnabled
 
     @Property(int, notify=solutionLimitChanged)
     def solutionLimit(self) -> int:
         state = self._state()
-        return 0 if state is None else state.solutionLimit
+        if state is None:
+            return 0
+        return state.solutionLimit
 
     @Property(int, notify=solutionCountChanged)
     def solutionCount(self) -> int:
@@ -143,9 +156,15 @@ class PuzzleView(QObject):
 
     @Slot(str)
     def select(self, puzzleId: str) -> None:
+        if puzzleId:
+            self.requestPuzzleFocus.emit(puzzleId)
+
         if self._puzzleId == puzzleId:
             return
+
+        self._workspace._puzzles.setPuzzleSelected(self._puzzleId, False)
         self._puzzleId = puzzleId
+        self._workspace._puzzles.setPuzzleSelected(self._puzzleId, True)
         self._emitAllChanged()
 
     def _puzzle(self) -> Puzzle | None:

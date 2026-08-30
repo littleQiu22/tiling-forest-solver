@@ -44,6 +44,7 @@ Window {
         color: AppTheme.background
 
         AppLayout {
+            id: appLayout
             anchors.fill: parent
 
             workspaceManager: root.workspaceManager
@@ -62,13 +63,31 @@ Window {
         }
     }
 
+    function loadStartupRecentFile() {
+        if (!AppSettings.recentFiles || AppSettings.recentFiles.length === 0)
+            return false;
+
+        const filePath = AppSettings.recentFiles[0];
+        const response = root.workspaceManager.load(filePath);
+        if (!response.status) {
+            AppSettings.removeRecentFile(filePath);
+            return false;
+        }
+
+        AppSettings.addRecentFile(root.workspaceManager.filePath);
+        return true;
+    }
+
     Component.onCompleted: {
         AppSettings.restoreWindow(root);
+        if (root.loadStartupRecentFile())
+            appLayout.tileEditorItem?.restoreCameraState(AppSettings.cameraState());
         visible = true;
     }
 
     onClosing: function (close) {
         AppSettings.saveWindow(root);
+        AppSettings.saveCameraState(appLayout.tileEditorItem?.cameraState());
         if (root.workspaceManager.workspace.isDirty && !root.closeConfirmed) {
             close.accepted = false;
             Services.confirm(() => {

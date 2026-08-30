@@ -19,6 +19,9 @@ QtObject {
         property int windowX: Math.max(0, (Screen.width - windowWidth) / 2)
         property int windowY: Math.max(0, (Screen.height - windowHeight) / 2)
         property bool windowMaximized: false
+        property real cameraWorldX: 0
+        property real cameraWorldY: 0
+        property real cameraZoom: 1
     }
 
     property alias windowHeight: settings.windowHeight
@@ -27,6 +30,9 @@ QtObject {
     property alias windowY: settings.windowY
     property alias windowMaximized: settings.windowMaximized
     property alias recentFiles: settings.recentFiles
+    property alias cameraWorldX: settings.cameraWorldX
+    property alias cameraWorldY: settings.cameraWorldY
+    property alias cameraZoom: settings.cameraZoom
 
     function restoreWindow(window) {
         window.width = Math.max(480, Math.min(windowWidth, Screen.desktopAvailableWidth));
@@ -48,6 +54,20 @@ QtObject {
         windowHeight = window.height;
         windowX = window.x;
         windowY = window.y;
+    }
+
+    function cameraState() {
+        return {
+            "worldX": cameraWorldX,
+            "worldY": cameraWorldY,
+            "zoom": cameraZoom
+        };
+    }
+
+    function saveCameraState(state) {
+        cameraWorldX = state?.worldX ?? 0;
+        cameraWorldY = state?.worldY ?? 0;
+        cameraZoom = state?.zoom ?? 1;
     }
 
     function addRecentFile(filePath) {

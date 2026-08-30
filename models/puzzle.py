@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import itertools as it
 from dataclasses import dataclass, field
-from enum import Enum
 from typing import Any
 from uuid import uuid4
 
@@ -12,11 +11,14 @@ from PySide6.QtCore import (
     QModelIndex,
     QObject,
     Qt,
+    Slot,
 )
 from PySide6.QtQml import QmlNamedElement, QmlUncreatable
 
-from models.geometry import BoundingBox, Grid
+from models.geometry import DIRECTION, BoundingBox, Grid
 from models.tile import TILE, TILE_SIZE, TileData, tileStatusFromJson, tileTypeFromJson
+from solver.option import MODELING
+from solver.status import SOLVER_STATUS
 
 
 QML_IMPORT_NAME = "app.models"
@@ -41,8 +43,7 @@ class GridData:
     def fromJson(cls, data: dict[str, Any]) -> "GridData":
         return cls(
             tile=tileTypeFromJson(data["tile"]),
-            status=tileStatusFromJson(
-                data.get("status", TILE.STATUS.NORMAL.name)),
+            status=tileStatusFromJson(data["status"]),
         )
 
 
@@ -106,20 +107,19 @@ class Puzzle:
     def fromJson(cls, data: dict[str, Any]) -> "Puzzle":
         emptyGrids = {
             Grid(int(grid["row"]), int(grid["col"]))
-            for grid in data.get("emptyGrids", [])
+            for grid in data["emptyGrids"]
         }
         placedGrids = {
             Grid(int(grid["row"]), int(grid["col"])): GridData.fromJson(grid)
-            for grid in data.get("placedGrids", [])
+            for grid in data["placedGrids"]
         }
-        tilePool = [tileTypeFromJson(tile)
-                    for tile in data.get("tilePool", [])]
+        tilePool = [tileTypeFromJson(tile) for tile in data["tilePool"]]
         return cls(
             emptyGrids=emptyGrids,
             placedGrids=placedGrids,
             tilePool=tilePool,
-            name=str(data.get("name", "")),
-            id=str(data.get("id", uuid4().hex)),
+            name=str(data["name"]),
+            id=str(data["id"]),
         )
 
 
@@ -249,13 +249,14 @@ def extractPuzzle(
     tileMap: dict[Grid, TileData],
     boundingBox: BoundingBox,
     seed: Grid,
+    tilePool: list[TILE.TYPE] | None = None
 ) -> PuzzleExtraction:
     if seed in tileMap:
         return PuzzleExtraction()
 
     if boundingBox.isOutRange(seed.row, seed.col):
         return PuzzleExtraction(
-            message="The selected empty area is not enclosed by placed tiles.",
+            message="Puzzle creation failed: The selected empty area is not enclosed by tiles.",
         )
 
     def isEmpty(grid: Grid) -> bool:
@@ -270,6 +271,30 @@ def extractPuzzle(
         return PuzzleExtraction(
             message="The selected empty area is not enclosed.",
         )
+
+    def addPairedStumps() -> None:
+        stumpByDirection = {
+            DIRECTION.NORTH: TILE.TYPE.STUMP_S,
+            DIRECTION.EAST: TILE.TYPE.STUMP_W,
+            DIRECTION.SOUTH: TILE.TYPE.STUMP_N,
+            DIRECTION.WEST: TILE.TYPE.STUMP_E,
+        }
+
+        for placedGrid, placedData in list(placedGrids.items()):
+            if placedData.tile not in TILE.ROADS:
+                continue
+
+            for direction, stumpType in stumpByDirection.items():
+                stumpGrid = placedGrid.neighbor(direction)
+                if stumpGrid in emptyGrids or stumpGrid in placedGrids:
+                    continue
+
+                stumpTile = tileMap.get(stumpGrid)
+                if stumpTile is not None and stumpTile.tile == stumpType:
+                    placedGrids[stumpGrid] = GridData(
+                        tile=stumpTile.tile,
+                        status=stumpTile.status,
+                    )
 
     emptyGrids: set[Grid] = set()
     placedGrids: dict[Grid, GridData] = {}
@@ -328,36 +353,20 @@ def extractPuzzle(
                 else:
                     seedAdded = False
 
-    tilePool = []
+    addPairedStumps()
+
     return PuzzleExtraction(
         puzzle=Puzzle(
             emptyGrids=emptyGrids,
             placedGrids=placedGrids,
-            tilePool=tilePool,
+            tilePool=tilePool if tilePool is not None else [],
         ),
     )
 
 
-class PuzzleSolveStatus(Enum):
-    UNSOLVED = "Unsolved"
-    SOLVING = "Solving"
-    TIME_LIMIT = "TimeLimit"
-    SOLUTION_LIMIT = "SolutionLimit"
-    INFEASIBLE = "Infeasible"
-    SOLVED = "Solved"
+PuzzleSolveStatus = SOLVER_STATUS
 
 
-DEFAULT_OBJECTIVES = [
-    "MAX_CONNECTIVITY",
-    "MAX_DENSITY",
-    "MIN_UNEXPLORED",
-]
-DEFAULT_CONSTRAINTS = [
-    "FIGURE_ALIGNED",
-    "STUMP_PAIRED",
-    "ROAD_BLOOM",
-    "ROAD_MUST_EXIT",
-]
 TILE_POOL_CANDIDATES = [
     TILE.TYPE.ROAD_WS,
     TILE.TYPE.ROAD_WE,
@@ -384,46 +393,28 @@ TILE_POOL_CANDIDATES = [
 ]
 
 
-def objectiveLabel(objective: str) -> str:
-    match objective:
-        case "MAX_CONNECTIVITY":
-            return "Max connectivity"
-        case "MAX_DENSITY":
-            return "Max density"
-        case "MIN_UNEXPLORED":
-            return "Min unexplored"
-        case _:
-            return objective
-
-
-def constraintLabel(constraint: str) -> str:
-    match constraint:
-        case "FIGURE_ALIGNED":
-            return "Figure aligned"
-        case "STUMP_PAIRED":
-            return "Stump paired"
-        case "ROAD_BLOOM":
-            return "Road bloom"
-        case "ROAD_MUST_EXIT":
-            return "Road must exit"
-        case _:
-            return constraint
-
-
 Solution = dict[Grid, TILE.TYPE]
+DEFAULT_TIME_LIMIT = 30
+DEFAULT_SOLUTION_LIMIT = 20
 
 
 @dataclass(slots=True)
 class PuzzleState:
+    isSelected: bool = False
     isGeometryStaled: bool = False
     solveStatus: PuzzleSolveStatus = PuzzleSolveStatus.UNSOLVED
-    objectiveOrder: list[str] = field(
-        default_factory=lambda: list(DEFAULT_OBJECTIVES))
-    enabledObjectives: set[str] = field(default_factory=set)
-    enabledConstraints: set[str] = field(
-        default_factory=lambda: set(DEFAULT_CONSTRAINTS))
-    timeLimit: int = 30
-    solutionLimit: int = 20
+    objectiveOrder: list[MODELING.GOAL] = field(
+        default_factory=lambda: list(MODELING.GOAL))
+    enabledObjectives: set[MODELING.GOAL] = field(default_factory=set)
+    enabledConstraints: set[MODELING.CONSTRAINT] = field(
+        default_factory=lambda: {
+            MODELING.CONSTRAINT.FIGURE_ALIGNED,
+            MODELING.CONSTRAINT.ROAD_MUST_EXIT,
+        })
+    isTimeLimitEnabled: bool = False
+    timeLimit: int = DEFAULT_TIME_LIMIT
+    isSolutionLimitEnabled: bool = False
+    solutionLimit: int = DEFAULT_SOLUTION_LIMIT
     solutions: list[Solution] = field(default_factory=list)
     currentSolutionIndex: int = -1
     solvingLog: str = ""
@@ -434,10 +425,12 @@ class PuzzleState:
             "solveStatus": PuzzleSolveStatus.UNSOLVED.value
             if self.solveStatus == PuzzleSolveStatus.SOLVING
             else self.solveStatus.value,
-            "objectiveOrder": self.objectiveOrder,
-            "enabledObjectives": sorted(self.enabledObjectives),
-            "enabledConstraints": sorted(self.enabledConstraints),
+            "objectiveOrder": [objective.name for objective in self.objectiveOrder],
+            "enabledObjectives": sorted(objective.name for objective in self.enabledObjectives),
+            "enabledConstraints": sorted(constraint.name for constraint in self.enabledConstraints),
+            "isTimeLimitEnabled": self.isTimeLimitEnabled,
             "timeLimit": self.timeLimit,
+            "isSolutionLimitEnabled": self.isSolutionLimitEnabled,
             "solutionLimit": self.solutionLimit,
             "solutions": [
                 [
@@ -456,30 +449,37 @@ class PuzzleState:
 
     @classmethod
     def fromJson(cls, data: dict[str, Any]) -> "PuzzleState":
-        solveStatus = PuzzleSolveStatus(
-            data.get("solveStatus", PuzzleSolveStatus.UNSOLVED.value))
+        solveStatus = PuzzleSolveStatus(data["solveStatus"])
         if solveStatus == PuzzleSolveStatus.SOLVING:
             solveStatus = PuzzleSolveStatus.UNSOLVED
         return cls(
-            isGeometryStaled=bool(data.get("isGeometryStaled", False)),
+            isGeometryStaled=bool(data["isGeometryStaled"]),
             solveStatus=solveStatus,
-            objectiveOrder=[str(item) for item in data.get(
-                "objectiveOrder", DEFAULT_OBJECTIVES)],
-            enabledObjectives={str(item)
-                               for item in data.get("enabledObjectives", [])},
-            enabledConstraints={str(item) for item in data.get(
-                "enabledConstraints", DEFAULT_CONSTRAINTS)},
-            timeLimit=int(data.get("timeLimit", 30)),
-            solutionLimit=int(data.get("solutionLimit", 20)),
+            objectiveOrder=[
+                MODELING.GOAL[str(item)]
+                for item in data["objectiveOrder"]
+            ],
+            enabledObjectives={
+                MODELING.GOAL[str(item)]
+                for item in data["enabledObjectives"]
+            },
+            enabledConstraints={
+                MODELING.CONSTRAINT[str(item)]
+                for item in data["enabledConstraints"]
+            },
+            isTimeLimitEnabled=bool(data["isTimeLimitEnabled"]),
+            timeLimit=int(data["timeLimit"]),
+            isSolutionLimitEnabled=bool(data["isSolutionLimitEnabled"]),
+            solutionLimit=int(data["solutionLimit"]),
             solutions=[
                 {
                     Grid(int(item["row"]), int(item["col"])): tileTypeFromJson(item["tile"])
                     for item in solution
                 }
-                for solution in data.get("solutions", [])
+                for solution in data["solutions"]
             ],
-            currentSolutionIndex=int(data.get("currentSolutionIndex", -1)),
-            solvingLog=str(data.get("solvingLog", "")),
+            currentSolutionIndex=int(data["currentSolutionIndex"]),
+            solvingLog=str(data["solvingLog"]),
         )
 
 
@@ -496,20 +496,21 @@ class PuzzleListModel(QAbstractListModel):
     PlacedGridsRole = IndexRole + 7
     TilePoolRole = IndexRole + 8
     IsGeometryStaledRole = IndexRole + 9
-    SolveStatusRole = IndexRole + 10
-    SvgPathsRole = IndexRole + 11
-    SvgXRole = IndexRole + 12
-    SvgYRole = IndexRole + 13
-    SvgWidthRole = IndexRole + 14
-    SvgHeightRole = IndexRole + 15
-    CurrentSolutionRole = IndexRole + 16
-    ObjectiveItemsRole = IndexRole + 17
-    ConstraintItemsRole = IndexRole + 18
-    TimeLimitRole = IndexRole + 19
-    SolutionLimitRole = IndexRole + 20
-    SolutionCountRole = IndexRole + 21
-    CurrentSolutionIndexRole = IndexRole + 22
-    SolvingLogRole = IndexRole + 23
+    IsSelectedRole = IndexRole + 10
+    SolveStatusRole = IndexRole + 11
+    SvgPathsRole = IndexRole + 12
+    SvgXRole = IndexRole + 13
+    SvgYRole = IndexRole + 14
+    SvgWidthRole = IndexRole + 15
+    SvgHeightRole = IndexRole + 16
+    CurrentSolutionRole = IndexRole + 17
+    ObjectiveItemsRole = IndexRole + 18
+    ConstraintItemsRole = IndexRole + 19
+    TimeLimitRole = IndexRole + 20
+    SolutionLimitRole = IndexRole + 21
+    SolutionCountRole = IndexRole + 22
+    CurrentSolutionIndexRole = IndexRole + 23
+    SolvingLogRole = IndexRole + 24
 
     def __init__(self, parent: QObject | None = None) -> None:
         super().__init__(parent)
@@ -554,6 +555,8 @@ class PuzzleListModel(QAbstractListModel):
                 return [tile.value for tile in puzzle.tilePool]
             case self.IsGeometryStaledRole:
                 return puzzleState.isGeometryStaled
+            case self.IsSelectedRole:
+                return puzzleState.isSelected
             case self.SolveStatusRole:
                 return puzzleState.solveStatus.value
             case self.SvgPathsRole:
@@ -569,9 +572,9 @@ class PuzzleListModel(QAbstractListModel):
             case self.CurrentSolutionRole:
                 return self._currentSolutionForQml(puzzleState)
             case self.ObjectiveItemsRole:
-                return puzzleState.objectiveOrder
+                return [objective.name for objective in puzzleState.objectiveOrder]
             case self.ConstraintItemsRole:
-                return sorted(puzzleState.enabledConstraints)
+                return sorted(constraint.name for constraint in puzzleState.enabledConstraints)
             case self.TimeLimitRole:
                 return puzzleState.timeLimit
             case self.SolutionLimitRole:
@@ -597,6 +600,7 @@ class PuzzleListModel(QAbstractListModel):
             self.PlacedGridsRole: QByteArray(b"placedGrids"),
             self.TilePoolRole: QByteArray(b"tilePool"),
             self.IsGeometryStaledRole: QByteArray(b"isGeometryStaled"),
+            self.IsSelectedRole: QByteArray(b"isSelected"),
             self.SolveStatusRole: QByteArray(b"solveStatus"),
             self.SvgPathsRole: QByteArray(b"svgPaths"),
             self.SvgXRole: QByteArray(b"svgX"),
@@ -624,17 +628,6 @@ class PuzzleListModel(QAbstractListModel):
         self._ensurePuzzleNames()
         self._rebuildIndexes()
         self.endResetModel()
-
-    def addPuzzle(self, puzzle: Puzzle) -> int:
-        insertIndex = len(self._puzzles)
-        if not puzzle.name:
-            puzzle.name = self._defaultPuzzleName(insertIndex)
-
-        self.beginInsertRows(QModelIndex(), insertIndex, insertIndex)
-        self._puzzles.append(puzzle)
-        self._registerPuzzle(puzzle)
-        self.endInsertRows()
-        return insertIndex
 
     def insertPuzzle(self, index: int, puzzle: Puzzle, state: PuzzleState | None = None) -> int:
         insertIndex = max(0, min(index, len(self._puzzles)))
@@ -675,21 +668,36 @@ class PuzzleListModel(QAbstractListModel):
             return None
         return self.puzzleAt(index)
 
+    @Slot(str, result=int)
     def indexById(self, puzzleId: str) -> int:
         for index, puzzle in enumerate(self._puzzles):
             if puzzle.id == puzzleId:
                 return index
         return -1
 
-    def indexContaining(self, grid: Grid) -> int:
-        puzzle = self._puzzleByGrid.get(grid)
-        return -1 if puzzle is None else self.indexById(puzzle.id)
-
     def puzzleContaining(self, grid: Grid) -> Puzzle | None:
         return self._puzzleByGrid.get(grid)
 
     def puzzleStateById(self, puzzleId: str) -> PuzzleState | None:
         return self._stateByPuzzleId.get(puzzleId)
+
+    @Slot(str, result="QVariantMap")
+    def geometryById(self, puzzleId: str) -> dict[str, Any]:
+        puzzle = self.puzzleById(puzzleId)
+        if puzzle is None:
+            return {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+            }
+
+        return {
+            "x": puzzle.svgX,
+            "y": puzzle.svgY,
+            "width": puzzle.svgWidth,
+            "height": puzzle.svgHeight,
+        }
 
     def setPuzzleName(self, puzzleId: str, name: str) -> bool:
         index = self.indexById(puzzleId)
@@ -714,6 +722,15 @@ class PuzzleListModel(QAbstractListModel):
         puzzle.tilePool = tilePool
         self._emitRoles(index, [self.TilePoolRole])
         return True
+
+    def setPuzzleSelected(self, puzzleId: str, isSelected: bool) -> None:
+        index = self.indexById(puzzleId)
+        puzzleState = self._stateByPuzzleId.get(puzzleId)
+        if index == -1 or puzzleState is None or puzzleState.isSelected == isSelected:
+            return
+
+        puzzleState.isSelected = isSelected
+        self._emitRoles(index, [self.IsSelectedRole])
 
     def replacePuzzleGeometry(self, puzzleId: str, puzzle: Puzzle) -> bool:
         index = self.indexById(puzzleId)
@@ -806,9 +823,8 @@ class PuzzleListModel(QAbstractListModel):
 
     def loadStatesJson(self, data: dict[str, Any]) -> None:
         for puzzleId, stateData in data.items():
-            if puzzleId in self._stateByPuzzleId and isinstance(stateData, dict):
-                self._stateByPuzzleId[puzzleId] = PuzzleState.fromJson(
-                    stateData)
+            if puzzleId in self._stateByPuzzleId:
+                self._stateByPuzzleId[puzzleId] = PuzzleState.fromJson(stateData)
         if self._puzzles:
             topLeft = self.index(0, 0)
             bottomRight = self.index(len(self._puzzles) - 1, 0)

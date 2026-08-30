@@ -37,40 +37,37 @@ def solveRequest(request: dict[str, Any]) -> None:
     option = SolverOption(
         constraints=[
             MODELING.CONSTRAINT[str(constraint)]
-            for constraint in request.get("constraints", [])
+            for constraint in request["constraints"]
         ],
         goals=[
             MODELING.GOAL[str(goal)]
-            for goal in request.get("objectives", [])
+            for goal in request["objectives"]
         ],
-        timeLimit=request.get("timeLimit"),
-        solutionLimit=request.get("solutionLimit"),
+        timeLimit=request["timeLimit"],
+        solutionLimit=request["solutionLimit"],
     )
 
     def callback(status: SOLVER_STATUS, solver: TilingSolver) -> None:
-        if status == SOLVER_STATUS.START:
-            emit({"event": "status", "status": "Solving"})
-            emit({"event": "log", "message": "Solver started."})
+        if status == SOLVER_STATUS.SOLVING:
+            emit({
+                "status": SOLVER_STATUS.SOLVING.value,
+                "message": "Solver started.",
+            })
             return
 
         if status == SOLVER_STATUS.FOUND_SOLUTION:
             solutions = solver.getSolutions()
             if solutions:
                 emit({
-                    "event": "solution",
                     "solution": solutionToJson(solutions[-1]),
+                    "message": f"Found solution {len(solutions)}.",
                 })
-                emit({"event": "log", "message": f"Found solution {len(solutions)}."})
             return
 
-        statusName = {
-            SOLVER_STATUS.TIME_LIMIT: "TimeLimit",
-            SOLVER_STATUS.SOLUTION_LIMIT: "SolutionLimit",
-            SOLVER_STATUS.INFEASIBLE: "Infeasible",
-            SOLVER_STATUS.SOLVED: "Solved",
-        }.get(status, "Unsolved")
-        emit({"event": "done", "status": statusName})
-        emit({"event": "log", "message": f"Solver finished: {statusName}."})
+        emit({
+            "status": status.value,
+            "message": f"Solver finished: {status.value}.",
+        })
 
     solver = TilingSolver(puzzle, option, callback)
     solver.solve()
@@ -81,7 +78,10 @@ def main() -> int:
         request = json.loads(sys.stdin.read())
         solveRequest(request)
     except Exception as error:
-        emit({"event": "error", "message": str(error)})
+        emit({
+            "status": SOLVER_STATUS.INTERNAL_ERROR.value,
+            "message": "Solver error: " + str(error),
+        })
         return 1
     return 0
 

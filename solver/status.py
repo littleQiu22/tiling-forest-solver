@@ -1,11 +1,13 @@
-from enum import IntEnum
+from enum import Enum
 
 
-class SOLVER_STATUS(IntEnum):
-    START = 1
-    FOUND_SOLUTION = 2
-    TIME_LIMIT = 3
-    SOLUTION_LIMIT = 4
-    INFEASIBLE = 5
-    SOLVED = 6
-    INTERNAL_ERROR = 7
+class SOLVER_STATUS(Enum):
+    UNSOLVED = "Unsolved"
+    SOLVING = "Solving"
+    FOUND_SOLUTION = "FoundSolution"
+    TIME_LIMIT = "TimeLimit"
+    SOLUTION_LIMIT = "SolutionLimit"
+    INFEASIBLE = "Infeasible"
+    SOLVED = "Solved"
+    INTERNAL_ERROR = "InternalError"
+    INTERRUPTED = "Interrupted"

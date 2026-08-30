@@ -23,6 +23,7 @@ from models.tile import (
     tileStatusFromQml,
     tileTypeFromQml,
 )
+from solver.option import MODELING
 
 
 QML_IMPORT_NAME = "app.models"
@@ -150,7 +151,8 @@ class AddPuzzleOperation(Operation):
         self.puzzleState: PuzzleState | None = None
 
     def execute(self, workspace: "Workspace") -> None:
-        workspace._addPuzzle(self.puzzle, self.puzzleState)
+        workspace._puzzles.insertPuzzle(
+            len(workspace._puzzles.puzzles()), self.puzzle, self.puzzleState)
 
     def undo(self, workspace: "Workspace") -> None:
         self.puzzleState = workspace._puzzles.puzzleStateById(self.puzzle.id)
@@ -175,7 +177,7 @@ class RemovePuzzleOperation(Operation):
         workspace._removePuzzleById(self.puzzle.id)
 
     def undo(self, workspace: "Workspace") -> None:
-        workspace._insertPuzzle(self.index, self.puzzle, self.puzzleState)
+        workspace._puzzles.insertPuzzle(self.index, self.puzzle, self.puzzleState)
 
     def executeHeavyReason(self, workspace: "Workspace") -> str:
         puzzleState = workspace._puzzles.puzzleStateById(self.puzzle.id)
@@ -198,11 +200,11 @@ class ClearWorkspaceOperation(Operation):
         self.puzzleStates = puzzleStates
 
     def execute(self, workspace: "Workspace") -> None:
-        workspace._setTiles([])
+        workspace._tiles.setTiles([])
         workspace._setPuzzles([])
 
     def undo(self, workspace: "Workspace") -> None:
-        workspace._setTiles(self.tiles)
+        workspace._tiles.setTiles(self.tiles)
         workspace._setPuzzles(self.puzzles)
         workspace._puzzles.setStates(self.puzzleStates)
 
@@ -405,13 +407,11 @@ class Workspace(QObject):
         isQueryHeavyReason: bool = False,
     ) -> str:
         grid = Grid(row, col)
-        index = self._puzzles.indexContaining(grid)
-        if index == -1:
-            return ""
-
-        puzzle = self._puzzles.puzzleAt(index)
+        puzzle = self._puzzles.puzzleContaining(grid)
         if puzzle is None:
             return ""
+
+        index = self._puzzles.indexById(puzzle.id)
 
         return self._queryOrApplyOperation(
             RemovePuzzleOperation(
@@ -434,12 +434,12 @@ class Workspace(QObject):
     @Slot()
     def undo(self) -> None:
         self._operationStack.undo()
-        self._emitOperationStateChanged()
+        self.isDirtyChanged.emit()
 
     @Slot()
     def redo(self) -> None:
         self._operationStack.redo()
-        self._emitOperationStateChanged()
+        self.isDirtyChanged.emit()
 
     @Slot(result=str)
     def getUndoHeavyReason(self) -> str:
@@ -460,7 +460,8 @@ class Workspace(QObject):
         if puzzle.name == nextName:
             return
 
-        self._applyOperation(RenamePuzzleOperation(puzzleId, puzzle.name, nextName))
+        self._applyOperation(RenamePuzzleOperation(
+            puzzleId, puzzle.name, nextName))
 
     @Slot(str, int, bool)
     def setPuzzleTileEnabled(self, puzzleId: str, tile: int, enabled: bool) -> None:
@@ -485,27 +486,34 @@ class Workspace(QObject):
         puzzleState = self._puzzles.puzzleStateById(puzzleId)
         if puzzleState is None:
             return
+        objectiveValue = MODELING.GOAL[objective]
         if enabled:
-            puzzleState.enabledObjectives.add(objective)
+            puzzleState.enabledObjectives.add(objectiveValue)
         else:
-            puzzleState.enabledObjectives.discard(objective)
-        self._puzzles.emitPuzzleChanged(puzzleId, [PuzzleListModel.ObjectiveItemsRole])
+            puzzleState.enabledObjectives.discard(objectiveValue)
+        self._puzzles.emitPuzzleChanged(
+            puzzleId, [PuzzleListModel.ObjectiveItemsRole])
         self._markBackgroundDirty()
 
     @Slot(str, str, int)
     def movePuzzleObjective(self, puzzleId: str, objective: str, delta: int) -> None:
         puzzleState = self._puzzles.puzzleStateById(puzzleId)
-        if puzzleState is None or objective not in puzzleState.objectiveOrder:
+        if puzzleState is None:
+            return
+        objectiveValue = MODELING.GOAL[objective]
+        if objectiveValue not in puzzleState.objectiveOrder:
             return
 
-        oldIndex = puzzleState.objectiveOrder.index(objective)
-        newIndex = max(0, min(len(puzzleState.objectiveOrder) - 1, oldIndex + delta))
+        oldIndex = puzzleState.objectiveOrder.index(objectiveValue)
+        newIndex = max(
+            0, min(len(puzzleState.objectiveOrder) - 1, oldIndex + delta))
         if oldIndex == newIndex:
             return
 
         puzzleState.objectiveOrder.pop(oldIndex)
-        puzzleState.objectiveOrder.insert(newIndex, objective)
-        self._puzzles.emitPuzzleChanged(puzzleId, [PuzzleListModel.ObjectiveItemsRole])
+        puzzleState.objectiveOrder.insert(newIndex, objectiveValue)
+        self._puzzles.emitPuzzleChanged(
+            puzzleId, [PuzzleListModel.ObjectiveItemsRole])
         self._markBackgroundDirty()
 
     @Slot(str, str, bool)
@@ -513,42 +521,49 @@ class Workspace(QObject):
         puzzleState = self._puzzles.puzzleStateById(puzzleId)
         if puzzleState is None:
             return
+        constraintValue = MODELING.CONSTRAINT[constraint]
         if enabled:
-            puzzleState.enabledConstraints.add(constraint)
+            puzzleState.enabledConstraints.add(constraintValue)
         else:
-            puzzleState.enabledConstraints.discard(constraint)
-        self._puzzles.emitPuzzleChanged(puzzleId, [PuzzleListModel.ConstraintItemsRole])
+            puzzleState.enabledConstraints.discard(constraintValue)
+        self._puzzles.emitPuzzleChanged(
+            puzzleId, [PuzzleListModel.ConstraintItemsRole])
         self._markBackgroundDirty()
 
-    @Slot(str, int)
-    def setPuzzleTimeLimit(self, puzzleId: str, timeLimit: int) -> None:
+    @Slot(str, str, bool, int)
+    def setPuzzleLimit(self, puzzleId: str, limitName: str, enabled: bool, value: int) -> None:
         puzzleState = self._puzzles.puzzleStateById(puzzleId)
         if puzzleState is None:
             return
-        puzzleState.timeLimit = max(0, int(timeLimit))
-        self._puzzles.emitPuzzleChanged(puzzleId, [PuzzleListModel.TimeLimitRole])
-        self._markBackgroundDirty()
 
-    @Slot(str, int)
-    def setPuzzleSolutionLimit(self, puzzleId: str, solutionLimit: int) -> None:
-        puzzleState = self._puzzles.puzzleStateById(puzzleId)
-        if puzzleState is None:
-            return
-        puzzleState.solutionLimit = max(0, int(solutionLimit))
-        self._puzzles.emitPuzzleChanged(puzzleId, [PuzzleListModel.SolutionLimitRole])
+        match limitName:
+            case "time":
+                puzzleState.isTimeLimitEnabled = enabled
+                puzzleState.timeLimit = max(1, int(value))
+                role = PuzzleListModel.TimeLimitRole
+            case "solution":
+                puzzleState.isSolutionLimitEnabled = enabled
+                puzzleState.solutionLimit = max(1, int(value))
+                role = PuzzleListModel.SolutionLimitRole
+            case _:
+                return
+
+        self._puzzles.emitPuzzleChanged(puzzleId, [role])
         self._markBackgroundDirty()
 
     @Slot(str)
     def previousPuzzleSolution(self, puzzleId: str) -> None:
         puzzleState = self._puzzles.puzzleStateById(puzzleId)
         if puzzleState is not None:
-            self.setPuzzleCurrentSolutionIndex(puzzleId, puzzleState.currentSolutionIndex - 1)
+            self.setPuzzleCurrentSolutionIndex(
+                puzzleId, puzzleState.currentSolutionIndex - 1)
 
     @Slot(str)
     def nextPuzzleSolution(self, puzzleId: str) -> None:
         puzzleState = self._puzzles.puzzleStateById(puzzleId)
         if puzzleState is not None:
-            self.setPuzzleCurrentSolutionIndex(puzzleId, puzzleState.currentSolutionIndex + 1)
+            self.setPuzzleCurrentSolutionIndex(
+                puzzleId, puzzleState.currentSolutionIndex + 1)
 
     @Slot(str, int)
     def setPuzzleCurrentSolutionIndex(self, puzzleId: str, solutionIndex: int) -> None:
@@ -556,7 +571,8 @@ class Workspace(QObject):
         if puzzleState is None or not puzzleState.solutions:
             return
 
-        puzzleState.currentSolutionIndex = max(0, min(int(solutionIndex), len(puzzleState.solutions) - 1))
+        puzzleState.currentSolutionIndex = max(
+            0, min(int(solutionIndex), len(puzzleState.solutions) - 1))
         self._puzzles.emitPuzzleChanged(
             puzzleId,
             [
@@ -579,14 +595,11 @@ class Workspace(QObject):
 
     @Slot(str)
     def stopSolver(self, puzzleId: str) -> None:
-        self.stopSolvingPuzzle(puzzleId)
+        self._solvingManager.stop(puzzleId)
 
     @Slot()
     def stopAllSolvers(self) -> None:
         self._solvingManager.stopAll()
-
-    def stopSolvingPuzzle(self, puzzleId: str) -> None:
-        self._solvingManager.stop(puzzleId)
 
     def newDocument(self) -> None:
         self.stopAllSolvers()
@@ -610,13 +623,12 @@ class Workspace(QObject):
         data: dict[str, Any],
     ) -> None:
         self.stopAllSolvers()
-        tiles = [TileData.fromJson(tile) for tile in data.get("tiles", [])]
-        puzzles = [Puzzle.fromJson(puzzle)
-                   for puzzle in data.get("puzzles", [])]
+        tiles = [TileData.fromJson(tile) for tile in data["tiles"]]
+        puzzles = [Puzzle.fromJson(puzzle) for puzzle in data["puzzles"]]
 
-        self._setTiles(tiles)
+        self._tiles.setTiles(tiles)
         self._setPuzzles(puzzles)
-        self._puzzles.loadStatesJson(data.get("puzzleStates", {}))
+        self._puzzles.loadStatesJson(data["puzzleStates"])
         self._puzzleView.select("")
 
         self._operationStack.reset()
@@ -624,11 +636,16 @@ class Workspace(QObject):
 
     @classmethod
     def emptyJson(cls) -> dict[str, Any]:
-        return {"version": WORKSPACE_VERSION, "tiles": [], "puzzles": []}
+        return {
+            "version": WORKSPACE_VERSION,
+            "tiles": [],
+            "puzzles": [],
+            "puzzleStates": {},
+        }
 
     def _applyOperation(self, operation: Operation) -> None:
         self._operationStack.apply(operation)
-        self._emitOperationStateChanged()
+        self.isDirtyChanged.emit()
 
     def _queryOrApplyOperation(
         self,
@@ -646,7 +663,7 @@ class Workspace(QObject):
             self._tiles.removeTile(grid)
         else:
             self._tiles.upsertTile(tile)
-        staledPuzzleId = self._puzzles.markGeometryStaledByGrid(grid)
+        self._puzzles.markGeometryStaledByGrid(grid)
 
     def _rebuildPuzzleIfStaled(
         self,
@@ -659,7 +676,7 @@ class Workspace(QObject):
         seed = next(
             (
                 grid
-                for grid in sorted(puzzle.emptyGrids, key=lambda item: (item.row, item.col))
+                for grid in puzzle.emptyGrids
                 if self._tiles.tileAt(grid) is None
             ),
             None,
@@ -676,9 +693,11 @@ class Workspace(QObject):
             self._tiles.tileMap(),
             self._tiles.boundingBox(),
             seed,
+            puzzle.tilePool
         )
         if extraction.message:
-            self._setPuzzleSolveMessage(puzzle.id, puzzleState, extraction.message)
+            self._setPuzzleSolveMessage(
+                puzzle.id, puzzleState, extraction.message)
             return False
         if extraction.puzzle is None:
             self._setPuzzleSolveMessage(
@@ -713,27 +732,13 @@ class Workspace(QObject):
             ],
         )
 
-    def _setTiles(self, tiles: list[TileData]) -> None:
-        self._tiles.setTiles(tiles)
-
-    def _removeTile(self, grid: Grid) -> None:
-        self._tiles.removeTile(grid)
-
     def _setPuzzles(self, puzzles: list[Puzzle]) -> None:
         if not puzzles:
             self.stopAllSolvers()
         self._puzzles.setPuzzles(puzzles)
 
-    def _addPuzzle(self, puzzle: Puzzle, puzzleState: PuzzleState | None = None) -> int:
-        if puzzleState is None:
-            return self._puzzles.addPuzzle(puzzle)
-        return self._puzzles.insertPuzzle(len(self._puzzles.puzzles()), puzzle, puzzleState)
-
-    def _insertPuzzle(self, index: int, puzzle: Puzzle, puzzleState: PuzzleState | None = None) -> int:
-        return self._puzzles.insertPuzzle(index, puzzle, puzzleState)
-
     def _removePuzzleById(self, puzzleId: str) -> Puzzle | None:
-        self.stopSolvingPuzzle(puzzleId)
+        self._solvingManager.stop(puzzleId)
         removedPuzzle = self._puzzles.removePuzzleById(puzzleId)
         if self._puzzleView.puzzleId == puzzleId:
             self._puzzleView.select("")
@@ -745,5 +750,3 @@ class Workspace(QObject):
         self._isBackgroundDirty = True
         self.isDirtyChanged.emit()
 
-    def _emitOperationStateChanged(self) -> None:
-        self.isDirtyChanged.emit()

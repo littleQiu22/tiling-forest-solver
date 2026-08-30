@@ -137,8 +137,7 @@ class TileData:
             row=int(data["row"]),
             col=int(data["col"]),
             tile=tileTypeFromJson(data["tile"]),
-            status=tileStatusFromJson(
-                data.get("status", TILE.STATUS.NORMAL.name)),
+            status=tileStatusFromJson(data["status"]),
         )
 
 
