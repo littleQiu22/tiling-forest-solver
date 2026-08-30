@@ -551,6 +551,56 @@ class Workspace(QObject):
         self._puzzles.emitPuzzleChanged(puzzleId, [role])
         self._markBackgroundDirty()
 
+    @Slot(str, str)
+    def syncPuzzleConfigToAll(self, puzzleId: str, configName: str) -> None:
+        puzzle = self._puzzles.puzzleById(puzzleId)
+        puzzleState = self._puzzles.puzzleStateById(puzzleId)
+        if puzzle is None or puzzleState is None:
+            return
+
+        roles: list[int] = []
+        match configName:
+            case "tilePool":
+                for targetPuzzle in self._puzzles.puzzles():
+                    targetPuzzle.tilePool = list(puzzle.tilePool)
+                roles = [PuzzleListModel.TilePoolRole]
+            case "objectives":
+                for targetState in self._puzzles.states().values():
+                    targetState.objectiveOrder = list(puzzleState.objectiveOrder)
+                    targetState.enabledObjectives = set(
+                        puzzleState.enabledObjectives)
+                roles = [PuzzleListModel.ObjectiveItemsRole]
+            case "constraints":
+                for targetState in self._puzzles.states().values():
+                    targetState.enabledConstraints = set(
+                        puzzleState.enabledConstraints)
+                roles = [PuzzleListModel.ConstraintItemsRole]
+            case "limits":
+                for targetState in self._puzzles.states().values():
+                    targetState.isTimeLimitEnabled = puzzleState.isTimeLimitEnabled
+                    targetState.timeLimit = puzzleState.timeLimit
+                    targetState.isSolutionLimitEnabled = puzzleState.isSolutionLimitEnabled
+                    targetState.solutionLimit = puzzleState.solutionLimit
+                roles = [
+                    PuzzleListModel.TimeLimitRole,
+                    PuzzleListModel.SolutionLimitRole,
+                ]
+            case _:
+                return
+
+        self._puzzles.emitAllChanged(roles)
+        self._markBackgroundDirty()
+
+    @Slot(str, result=str)
+    def rebuildPuzzle(self, puzzleId: str) -> str:
+        puzzle = self._puzzles.puzzleById(puzzleId)
+        puzzleState = self._puzzles.puzzleStateById(puzzleId)
+        if puzzle is None or puzzleState is None:
+            return "Puzzle not found."
+        if self._rebuildPuzzleIfStaled(puzzle, puzzleState):
+            return ""
+        return puzzleState.solvingLog.strip()
+
     @Slot(str)
     def previousPuzzleSolution(self, puzzleId: str) -> None:
         puzzleState = self._puzzles.puzzleStateById(puzzleId)

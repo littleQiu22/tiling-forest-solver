@@ -112,19 +112,17 @@ Item {
 
     function puzzleStrokeColor(solveStatus) {
         switch (solveStatus) {
-        case "Solving":
-            return AppTheme.primary;
-        case "Infeasible":
-        case "InternalError":
-            return AppTheme.danger;
-        case "TimeLimit":
-        case "SolutionLimit":
-        case "Interrupted":
-            return AppTheme.warning;
         case "Solved":
             return AppTheme.success;
-        default:
+        case "TimeLimit":
+        case "SolutionLimit":
+            return AppTheme.warning;
+        case "Unsolved":
             return AppTheme.primary;
+        case "Solving":
+            return AppTheme.solving;
+        default:
+            return AppTheme.danger;
         }
     }
 
@@ -234,6 +232,7 @@ Item {
                 required property real svgHeight
                 required property string solveStatus
                 required property bool isSelected
+                required property bool isGeometryStaled
                 required property var currentSolution
 
                 x: svgX
@@ -291,6 +290,26 @@ Item {
                         fillMode: Image.PreserveAspectFit
                         smooth: true
                         opacity: 0.82
+                    }
+                }
+
+                Rectangle {
+                    anchors.centerIn: parent
+                    visible: puzzleDelegate.isGeometryStaled
+                    width: staleText.implicitWidth + 14
+                    height: staleText.implicitHeight + 6
+                    radius: 4
+                    scale: 1 / camera.zoom
+                    color: AppTheme.surface
+                    border.color: AppTheme.warning
+
+                    Text {
+                        id: staleText
+                        anchors.centerIn: parent
+                        text: qsTr("Stale")
+                        color: AppTheme.warning
+                        font.bold: true
+                        font.pixelSize: 12
                     }
                 }
             }

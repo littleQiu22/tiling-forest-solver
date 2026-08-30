@@ -13,6 +13,49 @@ from models.workspace import Workspace
 
 QML_IMPORT_NAME = "app.manager"
 QML_IMPORT_MAJOR_VERSION = 1
+COMPACT_JSON_KEYS = {"tiles", "emptyGrids", "placedGrids", "tilePool"}
+
+
+def dumpsWorkspaceJson(data: dict[str, Any]) -> str:
+    return _dumpsJson(data, 0, None) + "\n"
+
+
+def _dumpsJson(value: Any, level: int, key: str | None) -> str:
+    if key in COMPACT_JSON_KEYS:
+        return json.dumps(
+            value,
+            ensure_ascii=False,
+            separators=(", ", ": "),
+        )
+
+    if isinstance(value, dict):
+        if not value:
+            return "{}"
+        indent = "  " * level
+        childIndent = "  " * (level + 1)
+        lines = ["{"]
+        items = sorted(value.items())
+        for index, (childKey, childValue) in enumerate(items):
+            comma = "," if index < len(items) - 1 else ""
+            keyText = json.dumps(childKey, ensure_ascii=False)
+            valueText = _dumpsJson(childValue, level + 1, str(childKey))
+            lines.append(f"{childIndent}{keyText}: {valueText}{comma}")
+        lines.append(f"{indent}}}")
+        return "\n".join(lines)
+
+    if isinstance(value, list):
+        if not value:
+            return "[]"
+        indent = "  " * level
+        childIndent = "  " * (level + 1)
+        lines = ["["]
+        for index, item in enumerate(value):
+            comma = "," if index < len(value) - 1 else ""
+            lines.append(f"{childIndent}{_dumpsJson(item, level + 1, None)}{comma}")
+        lines.append(f"{indent}]")
+        return "\n".join(lines)
+
+    return json.dumps(value, ensure_ascii=False)
 
 
 @QmlElement
@@ -114,12 +157,7 @@ class WorkspaceManager(QObject):
             filePath = Path(path)
             filePath.parent.mkdir(parents=True, exist_ok=True)
             filePath.write_text(
-                json.dumps(
-                    self._workspace.toJson(),
-                    ensure_ascii=False,
-                    indent=2,
-                    sort_keys=True,
-                ),
+                dumpsWorkspaceJson(self._workspace.toJson()),
                 encoding="utf-8",
             )
             self._setFilePath(str(filePath))

@@ -405,7 +405,11 @@ class PuzzleState:
     solveStatus: PuzzleSolveStatus = PuzzleSolveStatus.UNSOLVED
     objectiveOrder: list[MODELING.GOAL] = field(
         default_factory=lambda: list(MODELING.GOAL))
-    enabledObjectives: set[MODELING.GOAL] = field(default_factory=set)
+    enabledObjectives: set[MODELING.GOAL] = field(default_factory=lambda: {
+        MODELING.GOAL.MIN_UNEXPLORED,
+        MODELING.GOAL.MAX_CONNECTIVITY,
+        MODELING.GOAL.MAX_DENSITY
+    })
     enabledConstraints: set[MODELING.CONSTRAINT] = field(
         default_factory=lambda: {
             MODELING.CONSTRAINT.FIGURE_ALIGNED,
@@ -772,6 +776,14 @@ class PuzzleListModel(QAbstractListModel):
         if index != -1:
             self._emitRoles(index, roles)
 
+    def emitAllChanged(self, roles: list[int]) -> None:
+        if not self._puzzles:
+            return
+
+        topLeft = self.index(0, 0)
+        bottomRight = self.index(len(self._puzzles) - 1, 0)
+        self.dataChanged.emit(topLeft, bottomRight, roles)
+
     def markGeometryStaledByGrid(self, grid: Grid) -> str:
         puzzle = self._puzzleByGrid.get(grid)
         if puzzle is None:
@@ -824,7 +836,8 @@ class PuzzleListModel(QAbstractListModel):
     def loadStatesJson(self, data: dict[str, Any]) -> None:
         for puzzleId, stateData in data.items():
             if puzzleId in self._stateByPuzzleId:
-                self._stateByPuzzleId[puzzleId] = PuzzleState.fromJson(stateData)
+                self._stateByPuzzleId[puzzleId] = PuzzleState.fromJson(
+                    stateData)
         if self._puzzles:
             topLeft = self.index(0, 0)
             bottomRight = self.index(len(self._puzzles) - 1, 0)

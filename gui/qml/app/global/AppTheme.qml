@@ -21,6 +21,7 @@ QtObject {
 
     // ====== Action Color ======
     property color primary: "#3B82F6"
+    property color solving: "#06B6D4"
     property color success: "#22C55E"
     property color warning: "#F59E0B"
     property color danger: "#EF4444"

@@ -21,17 +21,17 @@ Rectangle {
 
     function statusColor(solveStatus) {
         switch (solveStatus) {
-        case "Infeasible":
-            return AppTheme.danger;
+        case "Solved":
+            return AppTheme.success;
         case "TimeLimit":
         case "SolutionLimit":
             return AppTheme.warning;
-        case "Solved":
-            return AppTheme.success;
+        case "Unsolved":
+            return AppTheme.primary;
         case "Solving":
-            return AppTheme.primary;
+            return AppTheme.solving;
         default:
-            return AppTheme.primary;
+            return AppTheme.danger;
         }
     }
 
@@ -55,6 +55,12 @@ Rectangle {
         }
     }
 
+    function rebuildPuzzle() {
+        let message = root.workspace.rebuildPuzzle(root.workspace.puzzleView.puzzleId);
+        if (!!message)
+            Services.alert(message);
+    }
+
     function focusPuzzleRecord(puzzleId) {
         let index = root.workspace.puzzles.indexById(puzzleId);
         if (index < 0)
@@ -74,7 +80,7 @@ Rectangle {
 
         Label {
             Layout.fillWidth: true
-            text: qsTr("Puzzles")
+            text: qsTr("Puzzles (%1)").arg(puzzleList.count)
             color: AppTheme.textSecondary
             font.bold: true
         }
@@ -119,31 +125,6 @@ Rectangle {
                             border.width: 2
                             border.color: root.statusColor(puzzleRecord.solveStatus)
                         }
-
-                        Item {
-                            id: statusRing
-                            anchors.fill: parent
-                            rotation: puzzleRecord.solveStatus === "Solving" ? phase : 0
-                            property real phase: 0
-
-                            Rectangle {
-                                visible: puzzleRecord.solveStatus === "Solving"
-                                x: Math.round(parent.width / 2 - width / 2)
-                                y: 1
-                                width: 5
-                                height: 5
-                                radius: 2.5
-                                color: root.statusColor(puzzleRecord.solveStatus)
-                            }
-
-                            NumberAnimation on phase {
-                                from: 0
-                                to: 360
-                                duration: 900
-                                loops: Animation.Infinite
-                                running: puzzleRecord.solveStatus === "Solving"
-                            }
-                        }
                     }
 
                     TextInput {
@@ -162,7 +143,7 @@ Rectangle {
                     Label {
                         Layout.fillWidth: true
                         visible: root.renamingId !== puzzleRecord.puzzleId
-                        text: puzzleRecord.name
+                        text: puzzleRecord.name + (puzzleRecord.isGeometryStaled ? qsTr(" | Stale") : "")
                         color: AppTheme.textPrimary
                         elide: Text.ElideRight
                     }
@@ -210,23 +191,40 @@ Rectangle {
                 width: detailsScroll.availableWidth
                 spacing: 10
 
-                Label {
-                    id: summaryLabel
+                RowLayout {
                     Layout.fillWidth: true
-                    text: root.puzzleSummary()
-                    color: summaryHover.hovered ? AppTheme.primary : (root.workspace.puzzleView.isGeometryStaled ? AppTheme.warning : AppTheme.textPrimary)
-                    font.bold: true
-                    font.underline: root.workspace.puzzleView.hasPuzzle
-                    elide: Text.ElideRight
 
-                    HoverHandler {
-                        id: summaryHover
-                        acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+                    Label {
+                        id: summaryLabel
+                        Layout.fillWidth: true
+                        text: root.puzzleSummary()
+                        color: summaryHover.hovered ? AppTheme.primary : (root.workspace.puzzleView.isGeometryStaled ? AppTheme.warning : AppTheme.textPrimary)
+                        font.bold: true
+                        font.underline: root.workspace.puzzleView.hasPuzzle
+                        elide: Text.ElideRight
+
+                        HoverHandler {
+                            id: summaryHover
+                            acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+                        }
+
+                        TapHandler {
+                            acceptedButtons: Qt.LeftButton
+                            onTapped: root.workspace.selectPuzzle(root.workspace.puzzleView.puzzleId)
+                        }
                     }
 
-                    TapHandler {
-                        acceptedButtons: Qt.LeftButton
-                        onTapped: root.workspace.selectPuzzle(root.workspace.puzzleView.puzzleId)
+                    Item {
+                        Layout.preferredWidth: 76
+                        Layout.preferredHeight: rebuildButton.implicitHeight
+
+                        AppButton {
+                            id: rebuildButton
+                            anchors.fill: parent
+                            visible: root.workspace.puzzleView.hasPuzzle && root.workspace.puzzleView.isGeometryStaled
+                            text: qsTr("Rebuild")
+                            onClicked: root.rebuildPuzzle()
+                        }
                     }
                 }
 
@@ -236,10 +234,20 @@ Rectangle {
                     visible: root.workspace.puzzleView.hasPuzzle
                     spacing: 10
 
-                    Label {
-                        text: qsTr("Tile Pool")
-                        color: AppTheme.textSecondary
-                        font.bold: true
+                    RowLayout {
+                        Layout.fillWidth: true
+
+                        Label {
+                            Layout.fillWidth: true
+                            text: qsTr("Tile Pool")
+                            color: AppTheme.textSecondary
+                            font.bold: true
+                        }
+
+                        AppButton {
+                            text: qsTr("Sync All")
+                            onClicked: root.workspace.syncPuzzleConfigToAll(root.workspace.puzzleView.puzzleId, "tilePool")
+                        }
                     }
 
                     Flow {
@@ -275,10 +283,20 @@ Rectangle {
                         }
                     }
 
-                    Label {
-                        text: qsTr("Objectives")
-                        color: AppTheme.textSecondary
-                        font.bold: true
+                    RowLayout {
+                        Layout.fillWidth: true
+
+                        Label {
+                            Layout.fillWidth: true
+                            text: qsTr("Objectives")
+                            color: AppTheme.textSecondary
+                            font.bold: true
+                        }
+
+                        AppButton {
+                            text: qsTr("Sync All")
+                            onClicked: root.workspace.syncPuzzleConfigToAll(root.workspace.puzzleView.puzzleId, "objectives")
+                        }
                     }
 
                     ColumnLayout {
@@ -313,10 +331,20 @@ Rectangle {
                         }
                     }
 
-                    Label {
-                        text: qsTr("Constraints")
-                        color: AppTheme.textSecondary
-                        font.bold: true
+                    RowLayout {
+                        Layout.fillWidth: true
+
+                        Label {
+                            Layout.fillWidth: true
+                            text: qsTr("Constraints")
+                            color: AppTheme.textSecondary
+                            font.bold: true
+                        }
+
+                        AppButton {
+                            text: qsTr("Sync All")
+                            onClicked: root.workspace.syncPuzzleConfigToAll(root.workspace.puzzleView.puzzleId, "constraints")
+                        }
                     }
 
                     ColumnLayout {
@@ -335,10 +363,20 @@ Rectangle {
                         }
                     }
 
-                    Label {
-                        text: qsTr("Solving Configuration && Control")
-                        color: AppTheme.textSecondary
-                        font.bold: true
+                    RowLayout {
+                        Layout.fillWidth: true
+
+                        Label {
+                            Layout.fillWidth: true
+                            text: qsTr("Solving Configuration && Control")
+                            color: AppTheme.textSecondary
+                            font.bold: true
+                        }
+
+                        AppButton {
+                            text: qsTr("Sync All")
+                            onClicked: root.workspace.syncPuzzleConfigToAll(root.workspace.puzzleView.puzzleId, "limits")
+                        }
                     }
 
                     ColumnLayout {
