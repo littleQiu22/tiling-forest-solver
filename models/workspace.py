@@ -229,6 +229,19 @@ class RenamePuzzleOperation(Operation):
         workspace._puzzles.setPuzzleName(self.puzzleId, self.oldName)
 
 
+class MovePuzzleOperation(Operation):
+    def __init__(self, puzzleId: str, sourceIndex: int, targetIndex: int) -> None:
+        self.puzzleId = puzzleId
+        self.sourceIndex = sourceIndex
+        self.targetIndex = targetIndex
+
+    def execute(self, workspace: "Workspace") -> None:
+        workspace._puzzles.movePuzzle(self.puzzleId, self.targetIndex)
+
+    def undo(self, workspace: "Workspace") -> None:
+        workspace._puzzles.movePuzzle(self.puzzleId, self.sourceIndex)
+
+
 @QmlElement
 class Workspace(QObject):
     isDirtyChanged = Signal()
@@ -462,6 +475,15 @@ class Workspace(QObject):
 
         self._applyOperation(RenamePuzzleOperation(
             puzzleId, puzzle.name, nextName))
+
+    @Slot(str, int)
+    def movePuzzle(self, puzzleId: str, targetIndex: int) -> None:
+        sourceIndex = self._puzzles.indexById(puzzleId)
+        if sourceIndex == -1 or sourceIndex == targetIndex:
+            return
+
+        self._applyOperation(MovePuzzleOperation(
+            puzzleId, sourceIndex, int(targetIndex)))
 
     @Slot(str, int, bool)
     def setPuzzleTileEnabled(self, puzzleId: str, tile: int, enabled: bool) -> None:

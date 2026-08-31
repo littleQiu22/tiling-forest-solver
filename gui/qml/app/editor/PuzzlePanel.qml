@@ -18,6 +18,13 @@ Rectangle {
     required property Workspace workspace
     property string renamingId: ""
     property string renamingText: ""
+    readonly property int puzzleRecordHeight: 36
+    property bool isDraggingPuzzle: false
+    property Item draggedRecord: null
+    property int dragSourceIndex: -1
+    property int dropIndex: -1
+    readonly property int dragAutoScrollMargin: 28
+    readonly property real dragAutoScrollStep: 10
 
     function statusColor(solveStatus) {
         switch (solveStatus) {
@@ -73,44 +80,137 @@ Rectangle {
         puzzleList.positionViewAtIndex(index, ListView.Center);
     }
 
-    ColumnLayout {
-        anchors.fill: parent
-        anchors.margins: 8
-        spacing: 8
+    function puzzleStride() {
+        return root.puzzleRecordHeight + puzzleList.spacing;
+    }
 
-        Label {
-            Layout.fillWidth: true
-            text: qsTr("Puzzles (%1)").arg(puzzleList.count)
-            color: AppTheme.textSecondary
-            font.bold: true
+    function updateDropIndex(item) {
+        if (!item || puzzleList.count <= 0) {
+            root.dropIndex = -1;
+            return;
         }
 
-        ListView {
-            id: puzzleList
-            Layout.fillWidth: true
-            Layout.preferredHeight: 220
-            clip: true
-            spacing: 4
-            model: root.workspace.puzzles
+        let targetIndex = Math.round(item.y / root.puzzleStride());
+        root.dropIndex = Math.max(0, Math.min(puzzleList.count, targetIndex));
+    }
 
-            delegate: Rectangle {
-                id: puzzleRecord
-                required property string puzzleId
-                required property string name
-                required property string solveStatus
-                required property bool isGeometryStaled
-                required property bool isSelected
+    function finishPuzzleDrag(puzzleId, shouldCommit) {
+        let wasDragging = root.isDraggingPuzzle;
+        let targetIndex = root.dragSourceIndex < root.dropIndex ? root.dropIndex - 1 : root.dropIndex;
+        targetIndex = Math.max(0, Math.min(puzzleList.count - 1, targetIndex));
 
-                width: puzzleList.width
-                height: 36
+        root.isDraggingPuzzle = false;
+        root.draggedRecord = null;
+        root.dragSourceIndex = -1;
+        root.dropIndex = -1;
+
+        if (wasDragging && shouldCommit && targetIndex >= 0)
+            root.workspace.movePuzzle(puzzleId, targetIndex);
+    }
+
+    Component {
+        id: puzzleRecordDelegate
+
+        Item {
+            id: puzzleRecord
+            required property string puzzleId
+            required property string name
+            required property string solveStatus
+            required property bool isGeometryStaled
+            required property bool isSelected
+            required property int index
+
+            width: puzzleList.width
+            height: root.puzzleRecordHeight
+
+            Rectangle {
+                id: recordBody
+                width: puzzleRecord.width
+                height: puzzleRecord.height
                 radius: 4
-                color: isSelected ? AppTheme.surfaceVariant : "transparent"
-                border.color: isSelected ? AppTheme.primary : AppTheme.border
+                color: dragArea.drag.active || puzzleRecord.isSelected ? AppTheme.surfaceVariant : "transparent"
+                border.color: dragArea.drag.active || puzzleRecord.isSelected ? AppTheme.primary : AppTheme.border
+                z: dragArea.drag.active ? 10 : 0
+
+                Drag.active: dragArea.drag.active
+                Drag.source: puzzleRecord
+                Drag.hotSpot.x: width / 2
+                Drag.hotSpot.y: height / 2
+
+                states: State {
+                    when: dragArea.drag.active
+
+                    ParentChange {
+                        target: recordBody
+                        parent: puzzleList.contentItem
+                        x: 0
+                    }
+                }
 
                 RowLayout {
                     anchors.fill: parent
                     anchors.margins: 4
                     spacing: 6
+
+                    Item {
+                        id: dragHandle
+                        Layout.preferredWidth: 28
+                        Layout.preferredHeight: 30
+
+                        Grid {
+                            anchors.centerIn: parent
+                            columns: 2
+                            rowSpacing: 3
+                            columnSpacing: 3
+
+                            Repeater {
+                                model: 6
+
+                                delegate: Rectangle {
+                                    width: 3
+                                    height: 3
+                                    radius: 1.5
+                                    color: dragArea.containsMouse || dragArea.drag.active ? AppTheme.textSecondary : AppTheme.border
+                                }
+                            }
+                        }
+
+                        MouseArea {
+                            id: dragArea
+                            anchors.fill: parent
+                            cursorShape: Qt.SizeVerCursor
+                            preventStealing: true
+                            drag.target: recordBody
+                            drag.axis: Drag.YAxis
+                            drag.threshold: 2
+                            drag.smoothed: false
+                            drag.minimumY: drag.active ? 0 : -puzzleRecord.y
+                            drag.maximumY: Math.max(0, puzzleList.contentHeight - recordBody.height - (drag.active ? 0 : puzzleRecord.y))
+
+                            onPressed: {
+                                root.dragSourceIndex = puzzleRecord.index;
+                                root.dropIndex = puzzleRecord.index;
+                                root.workspace.selectPuzzle(puzzleRecord.puzzleId);
+                            }
+
+                            onPositionChanged: {
+                                if (drag.active && !root.isDraggingPuzzle) {
+                                    root.isDraggingPuzzle = true;
+                                    root.draggedRecord = recordBody;
+                                }
+                                if (drag.active)
+                                    root.updateDropIndex(recordBody);
+                            }
+
+                            onReleased: {
+                                root.finishPuzzleDrag(puzzleRecord.puzzleId, true);
+                            }
+
+                            onCanceled: {
+                                root.finishPuzzleDrag(puzzleRecord.puzzleId, false);
+                            }
+                        }
+                    }
 
                     Item {
                         Layout.preferredWidth: 22
@@ -147,7 +247,6 @@ Rectangle {
                         color: AppTheme.textPrimary
                         elide: Text.ElideRight
                     }
-                    //
 
                     AppButton {
                         text: qsTr("Rename")
@@ -174,6 +273,45 @@ Rectangle {
                 }
             }
         }
+    }
+
+    ColumnLayout {
+        anchors.fill: parent
+        anchors.margins: 8
+        spacing: 8
+
+        Label {
+            Layout.fillWidth: true
+            text: qsTr("Puzzles (%1)").arg(puzzleList.count)
+            color: AppTheme.textSecondary
+            font.bold: true
+        }
+
+        ListView {
+            id: puzzleList
+            Layout.fillWidth: true
+            Layout.preferredHeight: 220
+            clip: true
+            spacing: 4
+            model: root.workspace.puzzles
+            delegate: puzzleRecordDelegate
+            cacheBuffer: Math.max(height * 4, puzzleList.count * (root.puzzleRecordHeight + spacing))
+            interactive: !root.isDraggingPuzzle
+            boundsBehavior: Flickable.StopAtBounds
+            boundsMovement: Flickable.StopAtBounds
+
+            Rectangle {
+                parent: puzzleList.contentItem
+                visible: root.isDraggingPuzzle && root.dropIndex >= 0
+                x: 0
+                y: root.dropIndex * root.puzzleStride()
+                width: puzzleList.width
+                height: 2
+                radius: 1
+                color: AppTheme.primary
+                z: 100
+            }
+        }
 
         Rectangle {
             Layout.fillWidth: true
@@ -186,6 +324,7 @@ Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
             clip: true
+            padding: 4
 
             ColumnLayout {
                 width: detailsScroll.availableWidth
@@ -537,6 +676,34 @@ Rectangle {
                     }
                 }
             }
+        }
+    }
+
+    Timer {
+        interval: 16
+        repeat: true
+        running: root.isDraggingPuzzle && root.draggedRecord !== null
+
+        onTriggered: {
+            let item = root.draggedRecord;
+            let maxContentY = Math.max(0, puzzleList.contentHeight - puzzleList.height);
+            let maxItemY = Math.max(0, puzzleList.contentHeight - item.height);
+            let itemTopInView = item.y - puzzleList.contentY;
+            let itemBottomInView = itemTopInView + item.height;
+            let delta = 0;
+
+            if (itemTopInView < root.dragAutoScrollMargin) {
+                delta = -Math.min(root.dragAutoScrollStep, puzzleList.contentY);
+            } else if (itemBottomInView > puzzleList.height - root.dragAutoScrollMargin) {
+                delta = Math.min(root.dragAutoScrollStep, maxContentY - puzzleList.contentY);
+            }
+
+            if (delta === 0)
+                return;
+
+            puzzleList.contentY += delta;
+            item.y = Math.max(0, Math.min(maxItemY, item.y + delta));
+            root.updateDropIndex(item);
         }
     }
 

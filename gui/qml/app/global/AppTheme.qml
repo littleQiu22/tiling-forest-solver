@@ -16,7 +16,7 @@ QtObject {
     property color textSecondary: "#6B7280"
 
     // ====== Border ======
-    property color border: "#E5E7EB"
+    property color border: "#cdd0d4"
     property color gridLine: "#D1D5DB"
 
     // ====== Action Color ======

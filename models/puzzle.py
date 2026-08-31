@@ -661,6 +661,30 @@ class PuzzleListModel(QAbstractListModel):
             return None
         return self.removePuzzleAt(index)
 
+    def movePuzzle(self, puzzleId: str, targetIndex: int) -> bool:
+        sourceIndex = self.indexById(puzzleId)
+        if sourceIndex == -1:
+            return False
+
+        targetIndex = max(0, min(targetIndex, len(self._puzzles) - 1))
+        if sourceIndex == targetIndex:
+            return False
+
+        destinationChild = targetIndex + 1 if sourceIndex < targetIndex else targetIndex
+        if not self.beginMoveRows(
+            QModelIndex(),
+            sourceIndex,
+            sourceIndex,
+            QModelIndex(),
+            destinationChild,
+        ):
+            return False
+
+        puzzle = self._puzzles.pop(sourceIndex)
+        self._puzzles.insert(targetIndex, puzzle)
+        self.endMoveRows()
+        return True
+
     def puzzleAt(self, index: int) -> Puzzle | None:
         if not 0 <= index < len(self._puzzles):
             return None

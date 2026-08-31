@@ -51,6 +51,7 @@ class PuzzleView(QObject):
         puzzles = self._workspace._puzzles
         puzzles.modelReset.connect(self._syncPuzzleExistence)
         puzzles.rowsRemoved.connect(self._syncPuzzleExistence)
+        puzzles.rowsMoved.connect(self._syncPuzzleMove)
         puzzles.dataChanged.connect(self._syncPuzzleData)
 
     @Property(bool, notify=hasPuzzleChanged)
@@ -189,6 +190,20 @@ class PuzzleView(QObject):
             return
         self._puzzleId = ""
         self._emitAllChanged()
+
+    def _syncPuzzleMove(
+        self,
+        parent: QModelIndex,
+        sourceStart: int,
+        sourceEnd: int,
+        destination: QModelIndex,
+        destinationRow: int,
+    ) -> None:
+        puzzles = self._workspace._puzzles
+        movedIndex = destinationRow - 1 if sourceStart < destinationRow else destinationRow
+        movedPuzzle = puzzles.puzzleAt(movedIndex)
+        if movedPuzzle is not None:
+            self.select(movedPuzzle.id)
 
     def _syncPuzzleData(
         self,
