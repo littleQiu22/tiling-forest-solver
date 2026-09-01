@@ -5,9 +5,9 @@ from typing import Any
 
 from PySide6.QtCore import QObject, QProcess, Slot
 
-from common import solverWorkerCommand
+from common import BASE_ROOT, solverWorkerCommand
 from models.geometry import Grid
-from models.puzzle import Puzzle, PuzzleListModel, PuzzleState, Solution
+from models.puzzle import Puzzle, PuzzleListModel, PuzzleState, Solution, PuzzleSolveStatus
 from models.tile import tileTypeFromJson
 from solver.status import SOLVER_STATUS
 
@@ -32,7 +32,8 @@ class SolvingManager(QObject):
 
         puzzleState.solutions = []
         puzzleState.currentSolutionIndex = -1
-        puzzleState.solvingLog = ""
+        puzzleState.solvingLog = "Start solving...\n"
+        puzzleState.solveStatus = PuzzleSolveStatus.SOLVING
         self._emitStateChanged(
             puzzle.id,
             [
@@ -40,6 +41,7 @@ class SolvingManager(QObject):
                 PuzzleListModel.SolutionCountRole,
                 PuzzleListModel.CurrentSolutionIndexRole,
                 PuzzleListModel.SolvingLogRole,
+                PuzzleListModel.SolveStatusRole
             ],
         )
         self._workspace._markBackgroundDirty()
@@ -47,6 +49,7 @@ class SolvingManager(QObject):
         program, arguments = solverWorkerCommand()
         process = QProcess(self)
         process.setProperty("puzzleId", puzzle.id)
+        process.setWorkingDirectory(str(BASE_ROOT.resolve()))
         self._processes[puzzle.id] = process
         self._buffers[process] = ""
 

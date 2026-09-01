@@ -32,4 +32,4 @@ def getTemplate(*paths: str):
 def solverWorkerCommand() -> tuple[str, list[str]]:
     if IS_RELEASE:
         return sys.executable, ["--solver-worker"]
-    return sys.executable, [str((BASE_ROOT / "solver" / "worker.py").resolve())]
+    return sys.executable, ["-m", "solver.worker"]

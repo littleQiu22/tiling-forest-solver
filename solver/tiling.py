@@ -79,6 +79,34 @@ class TilingSolver:
         if not self._exits:
             self._exits.update(self._puzzle.emptyGrids)
 
+        unexploredConnectedGrids = set()
+        pendingGrids = [
+            grid
+            for grid, gridData in self._puzzle.placedGrids.items()
+            if gridData.status == TILE.STATUS.UNEXPLORED
+        ]
+        while pendingGrids:
+            grid = pendingGrids.pop()
+            if grid in unexploredConnectedGrids:
+                continue
+
+            unexploredConnectedGrids.add(grid)
+            gridData = self._puzzle.placedGrids[grid]
+            for direction in DIRECTION:
+                neighbor = grid.neighbor(direction)
+                neighborData = self._puzzle.placedGrids.get(neighbor)
+                if neighborData is None or neighbor in unexploredConnectedGrids:
+                    continue
+
+                gridFlow = getEdgeFlow(
+                    EDGE_CHANNEL.CONNECT_CHANNEL, gridData.tile, direction)
+                neighborFlow = getEdgeFlow(
+                    EDGE_CHANNEL.CONNECT_CHANNEL, neighborData.tile, direction.opposite())
+                if gridFlow > EDGE_FLOW.NO_FLOW and neighborFlow > EDGE_FLOW.NO_FLOW:
+                    pendingGrids.append(neighbor)
+
+        self._exits.difference_update(unexploredConnectedGrids)
+
         # Ids
         self._idPerGrid = {}
         for i, v in enumerate(self._puzzle.grids):
@@ -102,6 +130,13 @@ class TilingSolver:
             setattr(x, "tile", vData.tile)
             if vData.tile in TILE.STUMPS and MODELING.CONSTRAINT.STUMP_PAIRED in self._option.constraints:
                 self._model.add(x == 1)
+            for d in DIRECTION:
+                u = v.neighbor(d)
+                if u not in self._puzzle.emptyGrids:
+                    continue
+                flow = getEdgeFlow(EDGE_CHANNEL.CONNECT_CHANNEL, vData.tile, d)
+                if flow > EDGE_FLOW.NO_FLOW:
+                    self._model.add(sum(self._xsPerGrid[u]) <= x)
             self._xsPerGrid[v] = [x]
 
         for v in self._puzzle.grids:
@@ -318,6 +353,9 @@ class TilingSolver:
                 )
             self._model.add(
                 self._needConnectPerGrid[v] == asConnectSource + sum(isParents)
+            )
+            self._model.add(
+                self._isSourceExitPerGrid[v] <= self._needConnectPerGrid[v]
             )
 
         # Connectivity metrics

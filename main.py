@@ -1,10 +1,3 @@
-import models.tile
-import manager.workspace_manager
-import models.workspace
-from common import getAsset, getQML
-from PySide6.QtQml import QQmlApplicationEngine
-from PySide6.QtGui import QGuiApplication, QIcon
-from PySide6.QtCore import QCoreApplication, QSettings
 import sys
 import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -13,6 +6,19 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 def solverWorkerMain() -> int:
     from solver.worker import main as workerMain
     return workerMain()
+
+
+if __name__ == "__main__" and "--solver-worker" in sys.argv:
+    sys.exit(solverWorkerMain())
+
+
+import models.tile
+import manager.workspace_manager
+import models.workspace
+from common import getAsset, getQML
+from PySide6.QtQml import QQmlApplicationEngine
+from PySide6.QtGui import QGuiApplication, QIcon
+from PySide6.QtCore import QCoreApplication, QSettings
 
 
 def configure_application() -> None:
@@ -43,6 +49,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    if "--solver-worker" in sys.argv:
-        sys.exit(solverWorkerMain())
     sys.exit(main())
