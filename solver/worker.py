@@ -46,16 +46,17 @@ def solveRequest(request: dict[str, Any]) -> None:
         if status == SOLVER_STATUS.SOLVING:
             emit({
                 "status": SOLVER_STATUS.SOLVING.value,
-                "message": "Solver started.",
+                "message": solver.phaseMessage(),
             })
             return
 
         if status == SOLVER_STATUS.FOUND_SOLUTION:
             solutions = solver.getSolutions()
             if solutions:
+                lastSolution = solutions[-1]
                 emit({
-                    "solution": solutionToJson(solutions[-1]),
-                    "message": f"Found solution {len(solutions)}.",
+                    "solution": solutionToJson(lastSolution),
+                    "message": f"Found solution {len(solutions)} with {len(lastSolution)} tiles.",
                 })
             return
 

@@ -52,6 +52,23 @@ Rectangle {
         return parts.join(" | ");
     }
 
+    function refreshLogText() {
+        const flick = logScroll.contentItem;
+        const canScroll = flick && typeof flick.contentY === "number";
+        const oldContentY = canScroll ? flick.contentY : 0;
+        const wasAtBottom = canScroll && flick.contentY + flick.height >= flick.contentHeight - 4;
+
+        logTextArea.text = root.workspace.puzzleView.solvingLog;
+        Qt.callLater(() => {
+            const currentFlick = logScroll.contentItem;
+            if (!currentFlick || typeof currentFlick.contentY !== "number")
+                return;
+
+            const maxContentY = Math.max(0, currentFlick.contentHeight - currentFlick.height);
+            currentFlick.contentY = wasAtBottom ? maxContentY : Math.min(oldContentY, maxContentY);
+        });
+    }
+
     function deletePuzzle(puzzleId) {
         let queryHeavyReason = true;
         let heavyReason = root.workspace.deletePuzzle(puzzleId, queryHeavyReason);
@@ -659,12 +676,13 @@ Rectangle {
                     }
 
                     ScrollView {
+                        id: logScroll
                         Layout.fillWidth: true
                         Layout.preferredHeight: 140
                         clip: true
 
                         Basic.TextArea {
-                            text: root.workspace.puzzleView.solvingLog
+                            id: logTextArea
                             readOnly: true
                             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                             background: Rectangle {
@@ -678,6 +696,16 @@ Rectangle {
             }
         }
     }
+
+    Connections {
+        target: root.workspace.puzzleView
+
+        function onSolvingLogChanged() {
+            root.refreshLogText();
+        }
+    }
+
+    Component.onCompleted: root.refreshLogText()
 
     Timer {
         interval: 16

@@ -7,7 +7,7 @@ from cpmpy.expressions.core import Expression
 from cpmpy.solvers.solver_interface import ExitStatus
 
 from models.puzzle import Puzzle
-from models.geometry import DIRECTION
+from models.geometry import DIRECTION, Grid
 from models.tile import TILE
 from solver.option import MODELING, SolverOption
 from solver.flow import EDGE_CHANNEL, GRID_CHANNEL, EDGE_FLOW, GRID_FLOW, getEdgeFlow, getGridFlow
@@ -19,8 +19,54 @@ class TilingSolver:
         self._puzzle = puzzle
         self._option = option
         self._callback = callback
+        self._phase = ""
+        self._phaseGoal = None
+        self._phaseObjectiveValue = None
 
         self._buildModel()
+
+    @property
+    def phase(self) -> str:
+        return self._phase
+
+    @property
+    def phaseGoal(self) -> MODELING.GOAL | None:
+        return self._phaseGoal
+
+    @property
+    def phaseObjectiveValue(self):
+        return self._phaseObjectiveValue
+
+    def phaseMessage(self) -> str:
+        match self._phase:
+            case "goal":
+                if self._phaseGoal is None:
+                    return "Optimizing goal..."
+                if self._phaseObjectiveValue is None:
+                    return f"Optimizing goal: {self._phaseGoal.name}"
+                match self.phaseGoal:
+                    case MODELING.GOAL.MIN_UNEXPLORED:
+                        return f"Number of connected unexplored tiles: {self._phaseObjectiveValue}."
+                    case MODELING.GOAL.MAX_DENSITY:
+                        return f"Number of placed tiles: {self.phaseObjectiveValue}."
+                    case MODELING.GOAL.MAX_CONNECTIVITY:
+                        return f"Number of isolated connected components: {self.phaseObjectiveValue}."
+                    case _:
+                        return f"Optimizing goal: {self._phaseGoal.name}"
+            case "enumeration":
+                return "Enumerating solutions..."
+            case _:
+                return "Solver started."
+
+    def _setPhase(
+        self,
+        phase: str,
+        goal: MODELING.GOAL | None = None,
+        objectiveValue=None,
+    ) -> None:
+        self._phase = phase
+        self._phaseGoal = goal
+        self._phaseObjectiveValue = objectiveValue
 
     def _resetModel(self):
         self._deriveGeometry()
@@ -44,34 +90,52 @@ class TilingSolver:
         self._flowsPerEdge = defaultdict(lambda: defaultdict(list))
         self._flowsPerGrid = defaultdict(lambda: defaultdict(list))
 
-        self._connectivityMetrics = None
-
         self._solutions = []
 
     def getSolutions(self):
         return self._solutions
 
     def _deriveGeometry(self):
-        # Exits
+
+        def canReachEmptyFrom(v: Grid, visited=set()) -> bool:
+            if v not in self._puzzle.grids:
+                return False
+            if v in self._puzzle.emptyGrids:
+                return True
+            visited.add(v)
+            vData = self._puzzle.placedGrids[v]
+            for d in DIRECTION:
+                u = v.neighbor(d)
+                if u in visited:
+                    continue
+                flow = getEdgeFlow(EDGE_CHANNEL.CONNECT_CHANNEL, vData.tile, d)
+                if flow <= EDGE_FLOW.NO_FLOW:
+                    continue
+                if canReachEmptyFrom(u, visited):
+                    return True
+            return False
+
+        # Exits: with outbound flow and can connect to empty grids
         self._exits = set()
         for v, vData in self._puzzle.placedGrids.items():
+            withOutsideFlow = False
             if vData.status == TILE.STATUS.UNEXPLORED:
                 continue
             for d in DIRECTION:
                 u = v.neighbor(d)
                 flow = getEdgeFlow(EDGE_CHANNEL.CONNECT_CHANNEL, vData.tile, d)
+                # Check whether with outbound flow
                 if u not in self._puzzle.grids and flow > EDGE_FLOW.NO_FLOW:
-                    self._exits.add(v)
-        # Fallback 1: if there is no external exit, placed grids that carry
-        # connect flow can act as exits.
+                    withOutsideFlow = True
+                    break
+            if withOutsideFlow and canReachEmptyFrom(v):
+                self._exits.add(v)
+        # Fallback 1: if there is no external exit, placed grids that can connect to empty grids can act as exits.
         if not self._exits:
             for v, vData in self._puzzle.placedGrids.items():
                 if vData.status == TILE.STATUS.UNEXPLORED:
                     continue
-                if any(
-                    getEdgeFlow(EDGE_CHANNEL.CONNECT_CHANNEL, vData.tile, d) > EDGE_FLOW.NO_FLOW
-                    for d in DIRECTION
-                ):
+                if canReachEmptyFrom(v):
                     self._exits.add(v)
 
         # Fallback 2: if even placed grids cannot provide an exit, every empty
@@ -89,8 +153,8 @@ class TilingSolver:
             grid = pendingGrids.pop()
             if grid in unexploredConnectedGrids:
                 continue
-
             unexploredConnectedGrids.add(grid)
+
             gridData = self._puzzle.placedGrids[grid]
             for direction in DIRECTION:
                 neighbor = grid.neighbor(direction)
@@ -100,9 +164,7 @@ class TilingSolver:
 
                 gridFlow = getEdgeFlow(
                     EDGE_CHANNEL.CONNECT_CHANNEL, gridData.tile, direction)
-                neighborFlow = getEdgeFlow(
-                    EDGE_CHANNEL.CONNECT_CHANNEL, neighborData.tile, direction.opposite())
-                if gridFlow > EDGE_FLOW.NO_FLOW and neighborFlow > EDGE_FLOW.NO_FLOW:
+                if gridFlow > EDGE_FLOW.NO_FLOW:
                     pendingGrids.append(neighbor)
 
         self._exits.difference_update(unexploredConnectedGrids)
@@ -358,10 +420,6 @@ class TilingSolver:
                 self._isSourceExitPerGrid[v] <= self._needConnectPerGrid[v]
             )
 
-        # Connectivity metrics
-        self._connectivityMetrics = sum(
-            [isConnectSource for isConnectSource in self._asConnectSourcePerGrid.values()])
-
     def _addRoadMustExitConstrs(self):
         for v in self._puzzle.grids:
             # A road must use exit as its source in connect tree
@@ -402,16 +460,11 @@ class TilingSolver:
     def _addGoalBound(self, goal: MODELING.GOAL, bound):
         match goal:
             case MODELING.GOAL.MAX_CONNECTIVITY:
-                if self._connectivityMetrics is not None and type(self._connectivityMetrics) != int:
-                    self._model.add(self._connectivityMetrics == bound)
+                self._model.add(self._getConnectivity() == bound)
             case MODELING.GOAL.MAX_DENSITY:
-                density = sum([sum(xs) for xs in self._xsPerGrid.values()])
-                self._model.add(density == bound)
+                self._model.add(self._getDensity() == bound)
             case MODELING.GOAL.MIN_UNEXPLORED:
-                exitedUnexplore = sum(
-                    [isSourceExit for v, isSourceExit in self._isSourceExitPerGrid.items()
-                     if (vData := self._puzzle.getGridData(v)) is not None and vData.status == TILE.STATUS.UNEXPLORED])
-                self._model.add(exitedUnexplore == bound)
+                self._model.add(self._getExitedUnexplored() == bound)
 
     def _addPlacementNoGoods(self):
         placementVars = [
@@ -424,8 +477,8 @@ class TilingSolver:
         self._model.add(sum(samePlacement) <= len(samePlacement) - 1)
 
     def solve(self):
-        if self._callback is not None:
-            self._callback(SOLVER_STATUS.SOLVING, self)
+        self._setPhase("start")
+        self._guardedCallback(SOLVER_STATUS.SOLVING)
 
         startedAt = time.monotonic()
 
@@ -438,16 +491,24 @@ class TilingSolver:
                 return
             if not self._setGoal(goal):
                 continue
+            self._setPhase("goal", goal)
+            self._guardedCallback(SOLVER_STATUS.SOLVING)
             status, objValue, solution = self._simpleSolve(remainingTime)
 
             if status != SOLVER_STATUS.SOLVED:
                 self._guardedCallback(status)
                 return
 
+            if objValue is not None:
+                objValue = int(objValue)
+            self._setPhase("goal", goal, objValue)
+            self._guardedCallback(SOLVER_STATUS.SOLVING)
             self._addGoalBound(goal, objValue)
             lastSolution = solution
 
         # Enumeration more solutions
+        self._setPhase("enumeration")
+        self._guardedCallback(SOLVER_STATUS.SOLVING)
         self._model.objective_ = None
 
         if lastSolution is not None:
@@ -497,17 +558,23 @@ class TilingSolver:
     def _setGoal(self, goal: MODELING.GOAL) -> bool:
         match goal:
             case MODELING.GOAL.MAX_CONNECTIVITY:
-                self._guaredSetObjective(self._connectivityMetrics, True)
+                self._guaredSetObjective(self._getConnectivity(), True)
             case MODELING.GOAL.MAX_DENSITY:
-                density = sum([sum(xs) for xs in self._xsPerGrid.values()])
-                self._guaredSetObjective(density, False)
+                self._guaredSetObjective(self._getDensity(), False)
             case MODELING.GOAL.MIN_UNEXPLORED:
-                exitedUnexplores = [isSourceExit for v, isSourceExit in self._isSourceExitPerGrid.items()
-                                    if (vData := self._puzzle.getGridData(v)) is not None and vData.status == TILE.STATUS.UNEXPLORED]
-                if not exitedUnexplores:
-                    return False
-                self._guaredSetObjective(sum(exitedUnexplores), False)
+                self._guaredSetObjective(self._getExitedUnexplored(), False)
         return True
+
+    def _getDensity(self):
+        return sum([sum(xs) for grid, xs in self._xsPerGrid.items(
+        ) if grid in self._puzzle.emptyGrids])
+
+    def _getExitedUnexplored(self):
+        return sum([isSourceExit for v, isSourceExit in self._isSourceExitPerGrid.items()
+                    if (vData := self._puzzle.getGridData(v)) is not None and vData.status == TILE.STATUS.UNEXPLORED])
+
+    def _getConnectivity(self):
+        return sum([self._needConnectPerGrid[v] * isConnectSource + (1 - self._needConnectPerGrid[v]) for v, isConnectSource in self._asConnectSourcePerGrid.items() if v in self._exits])
 
     def _guaredSetObjective(self, objExpr, isMinimize):
         if isinstance(objExpr, (int, float)):

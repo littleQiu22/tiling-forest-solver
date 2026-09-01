@@ -627,15 +627,21 @@ class Workspace(QObject):
     def previousPuzzleSolution(self, puzzleId: str) -> None:
         puzzleState = self._puzzles.puzzleStateById(puzzleId)
         if puzzleState is not None:
+            solutionCount = len(puzzleState.solutions)
+            if solutionCount == 0:
+                return
             self.setPuzzleCurrentSolutionIndex(
-                puzzleId, puzzleState.currentSolutionIndex - 1)
+                puzzleId, (puzzleState.currentSolutionIndex - 1) % solutionCount)
 
     @Slot(str)
     def nextPuzzleSolution(self, puzzleId: str) -> None:
         puzzleState = self._puzzles.puzzleStateById(puzzleId)
         if puzzleState is not None:
+            solutionCount = len(puzzleState.solutions)
+            if solutionCount == 0:
+                return
             self.setPuzzleCurrentSolutionIndex(
-                puzzleId, puzzleState.currentSolutionIndex + 1)
+                puzzleId, (puzzleState.currentSolutionIndex + 1) % solutionCount)
 
     @Slot(str, int)
     def setPuzzleCurrentSolutionIndex(self, puzzleId: str, solutionIndex: int) -> None:

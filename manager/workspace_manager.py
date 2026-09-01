@@ -21,6 +21,23 @@ def dumpsWorkspaceJson(data: dict[str, Any]) -> str:
 
 
 def _dumpsJson(value: Any, level: int, key: str | None) -> str:
+    if key == "solutions" and isinstance(value, list):
+        if not value:
+            return "[]"
+        indent = "  " * level
+        childIndent = "  " * (level + 1)
+        lines = ["["]
+        for index, solution in enumerate(value):
+            comma = "," if index < len(value) - 1 else ""
+            solutionText = json.dumps(
+                solution,
+                ensure_ascii=False,
+                separators=(", ", ": "),
+            )
+            lines.append(f"{childIndent}{solutionText}{comma}")
+        lines.append(f"{indent}]")
+        return "\n".join(lines)
+
     if key in COMPACT_JSON_KEYS:
         return json.dumps(
             value,

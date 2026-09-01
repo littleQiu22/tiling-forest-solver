@@ -21,6 +21,11 @@ Button {
             anchors.fill: parent
             color: root.hovered ? AppTheme.hoverOverlay : "transparent"
         }
+
+        Rectangle {
+            anchors.fill: parent
+            color: root.down ? AppTheme.pressOverlay : "transparent"
+        }
     }
 
     contentItem: IconLabel {

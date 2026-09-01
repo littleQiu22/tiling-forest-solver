@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime
 from typing import Any
 
 from PySide6.QtCore import QObject, QProcess, Slot
@@ -32,7 +33,7 @@ class SolvingManager(QObject):
 
         puzzleState.solutions = []
         puzzleState.currentSolutionIndex = -1
-        puzzleState.solvingLog = "Start solving...\n"
+        puzzleState.solvingLog = ""
         puzzleState.solveStatus = PuzzleSolveStatus.SOLVING
         self._emitStateChanged(
             puzzle.id,
@@ -157,7 +158,7 @@ class SolvingManager(QObject):
 
         message = event.get("message", None)
         if message is not None:
-            state.solvingLog += str(message) + "\n"
+            state.solvingLog += self._logLine(str(message))
             roles.append(PuzzleListModel.SolvingLogRole)
 
         solution = event.get("solution", None)
@@ -187,6 +188,9 @@ class SolvingManager(QObject):
             Grid(int(item["row"]), int(item["col"])): tileTypeFromJson(item["tile"])
             for item in data
         }
+
+    def _logLine(self, message: str) -> str:
+        return f"[{datetime.now().strftime('%H:%M:%S')}] {message}\n"
 
     def _emitStateChanged(
         self,
