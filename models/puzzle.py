@@ -386,6 +386,10 @@ TILE_POOL_CANDIDATES = [
     TILE.TYPE.CLEARING_W_ROAD_E,
     TILE.TYPE.CLEARING_S_ROAD_N,
     TILE.TYPE.CLEARING_N_ROAD_S,
+    TILE.TYPE.STUMP_E,
+    TILE.TYPE.STUMP_W,
+    TILE.TYPE.STUMP_N,
+    TILE.TYPE.STUMP_S,
 ]
 
 
@@ -516,7 +520,7 @@ class PuzzleListModel(QAbstractListModel):
         super().__init__(parent)
         self._puzzles: list[Puzzle] = []
         self._stateByPuzzleId: dict[str, PuzzleState] = {}
-        self._puzzleByGrid: dict[Grid, Puzzle] = {}
+        self._puzzlesByGrid: dict[Grid, list[Puzzle]] = {}
 
     def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:
         if parent.isValid():
@@ -624,7 +628,7 @@ class PuzzleListModel(QAbstractListModel):
         self.beginResetModel()
         self._puzzles = puzzles
         self._stateByPuzzleId = {}
-        self._puzzleByGrid = {}
+        self._puzzlesByGrid = {}
         self._ensurePuzzleNames()
         self._rebuildIndexes()
         self.endResetModel()
@@ -700,7 +704,10 @@ class PuzzleListModel(QAbstractListModel):
         return -1
 
     def puzzleContaining(self, grid: Grid) -> Puzzle | None:
-        return self._puzzleByGrid.get(grid)
+        puzzles = self._puzzlesByGrid.get(grid)
+        if not puzzles:
+            return None
+        return puzzles[-1]
 
     def puzzleStateById(self, puzzleId: str) -> PuzzleState | None:
         return self._stateByPuzzleId.get(puzzleId)
@@ -766,13 +773,10 @@ class PuzzleListModel(QAbstractListModel):
         puzzle.name = oldPuzzle.name
         puzzle.tilePool = oldPuzzle.tilePool
 
-        for grid in oldPuzzle.grids:
-            if self._puzzleByGrid.get(grid) is oldPuzzle:
-                del self._puzzleByGrid[grid]
+        self._unregisterPuzzleGrids(oldPuzzle)
 
         self._puzzles[index] = puzzle
-        for grid in puzzle.grids:
-            self._puzzleByGrid[grid] = puzzle
+        self._registerPuzzleGrids(puzzle)
 
         self._emitRoles(
             index,
@@ -805,24 +809,27 @@ class PuzzleListModel(QAbstractListModel):
         self.dataChanged.emit(topLeft, bottomRight, roles)
 
     def markGeometryStaledByGrid(self, grid: Grid) -> str:
-        puzzle = self._puzzleByGrid.get(grid)
-        if puzzle is None:
+        puzzles = self._puzzlesByGrid.get(grid)
+        if not puzzles:
             return ""
 
-        puzzleState = self._stateByPuzzleId[puzzle.id]
-        if puzzleState.isGeometryStaled:
-            return puzzle.id
+        markedPuzzleId = ""
+        for puzzle in puzzles:
+            puzzleState = self._stateByPuzzleId[puzzle.id]
+            markedPuzzleId = markedPuzzleId or puzzle.id
+            if puzzleState.isGeometryStaled:
+                continue
 
-        puzzleState.isGeometryStaled = True
-        index = self.indexById(puzzle.id)
-        if index != -1:
-            modelIndex = self.index(index, 0)
-            self.dataChanged.emit(
-                modelIndex,
-                modelIndex,
-                [self.IsGeometryStaledRole],
-            )
-        return puzzle.id
+            puzzleState.isGeometryStaled = True
+            index = self.indexById(puzzle.id)
+            if index != -1:
+                modelIndex = self.index(index, 0)
+                self.dataChanged.emit(
+                    modelIndex,
+                    modelIndex,
+                    [self.IsGeometryStaledRole],
+                )
+        return markedPuzzleId
 
     def clear(self) -> None:
         if not self._puzzles:
@@ -831,7 +838,7 @@ class PuzzleListModel(QAbstractListModel):
         self.beginResetModel()
         self._puzzles = []
         self._stateByPuzzleId = {}
-        self._puzzleByGrid = {}
+        self._puzzlesByGrid = {}
         self.endResetModel()
 
     def toJson(self) -> list[dict[str, Any]]:
@@ -882,14 +889,27 @@ class PuzzleListModel(QAbstractListModel):
 
     def _registerPuzzle(self, puzzle: Puzzle, state: PuzzleState | None = None) -> None:
         self._stateByPuzzleId.setdefault(puzzle.id, state or PuzzleState())
+        self._registerPuzzleGrids(puzzle)
+
+    def _registerPuzzleGrids(self, puzzle: Puzzle) -> None:
         for grid in puzzle.grids:
-            self._puzzleByGrid[grid] = puzzle
+            puzzles = self._puzzlesByGrid.setdefault(grid, [])
+            if puzzle not in puzzles:
+                puzzles.append(puzzle)
 
     def _unregisterPuzzle(self, puzzle: Puzzle) -> None:
         self._stateByPuzzleId.pop(puzzle.id, None)
+        self._unregisterPuzzleGrids(puzzle)
+
+    def _unregisterPuzzleGrids(self, puzzle: Puzzle) -> None:
         for grid in puzzle.grids:
-            if self._puzzleByGrid.get(grid) is puzzle:
-                del self._puzzleByGrid[grid]
+            puzzles = self._puzzlesByGrid.get(grid)
+            if not puzzles:
+                continue
+            if puzzle in puzzles:
+                puzzles.remove(puzzle)
+            if not puzzles:
+                del self._puzzlesByGrid[grid]
 
     def _defaultPuzzleName(self, index: int) -> str:
         return f"Puzzle {index + 1}"

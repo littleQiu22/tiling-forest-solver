@@ -7,10 +7,10 @@ from cpmpy.expressions.core import Expression
 from cpmpy.solvers.solver_interface import ExitStatus
 
 from models.puzzle import Puzzle
-from models.geometry import DIRECTION, Grid
+from models.geometry import DIRECTION, Grid, Edge
 from models.tile import TILE
 from solver.option import MODELING, SolverOption
-from solver.flow import EDGE_CHANNEL, GRID_CHANNEL, EDGE_FLOW, GRID_FLOW, getEdgeFlow, getGridFlow
+from solver.flow import CHANNEL_FLOW_DIRECTIONS, EDGE_CHANNEL, GRID_CHANNEL, EDGE_FLOW, GRID_FLOW, getEdgeFlow, getGridFlow
 from solver.status import SOLVER_STATUS
 
 
@@ -87,8 +87,10 @@ class TilingSolver:
         self._isConnectParentsPerGrid = defaultdict(dict)
         self._isSourceExitPerGrid = {}
 
-        self._flowsPerEdge = defaultdict(lambda: defaultdict(list))
-        self._flowsPerGrid = defaultdict(lambda: defaultdict(list))
+        self._flowsPerEdge: defaultdict[Edge, defaultdict[EDGE_CHANNEL, list]] = defaultdict(
+            lambda: defaultdict(list))
+        self._flowsPerGrid: defaultdict[Grid, defaultdict[GRID_CHANNEL, list]] = defaultdict(
+            lambda: defaultdict(list))
 
         self._solutions = []
 
@@ -205,12 +207,12 @@ class TilingSolver:
             xs = self._xsPerGrid[v]
 
             for c in EDGE_CHANNEL:
-                for d in DIRECTION:
+                for d in CHANNEL_FLOW_DIRECTIONS[c]:
                     flow = sum([getEdgeFlow(c, x.tile, d) * x for x in xs])
                     self._flowsPerEdge[v.edge(d)][c].append(flow)
 
             for c in GRID_CHANNEL:
-                for d in DIRECTION:
+                for d in CHANNEL_FLOW_DIRECTIONS[c]:
                     flow = sum([getGridFlow(c, x.tile, d) * x for x in xs])
                     self._flowsPerGrid[v.neighbor(d)][c].append(flow)
 
@@ -266,16 +268,26 @@ class TilingSolver:
         self._model.add(sum(placementVars) >= 1)
 
     def _addFigureAlignedConstrs(self):
-        for flowsPerChannel in self._flowsPerEdge.values():
-            for flows in flowsPerChannel.values():
-                if len(flows) >= 2:
-                    self._model.add(cp.AllEqual(flows))
+        for edge, flowsPerChannel in self._flowsPerEdge.items():
+            flows = flowsPerChannel[EDGE_CHANNEL.CONNECT_CHANNEL]
+            if len(flows) >= 2:
+                self._model.add(cp.AllEqual(flows))
+            else:
+                if edge.grid1 in self._puzzle.grids and edge.grid2 in self._puzzle.grids:
+                    self._model.add(sum(flows) == 0)
 
     def _addPairedStumpsConstrs(self):
-        for flowsPerChannel in self._flowsPerGrid.values():
-            for flows in flowsPerChannel.values():
+        for grid, flowsPerChannel in self._flowsPerGrid.items():
+            for channel in (
+                GRID_CHANNEL.STUMP_HORIZONTAL_CHANNEL,
+                GRID_CHANNEL.STUMP_VERTICAL_CHANNEL,
+            ):
+                flows = flowsPerChannel[channel]
                 if len(flows) >= 2:
                     self._model.add(cp.AllEqual(flows))
+                else:
+                    if grid in self._puzzle.grids:
+                        self._model.add(sum(flows) == 0)
 
         for v, hasStumpFlow in self._hasStumpFlowPerGrid.items():
             isRoad = self._isRoadPerGrid[v]
@@ -299,7 +311,6 @@ class TilingSolver:
             isExit = v in self._exits
 
             if isBlooming and isExit:
-                # If a tile is blooming and is an exit, then it must have an external blooming source
                 selfAsBloomingSource = 1
             else:
                 selfAsBloomingSource = cp.boolvar(
@@ -309,8 +320,9 @@ class TilingSolver:
             stumpAsBloomingSource = self._hasStumpFlowPerGrid[v]
 
             # Root node determines sourceId property
-            self._model.add((selfAsBloomingSource | stumpAsBloomingSource) <= (
-                bloomSourceIdPerGrid[v] == self._idPerGrid[v]))
+            sourceOwnsId = bloomSourceIdPerGrid[v] == self._idPerGrid[v]
+            self._model.add(selfAsBloomingSource <= sourceOwnsId)
+            self._model.add(stumpAsBloomingSource <= sourceOwnsId)
 
             # Become a source or select a parent
             isParents = []
@@ -330,14 +342,14 @@ class TilingSolver:
 
                 # Parent qualification
                 xs = self._xsPerGrid[u]
-                roadFlow = sum([x * getEdgeFlow(EDGE_CHANNEL.CONNECT_CHANNEL, x.tile, d.opposite())
-                               for x in xs if x.tile in TILE.ROADS])
+                simpleRoadFlow = sum([x * getEdgeFlow(EDGE_CHANNEL.CONNECT_CHANNEL, x.tile, d.opposite())
+                                      for x in xs if x.tile in TILE.SIMPLE_ROADS])
                 self._model.add(
                     canParent
                     == (
                         (self._needBloomPerGrid[u] > 0)
                         & (self._needBloomPerGrid[v] > 0)
-                        & (roadFlow > EDGE_FLOW.NO_FLOW)
+                        & (simpleRoadFlow > EDGE_FLOW.NO_FLOW)
                     )
                 )
                 self._model.add(isParent <= canParent)
