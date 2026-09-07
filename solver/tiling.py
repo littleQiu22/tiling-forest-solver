@@ -50,7 +50,7 @@ class TilingSolver:
                     case MODELING.GOAL.MAX_DENSITY:
                         return f"Number of placed tiles: {self.phaseObjectiveValue}."
                     case MODELING.GOAL.MAX_CONNECTIVITY:
-                        return f"Number of isolated connected components: {self.phaseObjectiveValue}."
+                        return f"Number of connected components of exits: {self.phaseObjectiveValue}."
                     case _:
                         return f"Optimizing goal: {self._phaseGoal.name}"
             case "enumeration":
@@ -75,17 +75,9 @@ class TilingSolver:
 
         self._xsPerGrid = defaultdict(list)
 
-        self._isRoadPerGrid = {}
-        self._isClearingPerGrid = {}
-
-        self._hasStumpFlowPerGrid = {}
-
-        self._needConnectPerGrid = {}
-        self._needBloomPerGrid = {}
-
-        self._asConnectSourcePerGrid = {}
-        self._isConnectParentsPerGrid = defaultdict(dict)
         self._isSourceExitPerGrid = {}
+        self._asConnectSourcePerGrid = {}
+        self._needConnectPerGrid = {}
 
         self._flowsPerEdge: defaultdict[Edge, defaultdict[EDGE_CHANNEL, list]] = defaultdict(
             lambda: defaultdict(list))
@@ -99,22 +91,24 @@ class TilingSolver:
 
     def _deriveGeometry(self):
 
-        def canReachEmptyFrom(v: Grid, visited=set()) -> bool:
-            if v not in self._puzzle.grids:
-                return False
-            if v in self._puzzle.emptyGrids:
-                return True
-            visited.add(v)
-            vData = self._puzzle.placedGrids[v]
-            for d in DIRECTION:
-                u = v.neighbor(d)
-                if u in visited:
+        def canReachEmptyFrom(start: Grid) -> bool:
+            visited = set()
+            pendingGrids = [start]
+            while pendingGrids:
+                grid = pendingGrids.pop()
+                if grid not in self._puzzle.grids or grid in visited:
                     continue
-                flow = getEdgeFlow(EDGE_CHANNEL.CONNECT_CHANNEL, vData.tile, d)
-                if flow <= EDGE_FLOW.NO_FLOW:
-                    continue
-                if canReachEmptyFrom(u, visited):
+                if grid in self._puzzle.emptyGrids:
                     return True
+
+                visited.add(grid)
+                gridData = self._puzzle.placedGrids[grid]
+                for direction in DIRECTION:
+                    neighbor = grid.neighbor(direction)
+                    flow = getEdgeFlow(
+                        EDGE_CHANNEL.CONNECT_CHANNEL, gridData.tile, direction)
+                    if flow > EDGE_FLOW.NO_FLOW:
+                        pendingGrids.append(neighbor)
             return False
 
         # Exits: with outbound flow and can connect to empty grids
@@ -216,27 +210,6 @@ class TilingSolver:
                     flow = sum([getGridFlow(c, x.tile, d) * x for x in xs])
                     self._flowsPerGrid[v.neighbor(d)][c].append(flow)
 
-            isRoad = sum([x for x in xs if x.tile in TILE.ROADS])
-            self._isRoadPerGrid[v] = isRoad
-
-            isClearing = sum([x for x in xs if x.tile in TILE.CLEARINGS])
-            self._isClearingPerGrid[v] = isClearing
-
-            self._needBloomPerGrid[v] = isRoad
-
-            needConnect = sum(
-                [x for x in xs if x.tile in (TILE.ROADS | TILE.CLEARINGS)])
-            self._needConnectPerGrid[v] = needConnect
-
-        for v in self._puzzle.grids:
-            flowsPerChannel = self._flowsPerGrid[v]
-            stumpFlow = sum(flowsPerChannel[GRID_CHANNEL.STUMP_HORIZONTAL_CHANNEL]) + \
-                sum(flowsPerChannel[GRID_CHANNEL.STUMP_VERTICAL_CHANNEL])
-
-            hasStumpFlow = cp.boolvar(name=f"hasStumpFlow({v.row},{v.col})")
-            self._model.add(hasStumpFlow == (stumpFlow > GRID_FLOW.NO_FLOW))
-            self._hasStumpFlowPerGrid[v] = hasStumpFlow
-
         # Add Constraints
         self._addNotFullyEmptyConstrs()
         self._addExclusiveConstrs()
@@ -289,13 +262,99 @@ class TilingSolver:
                     if grid in self._puzzle.grids:
                         self._model.add(sum(flows) == 0)
 
-        for v, hasStumpFlow in self._hasStumpFlowPerGrid.items():
-            isRoad = self._isRoadPerGrid[v]
-            self._model.add(hasStumpFlow <= isRoad)
-
     def _addBloomConstrs(self):
+        def isBloomingRoad(grid: Grid) -> bool:
+            gridData = self._puzzle.placedGrids.get(grid)
+            return (
+                gridData is not None
+                and gridData.status == TILE.STATUS.BLOOMING
+                and gridData.tile in TILE.ROADS
+            )
+
+        def hasRoadFlow(grid: Grid, direction: DIRECTION) -> bool:
+            gridData = self._puzzle.placedGrids.get(grid)
+            return (
+                gridData is not None
+                and gridData.tile in TILE.ROADS
+                and getEdgeFlow(
+                    EDGE_CHANNEL.CONNECT_CHANNEL,
+                    gridData.tile,
+                    direction,
+                ) == EDGE_FLOW.ROAD_FLOW
+            )
+
+        def isConnectedRoadPair(grid: Grid, direction: DIRECTION) -> bool:
+            neighbor = grid.neighbor(direction)
+            return (
+                neighbor in self._puzzle.placedGrids
+                and hasRoadFlow(grid, direction)
+                and hasRoadFlow(neighbor, direction.opposite())
+            )
+
+        def placedRoadGroups() -> list[list[Grid]]:
+            groups = []
+            visited = set()
+            roadGrids = {
+                grid
+                for grid, gridData in self._puzzle.placedGrids.items()
+                if gridData.tile in TILE.ROADS
+            }
+
+            for grid in roadGrids:
+                if grid in visited:
+                    continue
+
+                group = []
+                pending = [grid]
+                visited.add(grid)
+                while pending:
+                    current = pending.pop()
+                    group.append(current)
+                    for direction in DIRECTION:
+                        neighbor = current.neighbor(direction)
+                        if neighbor not in roadGrids or neighbor in visited:
+                            continue
+                        if not isConnectedRoadPair(current, direction):
+                            continue
+                        visited.add(neighbor)
+                        pending.append(neighbor)
+
+                groups.append(group)
+            return groups
+
+        def buildIsStumpPairedPerGrid() -> dict[Grid, Expression]:
+            isStumpPairedPerGrid = {}
+            for grid in self._puzzle.grids:
+                flowsPerChannel = self._flowsPerGrid[grid]
+                stumpPairOptions = []
+                for channel in (
+                    GRID_CHANNEL.STUMP_HORIZONTAL_CHANNEL,
+                    GRID_CHANNEL.STUMP_VERTICAL_CHANNEL,
+                ):
+                    flows = flowsPerChannel[channel]
+                    if len(flows) == 2:
+                        stumpPairOptions.append(cp.all(
+                            [flow == GRID_FLOW.STUMP_FLOW for flow in flows]))
+
+                isStumpPaired = cp.boolvar(
+                    name=f"isStumpPaired({grid.row},{grid.col})")
+                if stumpPairOptions:
+                    self._model.add(isStumpPaired == cp.any(stumpPairOptions))
+                else:
+                    self._model.add(isStumpPaired == 0)
+                isStumpPairedPerGrid[grid] = isStumpPaired
+            return isStumpPairedPerGrid
+
+        needBloomPerGrid = {}
+        for v in self._puzzle.grids:
+            xs = self._xsPerGrid[v]
+            needBloomPerGrid[v] = sum([x for x in xs if x.tile in TILE.ROADS])
+        isStumpPairedPerGrid = buildIsStumpPairedPerGrid()
+
         bloomOrderPerGrid = {}
         bloomSourceIdPerGrid = {}
+        grantAsBloomingSourcePerGrid = {}
+        stumpAsBloomingSourcePerGrid = {}
 
         for v in self._puzzle.grids:
             bloomOrderPerGrid[v] = cp.intvar(
@@ -306,22 +365,19 @@ class TilingSolver:
 
         for v in self._puzzle.grids:
             # Root node qualification
-            vData = self._puzzle.getGridData(v)
-            isBlooming = vData is not None and vData.status == TILE.STATUS.BLOOMING
-            isExit = v in self._exits
+            isBlooming = isBloomingRoad(v)
 
-            if isBlooming and isExit:
-                selfAsBloomingSource = 1
-            else:
-                selfAsBloomingSource = cp.boolvar(
-                    name=f"selfAsBloomingSource({v.row},{v.col})")
-                self._model.add(selfAsBloomingSource <= isBlooming)
+            grantAsBloomingSource = cp.boolvar(
+                name=f"grantAsBloomingSource({v.row},{v.col})")
+            self._model.add(grantAsBloomingSource <= isBlooming)
 
-            stumpAsBloomingSource = self._hasStumpFlowPerGrid[v]
+            stumpAsBloomingSource = isStumpPairedPerGrid[v]
+            grantAsBloomingSourcePerGrid[v] = grantAsBloomingSource
+            stumpAsBloomingSourcePerGrid[v] = stumpAsBloomingSource
 
             # Root node determines sourceId property
             sourceOwnsId = bloomSourceIdPerGrid[v] == self._idPerGrid[v]
-            self._model.add(selfAsBloomingSource <= sourceOwnsId)
+            self._model.add(grantAsBloomingSource <= sourceOwnsId)
             self._model.add(stumpAsBloomingSource <= sourceOwnsId)
 
             # Become a source or select a parent
@@ -342,14 +398,14 @@ class TilingSolver:
 
                 # Parent qualification
                 xs = self._xsPerGrid[u]
-                simpleRoadFlow = sum([x * getEdgeFlow(EDGE_CHANNEL.CONNECT_CHANNEL, x.tile, d.opposite())
-                                      for x in xs if x.tile in TILE.SIMPLE_ROADS])
+                connectFlow = sum([x * getEdgeFlow(EDGE_CHANNEL.CONNECT_CHANNEL, x.tile, d.opposite())
+                                   for x in xs if x.tile])
                 self._model.add(
                     canParent
                     == (
-                        (self._needBloomPerGrid[u] > 0)
-                        & (self._needBloomPerGrid[v] > 0)
-                        & (simpleRoadFlow > EDGE_FLOW.NO_FLOW)
+                        (needBloomPerGrid[u] > 0)
+                        & (needBloomPerGrid[v] > 0)
+                        & (connectFlow == EDGE_FLOW.ROAD_FLOW)
                     )
                 )
                 self._model.add(isParent <= canParent)
@@ -362,7 +418,7 @@ class TilingSolver:
                 self._model.add(isParent <= (
                     bloomOrderPerGrid[u] + 1 <= bloomOrderPerGrid[v]))
             self._model.add(
-                self._needBloomPerGrid[v] == selfAsBloomingSource +
+                needBloomPerGrid[v] == grantAsBloomingSource +
                 stumpAsBloomingSource + sum(isParents)
             )
 
@@ -372,7 +428,24 @@ class TilingSolver:
                 self._model.add(canParent <= (
                     bloomSourceIdPerGrid[u] == bloomSourceIdPerGrid[v]))
 
+        for group in placedRoadGroups():
+            if not any(isBloomingRoad(grid) for grid in group):
+                continue
+            self._model.add(
+                sum(
+                    grantAsBloomingSourcePerGrid[grid]
+                    + stumpAsBloomingSourcePerGrid[grid]
+                    for grid in group
+                ) == 1
+            )
+
     def _addConnectivityConstrs(self):
+        for v in self._puzzle.grids:
+            xs = self._xsPerGrid[v]
+            needConnect = sum(
+                [x for x in xs if x.tile in (TILE.ROADS | TILE.CLEARINGS)])
+            self._needConnectPerGrid[v] = needConnect
+
         connectOrderPerGrid = {}
 
         for v in self._puzzle.grids:
@@ -390,7 +463,7 @@ class TilingSolver:
 
             # Root node determines isSourceExit property
             isExit = v in self._exits
-            self._model.add(self._asConnectSourcePerGrid[v] <= (
+            self._model.add(asConnectSource <= (
                 self._isSourceExitPerGrid[v] == isExit))
 
             # Become a root node or select a parent
@@ -413,12 +486,9 @@ class TilingSolver:
                 self._model.add(isParent <= self._needConnectPerGrid[u])
                 self._model.add(isParent <= connectFlow)
 
-                self._isConnectParentsPerGrid[v][u] = isParent
-
                 # Parent transmit isSourceExit property
-                for u, isParent in self._isConnectParentsPerGrid[v].items():
-                    self._model.add(isParent <= (
-                        self._isSourceExitPerGrid[u] == self._isSourceExitPerGrid[v]))
+                self._model.add(isParent <= (
+                    self._isSourceExitPerGrid[u] == self._isSourceExitPerGrid[v]))
 
                 # Parent determines order
                 self._model.add(
@@ -429,14 +499,19 @@ class TilingSolver:
                 self._needConnectPerGrid[v] == asConnectSource + sum(isParents)
             )
             self._model.add(
-                self._isSourceExitPerGrid[v] <= self._needConnectPerGrid[v]
-            )
+                self._isSourceExitPerGrid[v] <= self._needConnectPerGrid[v])
+            if v in self._exits:
+                # Connectivity canonicalization: an active exit uses an exit-rooted tree.
+                self._model.add(self._needConnectPerGrid[v] <=
+                                self._isSourceExitPerGrid[v])
 
     def _addRoadMustExitConstrs(self):
         for v in self._puzzle.grids:
             # A road must use exit as its source in connect tree
+            xs = self._xsPerGrid[v]
+            isRoad = sum([x for x in xs if x.tile in TILE.ROADS])
             self._model.add(
-                self._isRoadPerGrid[v] <= self._isSourceExitPerGrid[v]
+                isRoad <= self._isSourceExitPerGrid[v]
             )
 
     def _simpleSolve(self, timeLimit: int | None):
@@ -586,7 +661,10 @@ class TilingSolver:
                     if (vData := self._puzzle.getGridData(v)) is not None and vData.status == TILE.STATUS.UNEXPLORED])
 
     def _getConnectivity(self):
-        return sum([self._needConnectPerGrid[v] * isConnectSource + (1 - self._needConnectPerGrid[v]) for v, isConnectSource in self._asConnectSourcePerGrid.items() if v in self._exits])
+        return sum([
+            (1 - self._needConnectPerGrid[grid]) + self._asConnectSourcePerGrid[grid]
+            for grid in self._exits
+        ])
 
     def _guaredSetObjective(self, objExpr, isMinimize):
         if isinstance(objExpr, (int, float)):
