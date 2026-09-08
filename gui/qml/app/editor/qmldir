@@ -2,6 +2,8 @@ module app.editor
 Editor 1.0 Editor.qml
 Viewport 1.0 Viewport.qml
 ToolBrushBar 1.0 ToolBrushBar.qml
+singleton ToolMode 1.0 ToolMode.qml
 PuzzlePanel 1.0 PuzzlePanel.qml
 PuzzleList 1.0 PuzzleList.qml
 PuzzleInspector 1.0 PuzzleInspector.qml
+EditorFooter 1.0 EditorFooter.qml

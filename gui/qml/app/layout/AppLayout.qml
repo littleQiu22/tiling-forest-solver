@@ -12,8 +12,10 @@ ColumnLayout {
     property Component menuBar
     property Component tileEditor
     property Component puzzlePanel
+    property Component footer
     readonly property Item tileEditorItem: tileEditorLoader.item
     readonly property Item puzzlePanelItem: puzzlePanelLoader.item
+    readonly property Item footerItem: footerLoader.item
 
     Loader {
         id: menuBarLoader
@@ -78,6 +80,26 @@ ColumnLayout {
                 value: puzzlePanelLoader.height
                 when: puzzlePanelLoader.item !== null
             }
+        }
+    }
+
+    Loader {
+        id: footerLoader
+        Layout.fillWidth: true
+        Layout.preferredHeight: footerLoader.implicitHeight
+
+        sourceComponent: root.footer
+        Binding {
+            target: footerLoader.item
+            property: "width"
+            value: footerLoader.width
+            when: footerLoader.item !== null
+        }
+        Binding {
+            target: footerLoader.item
+            property: "height"
+            value: footerLoader.height
+            when: footerLoader.item !== null
         }
     }
 }

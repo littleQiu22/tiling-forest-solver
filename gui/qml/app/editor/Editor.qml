@@ -11,6 +11,9 @@ Rectangle {
     border.color: AppTheme.border
 
     required property Workspace workspace
+    readonly property string mode: toolBrushBar.mode
+    readonly property int currentTile: toolBrushBar.currentTile
+    readonly property int currentStatus: toolBrushBar.currentStatus
 
     function selectOrCreatePuzzle(row, col) {
         const message = root.workspace.selectOrCreatePuzzle(row, col);
@@ -45,12 +48,12 @@ Rectangle {
     }
 
     function applyBrush(row, col, button) {
-        if (toolBrushBar.mode === "tileStatus") {
+        if (toolBrushBar.mode === ToolMode.tileStatus) {
             if (button === Qt.LeftButton)
                 root.workspace.setTileStatus(row, col, toolBrushBar.currentStatus);
             else if (button === Qt.RightButton)
                 root.workspace.resetTileStatus(row, col);
-        } else if (toolBrushBar.mode === "tile") {
+        } else if (toolBrushBar.mode === ToolMode.tile) {
             if (button === Qt.LeftButton)
                 root.workspace.paintTile(row, col, toolBrushBar.currentTile);
             else if (button === Qt.RightButton)
@@ -62,7 +65,7 @@ Rectangle {
         if (viewport.hoveredGrid === null)
             return null;
 
-        if (toolBrushBar.mode === "tile") {
+        if (toolBrushBar.mode === ToolMode.tile) {
             return {
                 "row": viewport.hoveredGrid.row,
                 "col": viewport.hoveredGrid.col,
@@ -71,7 +74,7 @@ Rectangle {
             };
         }
 
-        if (toolBrushBar.mode === "tileStatus") {
+        if (toolBrushBar.mode === ToolMode.tileStatus) {
             return {
                 "row": viewport.hoveredGrid.row,
                 "col": viewport.hoveredGrid.col,
@@ -83,7 +86,7 @@ Rectangle {
     }
 
     function handleGridClick(row, col, button) {
-        if (toolBrushBar.mode === "puzzle") {
+        if (toolBrushBar.mode === ToolMode.puzzle) {
             if (button === Qt.LeftButton) {
                 root.selectOrCreatePuzzle(row, col);
             } else if (button === Qt.RightButton) {
@@ -111,7 +114,7 @@ Rectangle {
         }
 
         onPointerDragged: function (screenX, screenY, dx, dy, button) {
-            if (button === Qt.MiddleButton || (toolBrushBar.mode === "view" && button === Qt.LeftButton))
+            if (button === Qt.MiddleButton || (toolBrushBar.mode === ToolMode.view && button === Qt.LeftButton))
                 viewport.panBy(dx, dy);
         }
 

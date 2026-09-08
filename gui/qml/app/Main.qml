@@ -61,6 +61,10 @@ Window {
             puzzlePanel: PuzzlePanel {
                 workspace: root.workspaceManager.workspace
             }
+
+            footer: EditorFooter {
+                editor: appLayout.tileEditorItem
+            }
         }
     }
 
