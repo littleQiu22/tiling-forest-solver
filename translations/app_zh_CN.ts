@@ -301,6 +301,19 @@
     </message>
 </context>
 <context>
+    <name>PuzzleExtraction</name>
+    <message>
+        <location filename="../models/puzzle.py" line="260"/>
+        <source>Puzzle creation failed: The selected empty area is not enclosed by tiles.</source>
+        <translation>创建谜题失败：选中的空白区域没有被瓦片封闭。</translation>
+    </message>
+    <message>
+        <location filename="../models/puzzle.py" line="273"/>
+        <source>The selected empty area is not enclosed.</source>
+        <translation>选中的空白区域没有被封闭。</translation>
+    </message>
+</context>
+<context>
     <name>PuzzleInspector</name>
     <message>
         <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="22"/>
@@ -383,77 +396,77 @@
         <translation>道路开花</translation>
     </message>
     <message>
-        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="151"/>
+        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="163"/>
         <source>Rebuild</source>
         <translation>重建</translation>
     </message>
     <message>
-        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="169"/>
+        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="181"/>
         <source>Tile Pool</source>
         <translation>瓦片池</translation>
     </message>
     <message>
-        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="175"/>
-        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="236"/>
-        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="285"/>
-        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="318"/>
+        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="187"/>
+        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="248"/>
+        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="297"/>
+        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="330"/>
         <source>Sync All</source>
         <translation>同步到全部</translation>
     </message>
     <message>
-        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="230"/>
+        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="242"/>
         <source>Objectives</source>
         <translation>目标</translation>
     </message>
     <message>
-        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="262"/>
+        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="274"/>
         <source>Raise</source>
         <translation>升级</translation>
     </message>
     <message>
-        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="267"/>
+        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="279"/>
         <source>Lower</source>
         <translation>降级</translation>
     </message>
     <message>
-        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="279"/>
+        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="291"/>
         <source>Constraints</source>
         <translation>约束</translation>
     </message>
     <message>
-        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="312"/>
+        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="324"/>
         <source>Solving Configuration &amp;&amp; Control</source>
         <translation>求解配置与控制</translation>
     </message>
     <message>
-        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="332"/>
+        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="344"/>
         <source>Time limit(s)</source>
         <translation>时间上限（秒）</translation>
     </message>
     <message>
-        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="362"/>
-        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="403"/>
+        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="374"/>
+        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="415"/>
         <source>Unlimited</source>
         <translation>无限制</translation>
     </message>
     <message>
         <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="39"/>
-        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="373"/>
+        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="385"/>
         <source>Solution limit</source>
-        <translation>解的数量上限</translation>
+        <translation>解数量上限</translation>
     </message>
     <message>
-        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="414"/>
+        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="426"/>
         <source>Solve</source>
         <translation>求解</translation>
     </message>
     <message>
-        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="419"/>
+        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="431"/>
         <source>Stop</source>
         <translation>停止</translation>
     </message>
     <message>
-        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="429"/>
+        <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="441"/>
         <source>Solutions Navigation &amp;&amp; Log</source>
         <translation>解的导航与日志</translation>
     </message>
@@ -461,29 +474,29 @@
 <context>
     <name>PuzzleList</name>
     <message>
-        <location filename="../gui/qml/app/editor/PuzzleList.qml" line="130"/>
+        <location filename="../gui/qml/app/editor/PuzzleList.qml" line="114"/>
         <source>Delete Puzzle?</source>
         <translation>删除谜题？</translation>
     </message>
     <message>
-        <location filename="../gui/qml/app/editor/PuzzleList.qml" line="130"/>
-        <location filename="../gui/qml/app/editor/PuzzleList.qml" line="395"/>
+        <location filename="../gui/qml/app/editor/PuzzleList.qml" line="114"/>
+        <location filename="../gui/qml/app/editor/PuzzleList.qml" line="379"/>
         <source>Delete</source>
         <translation>删除</translation>
     </message>
     <message>
-        <location filename="../gui/qml/app/editor/PuzzleList.qml" line="269"/>
+        <location filename="../gui/qml/app/editor/PuzzleList.qml" line="253"/>
         <source>Puzzles (%1)</source>
         <translation>谜题（%1）</translation>
     </message>
     <message>
-        <location filename="../gui/qml/app/editor/PuzzleList.qml" line="376"/>
-        <location filename="../gui/qml/app/editor/PuzzleList.qml" line="546"/>
+        <location filename="../gui/qml/app/editor/PuzzleList.qml" line="360"/>
+        <location filename="../gui/qml/app/editor/PuzzleList.qml" line="530"/>
         <source> | Stale</source>
         <translation> | 待重建</translation>
     </message>
     <message>
-        <location filename="../gui/qml/app/editor/PuzzleList.qml" line="382"/>
+        <location filename="../gui/qml/app/editor/PuzzleList.qml" line="366"/>
         <source>Rename</source>
         <translation>重命名</translation>
     </message>
@@ -504,9 +517,71 @@
 <context>
     <name>Viewport</name>
     <message>
-        <location filename="../gui/qml/app/editor/Viewport.qml" line="405"/>
+        <location filename="../gui/qml/app/editor/Viewport.qml" line="389"/>
         <source>Stale</source>
         <translation>待重建</translation>
+    </message>
+</context>
+<context>
+    <name>Workspace</name>
+    <message>
+        <location filename="../models/workspace.py" line="166"/>
+        <source>Undoing this puzzle creation will stop its running solver process.</source>
+        <translation>撤销创建该谜题会停止它正在运行的求解进程。</translation>
+    </message>
+    <message>
+        <location filename="../models/workspace.py" line="187"/>
+        <source>Deleting this puzzle will stop its running solver process.</source>
+        <translation>删除该谜题会停止它正在运行的求解进程。</translation>
+    </message>
+    <message>
+        <location filename="../models/workspace.py" line="215"/>
+        <source>Clearing the workspace will stop running solver processes.</source>
+        <translation>清空工作区会停止正在运行的求解进程。</translation>
+    </message>
+    <message>
+        <location filename="../models/workspace.py" line="628"/>
+        <source>Puzzle not found.</source>
+        <translation>未找到谜题。</translation>
+    </message>
+    <message>
+        <location filename="../models/workspace.py" line="773"/>
+        <source>Cannot rebuild stale puzzle: no empty seed grid remains.</source>
+        <translation>无法重建谜题：没有剩余的空白种子格。</translation>
+    </message>
+    <message>
+        <location filename="../models/workspace.py" line="791"/>
+        <source>Cannot rebuild stale puzzle from the selected empty seed.</source>
+        <translation>无法从选中的空白种子格重建谜题。</translation>
+    </message>
+</context>
+<context>
+    <name>WorkspaceManager</name>
+    <message>
+        <location filename="../manager/workspace_manager.py" line="131"/>
+        <location filename="../manager/workspace_manager.py" line="171"/>
+        <source>No file path was provided.</source>
+        <translation>未提供文件路径。</translation>
+    </message>
+    <message>
+        <location filename="../manager/workspace_manager.py" line="139"/>
+        <source>Failed to load workspace: {error}</source>
+        <translation>加载工作区失败：{error}</translation>
+    </message>
+    <message>
+        <location filename="../manager/workspace_manager.py" line="147"/>
+        <source>Template not found: {templateName}</source>
+        <translation>未找到模板：{templateName}</translation>
+    </message>
+    <message>
+        <location filename="../manager/workspace_manager.py" line="155"/>
+        <source>Failed to load template: {error}</source>
+        <translation>加载模板失败：{error}</translation>
+    </message>
+    <message>
+        <location filename="../manager/workspace_manager.py" line="184"/>
+        <source>Failed to save workspace: {error}</source>
+        <translation>保存工作区失败：{error}</translation>
     </message>
 </context>
 </TS>

@@ -1,5 +1,4 @@
 from __future__ import annotations
-from common import TRANSLATION_DIR
 
 import argparse
 import subprocess
@@ -12,8 +11,16 @@ import PySide6
 BASE_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(BASE_ROOT))
 
+from common import TRANSLATION_DIR
+
 
 PYSIDE_ROOT = Path(PySide6.__file__).resolve().parent
+SOURCE_DIRS = [
+    "gui/qml/app",
+    "manager",
+    "models",
+]
+SOURCE_SUFFIXES = {".qml", ".py"}
 
 
 def pysideTool(name: str) -> str:
@@ -22,6 +29,15 @@ def pysideTool(name: str) -> str:
 
 def run(command: list[str]) -> None:
     subprocess.run(command, cwd=BASE_ROOT, check=True)
+
+
+def sourceFiles() -> list[str]:
+    files: list[str] = []
+    for sourceDir in SOURCE_DIRS:
+        for path in (BASE_ROOT / sourceDir).rglob("*"):
+            if path.suffix in SOURCE_SUFFIXES:
+                files.append(str(path.relative_to(BASE_ROOT)))
+    return sorted(files)
 
 
 def parseArgs() -> argparse.Namespace:
@@ -50,7 +66,7 @@ def selectedTranslationFiles(translationFileNames: list[str]) -> list[Path]:
         return [resolveTranslationFile(name) for name in translationFileNames]
 
     translationFiles = sorted(TRANSLATION_DIR.glob("*.ts"))
-    return translationFiles
+    return translationFiles or [TRANSLATION_DIR / "app_zh_CN.ts"]
 
 
 def main() -> int:
@@ -60,7 +76,7 @@ def main() -> int:
         translationFile.parent.mkdir(exist_ok=True)
         run([
             pysideTool("lupdate"),
-            "gui/qml/app",
+            *sourceFiles(),
             "-ts",
             str(translationFile),
         ])

@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any
 
-from PySide6.QtCore import QObject, Property, Signal, Slot
+from PySide6.QtCore import QCoreApplication, QObject, Property, Signal, Slot
 from PySide6.QtQml import QmlElement
 
 from manager.solving_manager import SolvingManager
@@ -163,7 +163,7 @@ class AddPuzzleOperation(Operation):
         if puzzleState is None:
             return ""
         if puzzleState.solveStatus == PuzzleSolveStatus.SOLVING:
-            return "Undoing this puzzle creation will stop its running solver process."
+            return QCoreApplication.translate("Workspace", "Undoing this puzzle creation will stop its running solver process.")
         return ""
 
 
@@ -184,7 +184,7 @@ class RemovePuzzleOperation(Operation):
         if puzzleState is None:
             return ""
         if puzzleState.solveStatus == PuzzleSolveStatus.SOLVING:
-            return "Deleting this puzzle will stop its running solver process."
+            return QCoreApplication.translate("Workspace", "Deleting this puzzle will stop its running solver process.")
         return ""
 
 
@@ -212,7 +212,7 @@ class ClearWorkspaceOperation(Operation):
         for puzzle in self.puzzles:
             puzzleState = workspace._puzzles.puzzleStateById(puzzle.id)
             if puzzleState is not None and puzzleState.solveStatus == PuzzleSolveStatus.SOLVING:
-                return "Clearing the workspace will stop running solver processes."
+                return QCoreApplication.translate("Workspace", "Clearing the workspace will stop running solver processes.")
         return ""
 
 
@@ -625,7 +625,7 @@ class Workspace(QObject):
         puzzle = self._puzzles.puzzleById(puzzleId)
         puzzleState = self._puzzles.puzzleStateById(puzzleId)
         if puzzle is None or puzzleState is None:
-            return "Puzzle not found."
+            return QCoreApplication.translate("Workspace", "Puzzle not found.")
         if self._rebuildPuzzleIfStaled(puzzle, puzzleState):
             return ""
         return puzzleState.solvingLog.strip()
@@ -770,7 +770,7 @@ class Workspace(QObject):
             self._setPuzzleSolveMessage(
                 puzzle.id,
                 puzzleState,
-                "Cannot rebuild stale puzzle: no empty seed grid remains.",
+                QCoreApplication.translate("Workspace", "Cannot rebuild stale puzzle: no empty seed grid remains."),
             )
             return False
 
@@ -788,7 +788,7 @@ class Workspace(QObject):
             self._setPuzzleSolveMessage(
                 puzzle.id,
                 puzzleState,
-                "Cannot rebuild stale puzzle from the selected empty seed.",
+                QCoreApplication.translate("Workspace", "Cannot rebuild stale puzzle from the selected empty seed."),
             )
             return False
 

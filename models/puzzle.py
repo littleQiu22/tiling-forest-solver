@@ -6,6 +6,7 @@ from typing import Any
 from uuid import uuid4
 
 from PySide6.QtCore import (
+    QCoreApplication,
     QByteArray,
     QAbstractListModel,
     QModelIndex,
@@ -256,7 +257,7 @@ def extractPuzzle(
 
     if boundingBox.isOutRange(seed.row, seed.col):
         return PuzzleExtraction(
-            message="Puzzle creation failed: The selected empty area is not enclosed by tiles.",
+            message=QCoreApplication.translate("PuzzleExtraction", "Puzzle creation failed: The selected empty area is not enclosed by tiles."),
         )
 
     def isEmpty(grid: Grid) -> bool:
@@ -269,7 +270,7 @@ def extractPuzzle(
 
     def unbounded() -> PuzzleExtraction:
         return PuzzleExtraction(
-            message="The selected empty area is not enclosed.",
+            message=QCoreApplication.translate("PuzzleExtraction", "The selected empty area is not enclosed."),
         )
 
     def addPairedStumps() -> None:

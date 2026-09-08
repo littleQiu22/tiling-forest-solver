@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from PySide6.QtCore import QObject, Property, Signal, Slot
+from PySide6.QtCore import QCoreApplication, QObject, Property, Signal, Slot
 from PySide6.QtQml import QmlElement
 
 from common import TEMPLATE_DIR
@@ -128,7 +128,7 @@ class WorkspaceManager(QObject):
     def load(self, filePath: str) -> dict[str, Any]:
         path = str(filePath)
         if not path:
-            return self._response(False, "No file path was provided.")
+            return self._response(False, QCoreApplication.translate("WorkspaceManager", "No file path was provided."))
 
         try:
             data = json.loads(Path(path).read_text(encoding="utf-8"))
@@ -136,7 +136,7 @@ class WorkspaceManager(QObject):
             self._setFilePath(path)
             self._setTemplateName("")
         except Exception as error:
-            return self._response(False, f"Failed to load workspace: {error}")
+            return self._response(False, QCoreApplication.translate("WorkspaceManager", "Failed to load workspace: {error}").format(error=error))
 
         return self._response(True, "")
 
@@ -144,7 +144,7 @@ class WorkspaceManager(QObject):
     def loadTemplate(self, templateName: str) -> dict[str, Any]:
         templatePath = self._templatePath(templateName)
         if templatePath is None:
-            return self._response(False, f"Template not found: {templateName}")
+            return self._response(False, QCoreApplication.translate("WorkspaceManager", "Template not found: {templateName}").format(templateName=templateName))
 
         try:
             data = json.loads(templatePath.read_text(encoding="utf-8"))
@@ -152,7 +152,7 @@ class WorkspaceManager(QObject):
             self._setFilePath("")
             self._setTemplateName(templatePath.stem)
         except Exception as error:
-            return self._response(False, f"Failed to load template: {error}")
+            return self._response(False, QCoreApplication.translate("WorkspaceManager", "Failed to load template: {error}").format(error=error))
 
         return self._response(True, "")
 
@@ -168,7 +168,7 @@ class WorkspaceManager(QObject):
 
     def _saveToPath(self, path: str) -> dict[str, Any]:
         if not path:
-            return self._response(False, "No file path was provided.")
+            return self._response(False, QCoreApplication.translate("WorkspaceManager", "No file path was provided."))
 
         try:
             filePath = Path(path)
@@ -181,7 +181,7 @@ class WorkspaceManager(QObject):
             self._setTemplateName("")
             self._workspace.markClean()
         except Exception as error:
-            return self._response(False, f"Failed to save workspace: {error}")
+            return self._response(False, QCoreApplication.translate("WorkspaceManager", "Failed to save workspace: {error}").format(error=error))
 
         return self._response(True, "")
 
