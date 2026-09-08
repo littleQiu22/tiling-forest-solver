@@ -4,19 +4,14 @@ import json
 import sys
 from typing import Any
 
-from models.geometry import Grid
-from models.puzzle import Puzzle
-from models.tile import TILE
-from solver.option import MODELING, SolverOption
 from solver.status import SOLVER_STATUS
-from solver.tiling import TilingSolver
 
 
 def emit(data: dict[str, Any]) -> None:
     print(json.dumps(data, separators=(",", ":")), flush=True)
 
 
-def solutionToJson(solution: dict[Grid, TILE.TYPE]) -> list[dict[str, Any]]:
+def solutionToJson(solution) -> list[dict[str, Any]]:
     return [
         {
             "row": grid.row,
@@ -28,6 +23,10 @@ def solutionToJson(solution: dict[Grid, TILE.TYPE]) -> list[dict[str, Any]]:
 
 
 def solveRequest(request: dict[str, Any]) -> None:
+    from models.puzzle import Puzzle
+    from solver.option import MODELING, SolverOption
+    from solver.tiling import TilingSolver
+
     puzzle = Puzzle.fromJson(request["puzzle"])
     option = SolverOption(
         constraints=[

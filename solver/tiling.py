@@ -11,7 +11,7 @@ from models.geometry import DIRECTION, Grid, Edge
 from models.tile import TILE
 from solver.option import MODELING, SolverOption
 from solver.flow import CHANNEL_FLOW_DIRECTIONS, EDGE_CHANNEL, GRID_CHANNEL, EDGE_FLOW, GRID_FLOW, getEdgeFlow, getGridFlow
-from solver.status import SOLVER_STATUS
+from solver.status import SOLVER_PHASE, SOLVER_STATUS, phaseMessage
 
 
 class TilingSolver:
@@ -19,14 +19,16 @@ class TilingSolver:
         self._puzzle = puzzle
         self._option = option
         self._callback = callback
-        self._phase = ""
+        self._phase = SOLVER_PHASE.START
         self._phaseGoal = None
         self._phaseObjectiveValue = None
 
+        self._setPhase(SOLVER_PHASE.BUILD_MODEL)
+        self._guardedCallback(SOLVER_STATUS.SOLVING)
         self._buildModel()
 
     @property
-    def phase(self) -> str:
+    def phase(self) -> SOLVER_PHASE:
         return self._phase
 
     @property
@@ -38,29 +40,15 @@ class TilingSolver:
         return self._phaseObjectiveValue
 
     def phaseMessage(self) -> str:
-        match self._phase:
-            case "goal":
-                if self._phaseGoal is None:
-                    return "Optimizing goal..."
-                if self._phaseObjectiveValue is None:
-                    return f"Optimizing goal: {self._phaseGoal.name}"
-                match self.phaseGoal:
-                    case MODELING.GOAL.MIN_UNEXPLORED:
-                        return f"Number of connected unexplored tiles: {self._phaseObjectiveValue}."
-                    case MODELING.GOAL.MAX_DENSITY:
-                        return f"Number of placed tiles: {self.phaseObjectiveValue}."
-                    case MODELING.GOAL.MAX_CONNECTIVITY:
-                        return f"Number of connected components of exits: {self.phaseObjectiveValue}."
-                    case _:
-                        return f"Optimizing goal: {self._phaseGoal.name}"
-            case "enumeration":
-                return "Enumerating solutions..."
-            case _:
-                return "Solver started."
+        return phaseMessage(
+            self._phase,
+            self._phaseGoal,
+            self._phaseObjectiveValue,
+        )
 
     def _setPhase(
         self,
-        phase: str,
+        phase: SOLVER_PHASE,
         goal: MODELING.GOAL | None = None,
         objectiveValue=None,
     ) -> None:
@@ -78,6 +66,8 @@ class TilingSolver:
         self._isSourceExitPerGrid = {}
         self._asConnectSourcePerGrid = {}
         self._needConnectPerGrid = {}
+
+        self._isStumpPairedPerGrid = {}
 
         self._flowsPerEdge: defaultdict[Edge, defaultdict[EDGE_CHANNEL, list]] = defaultdict(
             lambda: defaultdict(list))
@@ -261,6 +251,8 @@ class TilingSolver:
                 else:
                     if grid in self._puzzle.grids:
                         self._model.add(sum(flows) == 0)
+        if not self._isStumpPairedPerGrid:
+            self._buildIsStumpPairedPerGrid()
 
     def _addBloomConstrs(self):
         def isBloomingRoad(grid: Grid) -> bool:
@@ -322,34 +314,12 @@ class TilingSolver:
                 groups.append(group)
             return groups
 
-        def buildIsStumpPairedPerGrid() -> dict[Grid, Expression]:
-            isStumpPairedPerGrid = {}
-            for grid in self._puzzle.grids:
-                flowsPerChannel = self._flowsPerGrid[grid]
-                stumpPairOptions = []
-                for channel in (
-                    GRID_CHANNEL.STUMP_HORIZONTAL_CHANNEL,
-                    GRID_CHANNEL.STUMP_VERTICAL_CHANNEL,
-                ):
-                    flows = flowsPerChannel[channel]
-                    if len(flows) == 2:
-                        stumpPairOptions.append(cp.all(
-                            [flow == GRID_FLOW.STUMP_FLOW for flow in flows]))
-
-                isStumpPaired = cp.boolvar(
-                    name=f"isStumpPaired({grid.row},{grid.col})")
-                if stumpPairOptions:
-                    self._model.add(isStumpPaired == cp.any(stumpPairOptions))
-                else:
-                    self._model.add(isStumpPaired == 0)
-                isStumpPairedPerGrid[grid] = isStumpPaired
-            return isStumpPairedPerGrid
-
         needBloomPerGrid = {}
         for v in self._puzzle.grids:
             xs = self._xsPerGrid[v]
             needBloomPerGrid[v] = sum([x for x in xs if x.tile in TILE.ROADS])
-        isStumpPairedPerGrid = buildIsStumpPairedPerGrid()
+        if not self._isStumpPairedPerGrid:
+            self._buildIsStumpPairedPerGrid()
 
         bloomOrderPerGrid = {}
         bloomSourceIdPerGrid = {}
@@ -371,7 +341,7 @@ class TilingSolver:
                 name=f"grantAsBloomingSource({v.row},{v.col})")
             self._model.add(grantAsBloomingSource <= isBlooming)
 
-            stumpAsBloomingSource = isStumpPairedPerGrid[v]
+            stumpAsBloomingSource = self._isStumpPairedPerGrid[v]
             grantAsBloomingSourcePerGrid[v] = grantAsBloomingSource
             stumpAsBloomingSourcePerGrid[v] = stumpAsBloomingSource
 
@@ -418,7 +388,7 @@ class TilingSolver:
                 self._model.add(isParent <= (
                     bloomOrderPerGrid[u] + 1 <= bloomOrderPerGrid[v]))
             self._model.add(
-                needBloomPerGrid[v] == grantAsBloomingSource +
+                needBloomPerGrid[v] <= grantAsBloomingSource +
                 stumpAsBloomingSource + sum(isParents)
             )
 
@@ -496,7 +466,7 @@ class TilingSolver:
                         connectOrderPerGrid[u] + 1 <= connectOrderPerGrid[v])
                 )
             self._model.add(
-                self._needConnectPerGrid[v] == asConnectSource + sum(isParents)
+                self._needConnectPerGrid[v] <= asConnectSource + sum(isParents)
             )
             self._model.add(
                 self._isSourceExitPerGrid[v] <= self._needConnectPerGrid[v])
@@ -513,6 +483,32 @@ class TilingSolver:
             self._model.add(
                 isRoad <= self._isSourceExitPerGrid[v]
             )
+
+    def _buildIsStumpPairedPerGrid(self):
+        for grid in self._puzzle.grids:
+            flowsPerChannel = self._flowsPerGrid[grid]
+            stumpPairOptions = []
+            for channel in (
+                GRID_CHANNEL.STUMP_HORIZONTAL_CHANNEL,
+                GRID_CHANNEL.STUMP_VERTICAL_CHANNEL,
+            ):
+                flows = flowsPerChannel[channel]
+                if len(flows) == 2:
+                    stumpPairOptions.append(cp.all(
+                        [flow == GRID_FLOW.STUMP_FLOW for flow in flows]))
+
+            isStumpPaired = cp.boolvar(
+                name=f"isStumpPaired({grid.row},{grid.col})")
+            if stumpPairOptions:
+                self._model.add(isStumpPaired == cp.any(stumpPairOptions))
+            else:
+                self._model.add(isStumpPaired == 0)
+            simpleRoads = [
+                x for x in self._xsPerGrid[grid]
+                if x.tile in TILE.SIMPLE_ROADS
+            ]
+            self._model.add(isStumpPaired <= sum(simpleRoads))
+            self._isStumpPairedPerGrid[grid] = isStumpPaired
 
     def _simpleSolve(self, timeLimit: int | None):
         self._model.solve(time_limit=timeLimit)
@@ -564,7 +560,7 @@ class TilingSolver:
         self._model.add(sum(samePlacement) <= len(samePlacement) - 1)
 
     def solve(self):
-        self._setPhase("start")
+        self._setPhase(SOLVER_PHASE.START)
         self._guardedCallback(SOLVER_STATUS.SOLVING)
 
         startedAt = time.monotonic()
@@ -578,7 +574,7 @@ class TilingSolver:
                 return
             if not self._setGoal(goal):
                 continue
-            self._setPhase("goal", goal)
+            self._setPhase(SOLVER_PHASE.OPTIMIZE_GOAL, goal)
             self._guardedCallback(SOLVER_STATUS.SOLVING)
             status, objValue, solution = self._simpleSolve(remainingTime)
 
@@ -588,13 +584,13 @@ class TilingSolver:
 
             if objValue is not None:
                 objValue = int(objValue)
-            self._setPhase("goal", goal, objValue)
+            self._setPhase(SOLVER_PHASE.OPTIMIZE_GOAL, goal, objValue)
             self._guardedCallback(SOLVER_STATUS.SOLVING)
             self._addGoalBound(goal, objValue)
             lastSolution = solution
 
         # Enumeration more solutions
-        self._setPhase("enumeration")
+        self._setPhase(SOLVER_PHASE.ENUMERATION)
         self._guardedCallback(SOLVER_STATUS.SOLVING)
         self._model.objective_ = None
 
@@ -662,7 +658,8 @@ class TilingSolver:
 
     def _getConnectivity(self):
         return sum([
-            (1 - self._needConnectPerGrid[grid]) + self._asConnectSourcePerGrid[grid]
+            (1 - self._needConnectPerGrid[grid]) +
+            self._asConnectSourcePerGrid[grid]
             for grid in self._exits
         ])
 
