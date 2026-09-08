@@ -144,11 +144,19 @@ Item {
                     id: tileButton
                     required property int index
                     required property var modelData
+                    readonly property bool isSelected: index === selection.secondaryIndex
                     width: root.secondaryButtonSize
                     height: root.secondaryButtonSize
                     radius: root.buttonRadius
-                    color: index === selection.secondaryIndex ? AppTheme.surfaceVariant : AppTheme.surface
-                    border.color: index === selection.secondaryIndex ? AppTheme.primary : AppTheme.border
+                    color: AppTheme.surface
+                    border.width: isSelected ? 2 : 1
+                    border.color: isSelected ? AppTheme.selectionBorder : AppTheme.border
+
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: parent.radius
+                        color: tileButton.isSelected ? AppTheme.selectionOverlay : (secondaryHover.hovered ? AppTheme.hoverOverlay : "transparent")
+                    }
 
                     Loader {
                         anchors.centerIn: parent
@@ -187,6 +195,7 @@ Item {
                     }
 
                     HoverHandler {
+                        id: secondaryHover
                         acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
                         blocking: true
                     }
@@ -218,11 +227,19 @@ Item {
                     id: primaryButton
                     required property int index
                     required property var modelData
+                    readonly property bool isSelected: index === selection.primaryIndex
                     width: root.primaryButtonSize
                     height: root.primaryButtonSize
                     radius: root.buttonRadius
-                    color: index === selection.primaryIndex ? AppTheme.surfaceVariant : AppTheme.surface
-                    border.color: index === selection.primaryIndex ? AppTheme.primary : AppTheme.border
+                    color: AppTheme.surface
+                    border.width: isSelected ? 2 : 1
+                    border.color: isSelected ? AppTheme.selectionBorder : AppTheme.border
+
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: parent.radius
+                        color: primaryButton.isSelected ? AppTheme.selectionOverlay : (primaryHover.hovered ? AppTheme.hoverOverlay : "transparent")
+                    }
 
                     Loader {
                         anchors.centerIn: parent
@@ -261,6 +278,7 @@ Item {
                     }
 
                     HoverHandler {
+                        id: primaryHover
                         acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
                         blocking: true
                     }

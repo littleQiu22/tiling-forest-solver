@@ -39,21 +39,17 @@ QtObject {
         window.height = Math.max(320, Math.min(windowHeight, Screen.desktopAvailableHeight));
         window.x = Math.max(Screen.virtualX, Math.min(windowX, Screen.virtualX + Screen.desktopAvailableWidth - window.width));
         window.y = Math.max(Screen.virtualY, Math.min(windowY, Screen.virtualY + Screen.desktopAvailableHeight - window.height));
-
         if (windowMaximized) {
             window.showMaximized();
         }
     }
 
     function saveWindow(window) {
-        windowMaximized = window.visibility === Window.Maximized;
-        if (windowMaximized)
-            return;
-
         windowWidth = window.width;
         windowHeight = window.height;
         windowX = window.x;
         windowY = window.y;
+        windowMaximized = window.visibility === Window.Maximized;
     }
 
     function cameraState() {

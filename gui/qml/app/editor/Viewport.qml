@@ -120,7 +120,7 @@ Item {
         case "Unsolved":
             return AppTheme.primary;
         case "Solving":
-            return AppTheme.solving;
+            return AppTheme.active;
         default:
             return AppTheme.danger;
         }
@@ -193,6 +193,7 @@ Item {
                 required property int tile
                 required property int status
 
+                z: 30
                 x: col * Assets.tileSize
                 y: row * Assets.tileSize
                 width: Assets.tileSize
@@ -235,6 +236,7 @@ Item {
                 required property bool isGeometryStaled
                 required property var currentSolution
 
+                z: 10
                 x: svgX
                 y: svgY
                 width: svgWidth
@@ -252,7 +254,7 @@ Item {
                         containsMode: Shape.FillContains
 
                         ShapePath {
-                            fillColor: puzzleDelegate.isSelected ? Qt.rgba(0.23, 0.51, 0.96, 0.10) : "transparent"
+                            fillColor: puzzleDelegate.isSelected ? AppTheme.strongSelectionOverlay : "transparent"
                             strokeColor: root.puzzleStrokeColor(puzzleDelegate.solveStatus)
                             strokeWidth: (puzzleDelegate.isSelected ? 6 : 4) / camera.zoom
                             capStyle: ShapePath.RoundCap
@@ -318,6 +320,7 @@ Item {
         // Ghost tile
         Item {
             visible: root.ghostTile !== null
+            z: 40
             x: visible ? root.ghostTile.col * Assets.tileSize : 0
             y: visible ? root.ghostTile.row * Assets.tileSize : 0
             width: Assets.tileSize

@@ -21,7 +21,7 @@ QtObject {
 
     // ====== Action Color ======
     property color primary: "#3B82F6"
-    property color solving: "#06B6D4"
+    property color active: "#06B6D4"
     property color success: "#22C55E"
     property color warning: "#F59E0B"
     property color danger: "#EF4444"
@@ -30,4 +30,7 @@ QtObject {
     // ====== Interaction Color ======
     property color hoverOverlay: Qt.rgba(0, 0, 0, 0.05)
     property color pressOverlay: Qt.rgba(0, 0, 0, 0.1)
+    property color selectionOverlay: Qt.rgba(0.23, 0.51, 0.96, 0.18)
+    property color strongSelectionOverlay: Qt.rgba(0.23, 0.51, 0.96, 0.28)
+    property color selectionBorder: primary
 }

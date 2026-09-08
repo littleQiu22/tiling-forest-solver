@@ -1,3 +1,4 @@
+import QtQuick
 import QtQuick.Window
 import QtQuick.Controls
 
@@ -79,9 +80,9 @@ Window {
     }
 
     Component.onCompleted: {
-        AppSettings.restoreWindow(root);
         if (root.loadStartupRecentFile())
             appLayout.tileEditorItem?.restoreCameraState(AppSettings.cameraState());
+        AppSettings.restoreWindow(root);
         visible = true;
     }
 
