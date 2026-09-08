@@ -40,6 +40,10 @@ ScrollView {
         const wasAtBottom = canScroll && flick.contentY + flick.height >= flick.contentHeight - 4;
 
         logTextArea.text = root.workspace.puzzleView.solvingLog;
+        root.restoreLogScroll(wasAtBottom, oldContentY);
+    }
+
+    function restoreLogScroll(wasAtBottom, oldContentY) {
         Qt.callLater(() => {
             const currentFlick = logScroll.contentItem;
             if (!currentFlick || typeof currentFlick.contentY !== "number")
@@ -47,6 +51,14 @@ ScrollView {
 
             const maxContentY = Math.max(0, currentFlick.contentHeight - currentFlick.height);
             currentFlick.contentY = wasAtBottom ? maxContentY : Math.min(oldContentY, maxContentY);
+            Qt.callLater(() => {
+                const finalFlick = logScroll.contentItem;
+                if (!finalFlick || typeof finalFlick.contentY !== "number")
+                    return;
+
+                const finalMaxContentY = Math.max(0, finalFlick.contentHeight - finalFlick.height);
+                finalFlick.contentY = wasAtBottom ? finalMaxContentY : Math.min(finalFlick.contentY, finalMaxContentY);
+            });
         });
     }
 
@@ -415,6 +427,7 @@ ScrollView {
                 Basic.TextArea {
                     id: logTextArea
 
+                    width: logScroll.availableWidth
                     readOnly: true
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere
 

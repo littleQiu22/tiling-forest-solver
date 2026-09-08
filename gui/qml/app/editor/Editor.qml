@@ -30,7 +30,7 @@ Rectangle {
 
     function focusPuzzleInViewport(puzzleId) {
         const geometry = root.workspace.puzzles.geometryById(puzzleId);
-        if (viewport.isWorldRectFullyVisible(geometry.x, geometry.y, geometry.width, geometry.height))
+        if (viewport.isWorldRectVisible(geometry.x, geometry.y, geometry.width, geometry.height))
             return;
 
         viewport.centerOnWorldRect(geometry.x, geometry.y, geometry.width, geometry.height);

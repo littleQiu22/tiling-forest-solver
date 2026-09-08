@@ -73,7 +73,7 @@ Item {
         camera.worldY = worldPoint.y - screenY / camera.zoom;
     }
 
-    function isWorldRectFullyVisible(worldX, worldY, worldWidth, worldHeight) {
+    function isWorldRectVisible(worldX, worldY, worldWidth, worldHeight) {
         if (worldWidth <= 0 || worldHeight <= 0)
             return true;
 
@@ -82,10 +82,10 @@ Item {
         let screenRight = screenLeft + worldWidth * camera.zoom;
         let screenBottom = screenTop + worldHeight * camera.zoom;
 
-        return screenLeft >= 0
-            && screenTop >= 0
-            && screenRight <= root.width
-            && screenBottom <= root.height;
+        return screenRight > 0
+            && screenBottom > 0
+            && screenLeft < root.width
+            && screenTop < root.height;
     }
 
     function centerOnWorldRect(worldX, worldY, worldWidth, worldHeight) {
@@ -183,6 +183,90 @@ Item {
         scale: camera.zoom
         transformOrigin: Item.TopLeft
 
+        // Puzzle fill overlays
+        Repeater {
+            model: root.workspace ? root.workspace.puzzles : null
+
+            delegate: Item {
+                id: puzzleFillDelegate
+
+                required property var svgPaths
+                required property real svgX
+                required property real svgY
+                required property real svgWidth
+                required property real svgHeight
+                required property bool isSelected
+
+                z: 10
+                x: svgX
+                y: svgY
+                width: svgWidth
+                height: svgHeight
+
+                Repeater {
+                    model: puzzleFillDelegate.svgPaths
+
+                    delegate: Shape {
+                        id: puzzleFillShape
+
+                        required property string modelData
+
+                        z: 0
+                        anchors.fill: parent
+                        containsMode: Shape.FillContains
+
+                        ShapePath {
+                            fillColor: puzzleFillDelegate.isSelected ? AppTheme.strongSelectionOverlay : "transparent"
+                            strokeColor: "transparent"
+                            strokeWidth: 0
+
+                            PathSvg {
+                                path: puzzleFillShape.modelData
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Puzzle solution tiles
+        Repeater {
+            model: root.workspace ? root.workspace.puzzles : null
+
+            delegate: Item {
+                id: puzzleSolutionDelegate
+
+                required property real svgX
+                required property real svgY
+                required property real svgWidth
+                required property real svgHeight
+                required property var currentSolution
+
+                z: 20
+                x: svgX
+                y: svgY
+                width: svgWidth
+                height: svgHeight
+
+                Repeater {
+                    model: puzzleSolutionDelegate.currentSolution
+
+                    delegate: Image {
+                        required property var modelData
+
+                        x: modelData.col * Assets.tileSize - puzzleSolutionDelegate.svgX
+                        y: modelData.row * Assets.tileSize - puzzleSolutionDelegate.svgY
+                        width: Assets.tileSize
+                        height: Assets.tileSize
+                        source: Assets.tileImage(modelData.tile)
+                        fillMode: Image.PreserveAspectFit
+                        smooth: true
+                        opacity: 0.82
+                    }
+                }
+            }
+        }
+
         // Tiles
         Repeater {
             model: root.workspace ? root.workspace.tiles : null
@@ -219,12 +303,12 @@ Item {
             }
         }
 
-        // Puzzles
+        // Puzzle outlines and labels
         Repeater {
             model: root.workspace ? root.workspace.puzzles : null
 
             delegate: Item {
-                id: puzzleDelegate
+                id: puzzleOutlineDelegate
 
                 required property var svgPaths
                 required property real svgX
@@ -234,33 +318,59 @@ Item {
                 required property string solveStatus
                 required property bool isSelected
                 required property bool isGeometryStaled
-                required property var currentSolution
 
-                z: 10
+                z: 40
                 x: svgX
                 y: svgY
                 width: svgWidth
                 height: svgHeight
 
                 Repeater {
-                    model: puzzleDelegate.svgPaths
+                    model: puzzleOutlineDelegate.svgPaths
 
                     delegate: Shape {
-                        id: puzzlePathShape
+                        id: puzzleHaloShape
 
                         required property string modelData
 
+                        z: 0
                         anchors.fill: parent
                         containsMode: Shape.FillContains
 
                         ShapePath {
-                            fillColor: puzzleDelegate.isSelected ? AppTheme.strongSelectionOverlay : "transparent"
-                            strokeColor: root.puzzleStrokeColor(puzzleDelegate.solveStatus)
-                            strokeWidth: (puzzleDelegate.isSelected ? 6 : 4) / camera.zoom
+                            fillColor: "transparent"
+                            strokeColor: puzzleOutlineDelegate.isSelected ? AppTheme.selectionHalo : "transparent"
+                            strokeWidth: puzzleOutlineDelegate.isSelected ? 11 / camera.zoom : 0
                             capStyle: ShapePath.RoundCap
                             joinStyle: ShapePath.RoundJoin
-                            strokeStyle: puzzleDelegate.solveStatus === "Solving" ? ShapePath.DashLine : ShapePath.SolidLine
-                            dashPattern: puzzleDelegate.solveStatus === "Solving" ? [6, 4] : []
+
+                            PathSvg {
+                                path: puzzleHaloShape.modelData
+                            }
+                        }
+                    }
+                }
+
+                Repeater {
+                    model: puzzleOutlineDelegate.svgPaths
+
+                    delegate: Shape {
+                        id: puzzleStatusShape
+
+                        required property string modelData
+
+                        z: 1
+                        anchors.fill: parent
+                        containsMode: Shape.FillContains
+
+                        ShapePath {
+                            fillColor: "transparent"
+                            strokeColor: root.puzzleStrokeColor(puzzleOutlineDelegate.solveStatus)
+                            strokeWidth: 5 / camera.zoom
+                            capStyle: ShapePath.RoundCap
+                            joinStyle: ShapePath.RoundJoin
+                            strokeStyle: puzzleOutlineDelegate.solveStatus === "Solving" ? ShapePath.DashLine : ShapePath.SolidLine
+                            dashPattern: puzzleOutlineDelegate.solveStatus === "Solving" ? [6, 4] : []
                             dashOffset: 0
 
                             NumberAnimation on dashOffset {
@@ -268,36 +378,20 @@ Item {
                                 to: 10
                                 duration: 900
                                 loops: Animation.Infinite
-                                running: puzzleDelegate.solveStatus === "Solving"
+                                running: puzzleOutlineDelegate.solveStatus === "Solving"
                             }
 
                             PathSvg {
-                                path: puzzlePathShape.modelData
+                                path: puzzleStatusShape.modelData
                             }
                         }
                     }
                 }
 
-                Repeater {
-                    model: puzzleDelegate.currentSolution
-
-                    delegate: Image {
-                        required property var modelData
-
-                        x: modelData.col * Assets.tileSize - puzzleDelegate.svgX
-                        y: modelData.row * Assets.tileSize - puzzleDelegate.svgY
-                        width: Assets.tileSize
-                        height: Assets.tileSize
-                        source: Assets.tileImage(modelData.tile)
-                        fillMode: Image.PreserveAspectFit
-                        smooth: true
-                        opacity: 0.82
-                    }
-                }
-
                 Rectangle {
                     anchors.centerIn: parent
-                    visible: puzzleDelegate.isGeometryStaled
+                    visible: puzzleOutlineDelegate.isGeometryStaled
+                    z: 10
                     width: staleText.implicitWidth + 14
                     height: staleText.implicitHeight + 6
                     radius: 4
@@ -320,7 +414,7 @@ Item {
         // Ghost tile
         Item {
             visible: root.ghostTile !== null
-            z: 40
+            z: 50
             x: visible ? root.ghostTile.col * Assets.tileSize : 0
             y: visible ? root.ghostTile.row * Assets.tileSize : 0
             width: Assets.tileSize

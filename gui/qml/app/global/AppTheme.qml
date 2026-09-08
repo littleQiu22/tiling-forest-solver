@@ -22,7 +22,7 @@ QtObject {
     // ====== Action Color ======
     property color primary: "#3B82F6"
     property color active: "#06B6D4"
-    property color success: "#22C55E"
+    property color success: "#059669"
     property color warning: "#F59E0B"
     property color danger: "#EF4444"
     property color muted: "#9CA3AF"
@@ -33,4 +33,5 @@ QtObject {
     property color selectionOverlay: Qt.rgba(0.23, 0.51, 0.96, 0.18)
     property color strongSelectionOverlay: Qt.rgba(0.23, 0.51, 0.96, 0.28)
     property color selectionBorder: primary
+    property color selectionHalo: Qt.rgba(0.07, 0.09, 0.15, 0.75)
 }
