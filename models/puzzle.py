@@ -661,7 +661,7 @@ class PuzzleListModel(QAbstractListModel):
             return None
         return self.removePuzzleAt(index)
 
-    def movePuzzle(self, puzzleId: str, targetIndex: int) -> bool:
+    def movePuzzleToIndex(self, puzzleId: str, targetIndex: int) -> bool:
         sourceIndex = self.indexById(puzzleId)
         if sourceIndex == -1:
             return False

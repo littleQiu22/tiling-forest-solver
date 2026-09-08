@@ -236,10 +236,10 @@ class MovePuzzleOperation(Operation):
         self.targetIndex = targetIndex
 
     def execute(self, workspace: "Workspace") -> None:
-        workspace._puzzles.movePuzzle(self.puzzleId, self.targetIndex)
+        workspace._puzzles.movePuzzleToIndex(self.puzzleId, self.targetIndex)
 
     def undo(self, workspace: "Workspace") -> None:
-        workspace._puzzles.movePuzzle(self.puzzleId, self.sourceIndex)
+        workspace._puzzles.movePuzzleToIndex(self.puzzleId, self.sourceIndex)
 
 
 @QmlElement
@@ -477,13 +477,20 @@ class Workspace(QObject):
             puzzleId, puzzle.name, nextName))
 
     @Slot(str, int)
-    def movePuzzle(self, puzzleId: str, targetIndex: int) -> None:
+    def movePuzzle(self, puzzleId: str, dropIndex: int) -> None:
         sourceIndex = self._puzzles.indexById(puzzleId)
-        if sourceIndex == -1 or sourceIndex == targetIndex:
+        if sourceIndex == -1:
+            return
+
+        puzzleCount = self._puzzles.rowCount()
+        dropIndex = max(0, min(int(dropIndex), puzzleCount))
+        targetIndex = dropIndex - 1 if sourceIndex < dropIndex else dropIndex
+        targetIndex = max(0, min(targetIndex, puzzleCount - 1))
+        if sourceIndex == targetIndex:
             return
 
         self._applyOperation(MovePuzzleOperation(
-            puzzleId, sourceIndex, int(targetIndex)))
+            puzzleId, sourceIndex, targetIndex))
 
     @Slot(str, int, bool)
     def setPuzzleTileEnabled(self, puzzleId: str, tile: int, enabled: bool) -> None:
