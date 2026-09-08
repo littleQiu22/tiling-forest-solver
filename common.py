@@ -11,6 +11,7 @@ else:
 QML_ROOT = BASE_ROOT / "gui" / "qml"
 ASSET_ROOT = QML_ROOT / "app" / "assets"
 TEMPLATE_DIR = BASE_ROOT / "templates"
+TRANSLATION_DIR = BASE_ROOT / "translations"
 
 
 def _joinPath(root: Path, *paths: str) -> str:
@@ -27,6 +28,10 @@ def getAsset(*paths: str):
 
 def getTemplate(*paths: str):
     return _joinPath(TEMPLATE_DIR, *paths)
+
+
+def getTranslation(*paths: str):
+    return _joinPath(TRANSLATION_DIR, *paths)
 
 
 def solverWorkerCommand() -> tuple[str, list[str]]:

@@ -110,22 +110,6 @@ Item {
         camera.zoom = clamp(state?.zoom ?? 1, camera.minZoom, camera.maxZoom);
     }
 
-    function puzzleStrokeColor(solveStatus) {
-        switch (solveStatus) {
-        case "Solved":
-            return AppTheme.success;
-        case "TimeLimit":
-        case "SolutionLimit":
-            return AppTheme.warning;
-        case "Unsolved":
-            return AppTheme.primary;
-        case "Solving":
-            return AppTheme.active;
-        default:
-            return AppTheme.danger;
-        }
-    }
-
     Rectangle {
         anchors.fill: parent
         color: AppTheme.surface
@@ -365,7 +349,7 @@ Item {
 
                         ShapePath {
                             fillColor: "transparent"
-                            strokeColor: root.puzzleStrokeColor(puzzleOutlineDelegate.solveStatus)
+                            strokeColor: PuzzleStyle.solveStatusColor(puzzleOutlineDelegate.solveStatus)
                             strokeWidth: 5 / camera.zoom
                             capStyle: ShapePath.RoundCap
                             joinStyle: ShapePath.RoundJoin

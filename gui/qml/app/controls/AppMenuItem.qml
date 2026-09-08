@@ -26,6 +26,16 @@ MenuItem {
         spacing: 8
 
         Text {
+            text: root.checked ? "✓" : ""
+            font: root.font
+            color: AppTheme.textPrimary
+            visible: root.checkable
+            verticalAlignment: Text.AlignVCenter
+            Layout.preferredWidth: 14
+            Layout.alignment: Qt.AlignVCenter
+        }
+
+        Text {
             id: itemText
             text: root.text
             font: root.font

@@ -21,11 +21,11 @@ Item {
         readonly property var primaryItems: [
             {
                 "mode": ToolMode.view,
-                "label": "View"
+                "label": qsTr("View")
             },
             {
                 "mode": ToolMode.puzzle,
-                "label": "Puzzle"
+                "label": qsTr("Puzzle")
             },
             {
                 "mode": ToolMode.tile,

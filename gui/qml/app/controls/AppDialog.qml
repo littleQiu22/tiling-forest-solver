@@ -13,8 +13,10 @@ Dialog {
     property alias headerText: header.text
     property alias text: message.text
     property var footerItems: []
+    readonly property int minDialogWidth: 200
+    readonly property int maxDialogWidth: 400
 
-    implicitWidth: Math.max(200, header.implicitWidth, footer.implicitWidth, Math.min(message.implicitWidth + padding * 2, 400))
+    implicitWidth: Math.max(minDialogWidth, header.implicitWidth, footer.implicitWidth, Math.min(message.implicitWidth + message.leftPadding + message.rightPadding, maxDialogWidth))
 
     padding: 0
 
@@ -39,6 +41,7 @@ Dialog {
     Label {
         id: message
         text: ""
+        width: root.availableWidth
         padding: 8
         visible: text.length > 0
         color: AppTheme.textPrimary

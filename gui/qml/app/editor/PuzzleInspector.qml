@@ -21,10 +21,59 @@ ScrollView {
         if (!root.workspace.puzzleView.hasPuzzle)
             return qsTr("No puzzle selected");
 
-        let parts = [root.workspace.puzzleView.name, root.workspace.puzzleView.solveStatus];
+        let parts = [root.workspace.puzzleView.name, root.solveStatusLabel(root.workspace.puzzleView.solveStatus)];
         if (root.workspace.puzzleView.isGeometryStaled)
-            parts.push(qsTr("Geometry-stale"));
+            parts.push(qsTr("Stale"));
         return parts.join(" | ");
+    }
+
+    function solveStatusLabel(solveStatus) {
+        switch (solveStatus) {
+        case "Solved":
+            return qsTr("Solved");
+        case "Solving":
+            return qsTr("Solving");
+        case "TimeLimit":
+            return qsTr("Time limit");
+        case "SolutionLimit":
+            return qsTr("Solution limit");
+        case "Infeasible":
+            return qsTr("Infeasible");
+        case "InternalError":
+            return qsTr("Internal error");
+        case "Interrupted":
+            return qsTr("Interrupted");
+        default:
+            return qsTr("Unsolved");
+        }
+    }
+
+    function objectiveLabel(key) {
+        switch (key) {
+        case "MIN_UNEXPLORED":
+            return qsTr("Min unexplored");
+        case "MAX_DENSITY":
+            return qsTr("Max density");
+        case "MAX_CONNECTIVITY":
+            return qsTr("Max connectivity");
+        default:
+            return key;
+        }
+    }
+
+    function constraintLabel(key) {
+        switch (key) {
+        case "FIGURE_ALIGNED":
+            return qsTr("Figure aligned");
+        case "ROAD_MUST_EXIT":
+            return qsTr("Road must exit");
+        case "STUMP_PAIRED":
+            return qsTr("Stump paired");
+        case "ROAD_BLOOM":
+            return qsTr("Road bloom");
+        default:
+            return key;
+        }
     }
 
     function rebuildPuzzle() {
@@ -72,11 +121,9 @@ ScrollView {
             Label {
                 id: summaryLabel
 
-                Layout.fillWidth: true
                 text: root.puzzleSummary()
-                color: summaryHover.hovered ? AppTheme.primary : (root.workspace.puzzleView.isGeometryStaled ? AppTheme.warning : AppTheme.textPrimary)
+                color: summaryHover.hovered ? AppTheme.primary : (root.workspace.puzzleView.hasPuzzle ? PuzzleStyle.solveStatusColor(root.workspace.puzzleView.solveStatus) : AppTheme.textPrimary)
                 font.bold: true
-                font.underline: root.workspace.puzzleView.hasPuzzle
                 elide: Text.ElideRight
 
                 HoverHandler {
@@ -88,6 +135,20 @@ ScrollView {
                     acceptedButtons: Qt.LeftButton
                     onTapped: root.workspace.selectPuzzle(root.workspace.puzzleView.puzzleId)
                 }
+
+                Rectangle {
+                    visible: root.workspace.puzzleView.hasPuzzle
+                    anchors.left: summaryLabel.left
+                    anchors.right: summaryLabel.right
+                    anchors.top: summaryLabel.bottom
+                    anchors.topMargin: 3
+                    height: 1
+                    color: summaryLabel.color
+                }
+            }
+
+            Item {
+                Layout.fillWidth: true
             }
 
             Item {
@@ -205,7 +266,7 @@ ScrollView {
                         CheckBox {
                             Layout.fillWidth: true
                             checked: modelData.enabled
-                            text: modelData.label
+                            text: root.objectiveLabel(modelData.key)
                             onToggled: root.workspace.setPuzzleObjectiveEnabled(root.workspace.puzzleView.puzzleId, modelData.key, checked)
                         }
 
@@ -249,7 +310,7 @@ ScrollView {
                         required property var modelData
 
                         checked: modelData.enabled
-                        text: modelData.label
+                        text: root.constraintLabel(modelData.key)
                         onToggled: root.workspace.setPuzzleConstraintEnabled(root.workspace.puzzleView.puzzleId, modelData.key, checked)
                     }
                 }

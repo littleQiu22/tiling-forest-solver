@@ -8,7 +8,7 @@ import app.manager
 
 AppMenu {
     id: root
-    title: "File"
+    title: qsTr("File")
 
     property WorkspaceManager workspaceManager
 
@@ -28,7 +28,7 @@ AppMenu {
         id: openDialog
         title: qsTr("Open Workspace...")
         fileMode: FileDialog.OpenFile
-        nameFilters: ["JSON files (*.json)", "All files (*)"]
+        nameFilters: [qsTr("JSON files (*.json)"), qsTr("All files (*)")]
         onAccepted: {
             openDocument(() => {
                 let response = root.workspaceManager.load(root.localFilePath(selectedFile));
@@ -45,7 +45,7 @@ AppMenu {
         id: saveAsDialog
         title: qsTr("Save Workspace As")
         fileMode: FileDialog.SaveFile
-        nameFilters: ["JSON files (*.json)", "All files (*)"]
+        nameFilters: [qsTr("JSON files (*.json)"), qsTr("All files (*)")]
         onAccepted: {
             let response = root.workspaceManager.save(root.localFilePath(selectedFile));
             if (!response.status) {
@@ -103,12 +103,7 @@ AppMenu {
                     return;
                 }
             } else {
-                Services.confirm(
-                    loadFn,
-                    qsTr("The current workspace has unsaved changes and no file path. They will be discarded."),
-                    qsTr("Discard Unsaved Workspace?"),
-                    qsTr("Discard && Continue")
-                );
+                Services.confirm(loadFn, qsTr("The current workspace has unsaved changes. They will be discarded."), qsTr("Discard Unsaved Workspace?"), qsTr("Discard && Continue"));
                 return;
             }
         }

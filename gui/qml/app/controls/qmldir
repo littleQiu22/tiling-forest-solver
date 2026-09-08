@@ -8,3 +8,4 @@ AlterDialog 1.0 AlterDialog.qml
 ConfirmDialog 1.0 ConfirmDialog.qml
 EditMenu 1.0 EditMenu.qml
 FileMenu 1.0 FileMenu.qml
+LanguageMenu 1.0 LanguageMenu.qml

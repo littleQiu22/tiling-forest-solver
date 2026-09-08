@@ -58,4 +58,6 @@ MenuBar {
     EditMenu {
         workspaceManager: root.workspaceManager
     }
+
+    LanguageMenu {}
 }

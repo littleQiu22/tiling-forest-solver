@@ -15,6 +15,7 @@ if __name__ == "__main__" and "--solver-worker" in sys.argv:
 import models.tile
 import manager.workspace_manager
 import models.workspace
+from manager.language_manager import LanguageManager
 from common import getAsset, getQML
 from PySide6.QtQml import QQmlApplicationEngine
 from PySide6.QtGui import QGuiApplication, QIcon
@@ -28,9 +29,11 @@ def configure_application() -> None:
     QSettings.setDefaultFormat(QSettings.Format.IniFormat)
 
 
-def createQmlEngine() -> QQmlApplicationEngine:
+def createQmlEngine(app: QGuiApplication) -> QQmlApplicationEngine:
     engine = QQmlApplicationEngine()
     engine.addImportPath(getQML())
+    languageManager = LanguageManager(app, engine, engine)
+    engine.rootContext().setContextProperty("Language", languageManager)
     engine.loadFromModule("app", "Main")
     return engine
 
@@ -40,7 +43,7 @@ def main() -> int:
     configure_application()
     app.setWindowIcon(QIcon(getAsset("logo.png")))
 
-    engine = createQmlEngine()
+    engine = createQmlEngine(app)
     if not engine.rootObjects():
         return 1
 

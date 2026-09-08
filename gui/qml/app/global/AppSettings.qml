@@ -22,6 +22,7 @@ QtObject {
         property real cameraWorldX: 0
         property real cameraWorldY: 0
         property real cameraZoom: 1
+        property string languageCode: ""
     }
 
     property alias windowHeight: settings.windowHeight
@@ -33,6 +34,7 @@ QtObject {
     property alias cameraWorldX: settings.cameraWorldX
     property alias cameraWorldY: settings.cameraWorldY
     property alias cameraZoom: settings.cameraZoom
+    property alias languageCode: settings.languageCode
 
     function restoreWindow(window) {
         window.width = Math.max(480, Math.min(windowWidth, Screen.desktopAvailableWidth));

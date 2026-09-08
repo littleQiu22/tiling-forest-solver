@@ -99,22 +99,6 @@ ColumnLayout {
         }
     }
 
-    function statusColor(solveStatus) {
-        switch (solveStatus) {
-        case "Solved":
-            return AppTheme.success;
-        case "TimeLimit":
-        case "SolutionLimit":
-            return AppTheme.warning;
-        case "Unsolved":
-            return AppTheme.primary;
-        case "Solving":
-            return AppTheme.active;
-        default:
-            return AppTheme.danger;
-        }
-    }
-
     function clamp(value, minimum, maximum) {
         return Math.max(minimum, Math.min(maximum, value));
     }
@@ -351,7 +335,7 @@ ColumnLayout {
                                 radius: 9
                                 color: "transparent"
                                 border.width: 2
-                                border.color: root.statusColor(puzzleRecord.solveStatus)
+                                border.color: PuzzleStyle.solveStatusColor(puzzleRecord.solveStatus)
                             }
                         }
 
@@ -537,7 +521,7 @@ ColumnLayout {
                         radius: 9
                         color: "transparent"
                         border.width: 2
-                        border.color: root.statusColor(dragState.solveStatus)
+                        border.color: PuzzleStyle.solveStatusColor(dragState.solveStatus)
                     }
                 }
 

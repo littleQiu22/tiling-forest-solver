@@ -8,7 +8,7 @@ import app.manager
 
 AppMenu {
     id: root
-    title: "Edit"
+    title: qsTr("Edit")
 
     property WorkspaceManager workspaceManager
 

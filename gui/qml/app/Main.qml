@@ -10,11 +10,19 @@ import app.editor
 
 Window {
     id: root
-    title: (root.workspaceManager.workspace.isDirty ? "* " : "") + root.workspaceManager.displayName + qsTr(" | Tiling Forest Solver")
+    title: (root.workspaceManager.workspace.isDirty ? "* " : "") + root.displayName() + qsTr(" | Tiling Forest Solver")
     visible: false
 
     readonly property WorkspaceManager workspaceManager: WorkspaceManager {}
     property bool closeConfirmed: false
+
+    function displayName() {
+        if (root.workspaceManager.filePath)
+            return root.workspaceManager.filePath;
+        if (root.workspaceManager.templateName)
+            return root.workspaceManager.templateName;
+        return qsTr("Untitled");
+    }
 
     AlterDialog {
         id: alterDialog
@@ -84,6 +92,7 @@ Window {
     }
 
     Component.onCompleted: {
+        AppSettings.languageCode = Language.languageCode;
         if (root.loadStartupRecentFile())
             appLayout.tileEditorItem?.restoreCameraState(AppSettings.cameraState());
         AppSettings.restoreWindow(root);
