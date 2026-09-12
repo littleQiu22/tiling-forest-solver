@@ -25,24 +25,24 @@ Rectangle {
         case ToolMode.tileStatus:
             return qsTr("Tile Status");
         default:
-            return qsTr("View Mode");
+            return qsTr("Inspect");
         }
     }
 
     function guideText(mode) {
         switch (mode) {
         case ToolMode.puzzle:
-            return qsTr("Wheel: zoom | Left click: select/create puzzle | Right click: delete puzzle | Middle drag: pan");
+            return qsTr("Left click: select/create puzzle | Wheel: zoom | Middle drag: pan");
         case ToolMode.tile:
-            return qsTr("Wheel: zoom | Left drag: paint | Right drag: erase | Middle drag: pan");
+            return qsTr("Left drag: paint | Right drag: erase | Wheel: zoom | Middle drag: pan");
         case ToolMode.tileStatus:
-            return qsTr("Wheel: zoom | Left drag: set status | Right drag: reset status | Middle drag: pan");
+            return qsTr("Left drag: set status | Right drag: reset status | Wheel: zoom | Middle drag: pan");
         default:
-            return qsTr("Wheel: zoom | Left drag: pan | Middle drag: pan");
+            return qsTr("Wheel: zoom | Middle drag: pan");
         }
     }
 
-    readonly property string editorMode: editor?.mode ?? ToolMode.view
+    readonly property string editorMode: editor?.mode ?? ToolMode.inspect
     readonly property int editorTile: editor?.currentTile ?? Tile.GRASSLAND
     readonly property int editorStatus: editor?.currentStatus ?? Tile.NORMAL
     readonly property bool hasTilePreview: editorMode === ToolMode.tile

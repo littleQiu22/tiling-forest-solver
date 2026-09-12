@@ -82,10 +82,7 @@ Item {
         let screenRight = screenLeft + worldWidth * camera.zoom;
         let screenBottom = screenTop + worldHeight * camera.zoom;
 
-        return screenRight > 0
-            && screenBottom > 0
-            && screenLeft < root.width
-            && screenTop < root.height;
+        return screenRight > 0 && screenBottom > 0 && screenLeft < root.width && screenTop < root.height;
     }
 
     function centerOnWorldRect(worldX, worldY, worldWidth, worldHeight) {
@@ -300,6 +297,7 @@ Item {
                 required property real svgWidth
                 required property real svgHeight
                 required property string solveStatus
+                required property var placedGrids
                 required property bool isSelected
                 required property bool isGeometryStaled
 

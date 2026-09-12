@@ -95,19 +95,6 @@
     </message>
 </context>
 <context>
-    <name>Editor</name>
-    <message>
-        <location filename="../gui/qml/app/editor/Editor.qml" line="28"/>
-        <source>Confirm Action</source>
-        <translation>确认操作</translation>
-    </message>
-    <message>
-        <location filename="../gui/qml/app/editor/Editor.qml" line="28"/>
-        <source>Continue</source>
-        <translation>继续</translation>
-    </message>
-</context>
-<context>
     <name>EditorFooter</name>
     <message>
         <location filename="../gui/qml/app/editor/EditorFooter.qml" line="22"/>
@@ -126,28 +113,28 @@
     </message>
     <message>
         <location filename="../gui/qml/app/editor/EditorFooter.qml" line="28"/>
-        <source>View Mode</source>
-        <translation>视图模式</translation>
+        <source>Inspect</source>
+        <translation>只读</translation>
     </message>
     <message>
         <location filename="../gui/qml/app/editor/EditorFooter.qml" line="35"/>
-        <source>Wheel: zoom | Left click: select/create puzzle | Right click: delete puzzle | Middle drag: pan</source>
-        <translation>滚轮：缩放 | 左键：选择/创建谜题 | 右键：删除谜题 | 中键拖拽：平移</translation>
+        <source>Left click: select/create puzzle | Wheel: zoom | Middle drag: pan</source>
+        <translation>左键：选择/创建谜题 | 滚轮：缩放 | 中键拖拽：平移</translation>
     </message>
     <message>
         <location filename="../gui/qml/app/editor/EditorFooter.qml" line="37"/>
-        <source>Wheel: zoom | Left drag: paint | Right drag: erase | Middle drag: pan</source>
-        <translation>滚轮：缩放 | 左键拖拽：绘制瓦片 | 右键拖拽：擦除瓦片 | 中键拖拽：平移</translation>
+        <source>Left drag: paint | Right drag: erase | Wheel: zoom | Middle drag: pan</source>
+        <translation>左键拖拽：绘制 | 右键拖拽：擦除 | 滚轮：缩放 | 中键拖拽：平移</translation>
     </message>
     <message>
         <location filename="../gui/qml/app/editor/EditorFooter.qml" line="39"/>
-        <source>Wheel: zoom | Left drag: set status | Right drag: reset status | Middle drag: pan</source>
-        <translation>滚轮：缩放 | 左键拖拽：设置瓦片状态 | 右键拖拽：重置瓦片状态 | 中键拖拽：平移</translation>
+        <source>Left drag: set status | Right drag: reset status | Wheel: zoom | Middle drag: pan</source>
+        <translation>左键拖拽：设置状态 | 右键拖拽：重置状态 | 滚轮：缩放 | 中键拖拽：平移</translation>
     </message>
     <message>
         <location filename="../gui/qml/app/editor/EditorFooter.qml" line="41"/>
-        <source>Wheel: zoom | Left drag: pan | Middle drag: pan</source>
-        <translation>滚轮：缩放 | 左键拖拽：平移 | 中键拖拽：平移</translation>
+        <source>Wheel: zoom | Middle drag: pan</source>
+        <translation>滚轮：缩放 | 中键拖拽：平移</translation>
     </message>
 </context>
 <context>
@@ -505,8 +492,8 @@
     <name>ToolBrushBar</name>
     <message>
         <location filename="../gui/qml/app/editor/ToolBrushBar.qml" line="24"/>
-        <source>View</source>
-        <translation>视图</translation>
+        <source>Inspect</source>
+        <translation>只读</translation>
     </message>
     <message>
         <location filename="../gui/qml/app/editor/ToolBrushBar.qml" line="28"/>
@@ -517,7 +504,7 @@
 <context>
     <name>Viewport</name>
     <message>
-        <location filename="../gui/qml/app/editor/Viewport.qml" line="389"/>
+        <location filename="../gui/qml/app/editor/Viewport.qml" line="445"/>
         <source>Stale</source>
         <translation>待重建</translation>
     </message>

@@ -257,7 +257,8 @@ def extractPuzzle(
 
     if boundingBox.isOutRange(seed.row, seed.col):
         return PuzzleExtraction(
-            message=QCoreApplication.translate("PuzzleExtraction", "Puzzle creation failed: The selected empty area is not enclosed by tiles."),
+            message=QCoreApplication.translate(
+                "PuzzleExtraction", "Puzzle creation failed: The selected empty area is not enclosed by tiles."),
         )
 
     def isEmpty(grid: Grid) -> bool:
@@ -270,7 +271,8 @@ def extractPuzzle(
 
     def unbounded() -> PuzzleExtraction:
         return PuzzleExtraction(
-            message=QCoreApplication.translate("PuzzleExtraction", "The selected empty area is not enclosed."),
+            message=QCoreApplication.translate(
+                "PuzzleExtraction", "The selected empty area is not enclosed."),
         )
 
     def addPairedStumps() -> None:
@@ -369,28 +371,28 @@ PuzzleSolveStatus = SOLVER_STATUS
 
 
 TILE_POOL_CANDIDATES = [
-    TILE.TYPE.ROAD_WS,
     TILE.TYPE.ROAD_WE,
-    TILE.TYPE.ROAD_WN,
-    TILE.TYPE.ROAD_ES,
-    TILE.TYPE.ROAD_EN,
     TILE.TYPE.ROAD_NS,
-    TILE.TYPE.CLEARING_EN,
+    TILE.TYPE.ROAD_ES,
+    TILE.TYPE.ROAD_WS,
+    TILE.TYPE.ROAD_WN,
+    TILE.TYPE.ROAD_EN,
     TILE.TYPE.CLEARING_ES,
     TILE.TYPE.CLEARING_WS,
     TILE.TYPE.CLEARING_WN,
+    TILE.TYPE.CLEARING_EN,
     TILE.TYPE.CLEARING_E,
-    TILE.TYPE.CLEARING_W,
     TILE.TYPE.CLEARING_S,
+    TILE.TYPE.CLEARING_W,
     TILE.TYPE.CLEARING_N,
-    TILE.TYPE.CLEARING_E_ROAD_W,
     TILE.TYPE.CLEARING_W_ROAD_E,
-    TILE.TYPE.CLEARING_S_ROAD_N,
     TILE.TYPE.CLEARING_N_ROAD_S,
+    TILE.TYPE.CLEARING_E_ROAD_W,
+    TILE.TYPE.CLEARING_S_ROAD_N,
     TILE.TYPE.STUMP_E,
+    TILE.TYPE.STUMP_S,
     TILE.TYPE.STUMP_W,
     TILE.TYPE.STUMP_N,
-    TILE.TYPE.STUMP_S,
 ]
 
 

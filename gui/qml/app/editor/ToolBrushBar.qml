@@ -8,7 +8,7 @@ import app.models
 Item {
     id: root
 
-    readonly property string mode: selection.primaryItem?.mode ?? ToolMode.view
+    readonly property string mode: selection.primaryItem?.mode ?? ToolMode.inspect
     readonly property int currentTile: selection.activeItem?.tile ?? Tile.GRASSLAND
     readonly property int currentStatus: selection.activeItem?.status ?? Tile.UNEXPLORED
 
@@ -20,12 +20,17 @@ Item {
 
         readonly property var primaryItems: [
             {
-                "mode": ToolMode.view,
-                "label": qsTr("View")
+                "mode": ToolMode.inspect,
+                "label": qsTr("Inspect")
             },
             {
                 "mode": ToolMode.puzzle,
                 "label": qsTr("Puzzle")
+            },
+            {
+                "mode": ToolMode.tileStatus,
+                "status": Tile.UNEXPLORED,
+                "secondaryItems": items("status", [Tile.UNEXPLORED, Tile.BLOOMING])
             },
             {
                 "mode": ToolMode.tile,
@@ -35,37 +40,32 @@ Item {
             {
                 "mode": ToolMode.tile,
                 "tile": Tile.ROAD_E,
-                "secondaryItems": items("tile", [Tile.ROAD_E, Tile.ROAD_W, Tile.ROAD_N, Tile.ROAD_S])
+                "secondaryItems": items("tile", [Tile.ROAD_E, Tile.ROAD_S, Tile.ROAD_W, Tile.ROAD_N])
             },
             {
                 "mode": ToolMode.tile,
                 "tile": Tile.ROAD_WE,
-                "secondaryItems": items("tile", [Tile.ROAD_WE, Tile.ROAD_NS, Tile.ROAD_WS, Tile.ROAD_WN, Tile.ROAD_ES, Tile.ROAD_EN])
+                "secondaryItems": items("tile", [Tile.ROAD_WE, Tile.ROAD_NS, Tile.ROAD_ES, Tile.ROAD_WS, Tile.ROAD_WN, Tile.ROAD_EN])
             },
             {
                 "mode": ToolMode.tile,
                 "tile": Tile.CLEARING_EN,
-                "secondaryItems": items("tile", [Tile.CLEARING_EN, Tile.CLEARING_ES, Tile.CLEARING_WS, Tile.CLEARING_WN])
+                "secondaryItems": items("tile", [Tile.CLEARING_ES, Tile.CLEARING_WS, Tile.CLEARING_WN, Tile.CLEARING_EN])
             },
             {
                 "mode": ToolMode.tile,
                 "tile": Tile.CLEARING_E,
-                "secondaryItems": items("tile", [Tile.CLEARING_E, Tile.CLEARING_W, Tile.CLEARING_S, Tile.CLEARING_N])
-            },
-            {
-                "mode": ToolMode.tile,
-                "tile": Tile.STUMP_E,
-                "secondaryItems": items("tile", [Tile.STUMP_W, Tile.STUMP_E, Tile.STUMP_N, Tile.STUMP_S])
+                "secondaryItems": items("tile", [Tile.CLEARING_E, Tile.CLEARING_S, Tile.CLEARING_W, Tile.CLEARING_N])
             },
             {
                 "mode": ToolMode.tile,
                 "tile": Tile.CLEARING_W_ROAD_E,
-                "secondaryItems": items("tile", [Tile.CLEARING_E_ROAD_W, Tile.CLEARING_W_ROAD_E, Tile.CLEARING_S_ROAD_N, Tile.CLEARING_N_ROAD_S])
+                "secondaryItems": items("tile", [Tile.CLEARING_W_ROAD_E, Tile.CLEARING_N_ROAD_S, Tile.CLEARING_E_ROAD_W, Tile.CLEARING_S_ROAD_N])
             },
             {
-                "mode": ToolMode.tileStatus,
-                "status": Tile.UNEXPLORED,
-                "secondaryItems": items("status", [Tile.UNEXPLORED, Tile.BLOOMING])
+                "mode": ToolMode.tile,
+                "tile": Tile.STUMP_E,
+                "secondaryItems": items("tile", [Tile.STUMP_E, Tile.STUMP_S, Tile.STUMP_W, Tile.STUMP_N])
             },
         ]
 

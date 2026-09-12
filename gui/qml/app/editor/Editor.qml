@@ -22,15 +22,6 @@ Rectangle {
         }
     }
 
-    function deletePuzzle(row, col) {
-        let reason = root.workspace.deletePuzzleAt(row, col, true);
-        if (!!reason) {
-            Services.confirm(() => root.workspace.deletePuzzleAt(row, col), reason, qsTr("Confirm Action"), qsTr("Continue"));
-        } else {
-            root.workspace.deletePuzzleAt(row, col);
-        }
-    }
-
     function focusPuzzleInViewport(puzzleId) {
         const geometry = root.workspace.puzzles.geometryById(puzzleId);
         if (viewport.isWorldRectVisible(geometry.x, geometry.y, geometry.width, geometry.height))
@@ -87,11 +78,8 @@ Rectangle {
 
     function handleGridClick(row, col, button) {
         if (toolBrushBar.mode === ToolMode.puzzle) {
-            if (button === Qt.LeftButton) {
+            if (button === Qt.LeftButton)
                 root.selectOrCreatePuzzle(row, col);
-            } else if (button === Qt.RightButton) {
-                root.deletePuzzle(row, col);
-            }
             return;
         }
 
@@ -114,7 +102,7 @@ Rectangle {
         }
 
         onPointerDragged: function (screenX, screenY, dx, dy, button) {
-            if (button === Qt.MiddleButton || (toolBrushBar.mode === ToolMode.view && button === Qt.LeftButton))
+            if (button === Qt.MiddleButton)
                 viewport.panBy(dx, dy);
         }
 

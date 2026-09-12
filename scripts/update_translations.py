@@ -76,6 +76,7 @@ def main() -> int:
         translationFile.parent.mkdir(exist_ok=True)
         run([
             pysideTool("lupdate"),
+            "-no-obsolete",
             *sourceFiles(),
             "-ts",
             str(translationFile),
