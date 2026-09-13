@@ -57,18 +57,30 @@ jobs:
 
     steps:
       - name: Download packages
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           pattern: TilingForestSolver-*
           path: release-artifacts
           merge-multiple: true
 
+      - name: Check packages
+        shell: bash
+        run: |
+          find release-artifacts -type f -print
+          find release-artifacts -type f -name '*.zip' | sort > package-files.txt
+          if [ ! -s package-files.txt ]; then
+            echo "::error::No package zip files were downloaded."
+            exit 1
+          fi
+
       - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
+        shell: bash
         run: |
+          mapfile -t packages < package-files.txt
           if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
-            gh release upload "$GITHUB_REF_NAME" release-artifacts/*.zip --clobber
+            gh release upload "$GITHUB_REF_NAME" "${packages[@]}" --clobber
           else
-            gh release create "$GITHUB_REF_NAME" release-artifacts/*.zip --title "$GITHUB_REF_NAME" --generate-notes
+            gh release create "$GITHUB_REF_NAME" "${packages[@]}" --title "$GITHUB_REF_NAME" --generate-notes
           fi
