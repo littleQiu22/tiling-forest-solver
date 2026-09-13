@@ -58,7 +58,7 @@ Window {
 
             workspaceManager: root.workspaceManager
 
-            menuBar: AppMenuBar {
+            menuBar: MainMenuBar {
                 workspaceManager: root.workspaceManager
             }
 

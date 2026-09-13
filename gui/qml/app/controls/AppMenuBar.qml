@@ -4,12 +4,9 @@ import QtQuick
 import QtQuick.Controls
 
 import app.global
-import app.manager
 
 MenuBar {
     id: root
-
-    required property WorkspaceManager workspaceManager
 
     property alias color: background.color
     property color itemHoverColor: AppTheme.hoverOverlay
@@ -50,14 +47,4 @@ MenuBar {
             color: root.itemTextColor
         }
     }
-
-    FileMenu {
-        workspaceManager: root.workspaceManager
-    }
-
-    EditMenu {
-        workspaceManager: root.workspaceManager
-    }
-
-    LanguageMenu {}
 }

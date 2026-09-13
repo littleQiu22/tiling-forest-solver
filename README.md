@@ -53,6 +53,28 @@ For a deeper description of the modeling ideas, check out the [Full Modeling Det
 | **Modeling** | [cpmpy](https://github.com/CPMpy/cpmpy)                  | Constraint Programming Modeling Layer | [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0) |
 | **Solver**   | [OR-Tools (CP-SAT)](https://github.com/google/or-tools)  | Constraint Programming Solver         | [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0) |
 
+## Packaging
+
+Local packages are built with PyInstaller through one project script:
+
+```powershell
+uv sync --dev
+uv run python scripts/build_package.py --clean
+```
+
+The packaged application is written under `dist/`. On Windows this is
+`dist/TilingForestSolver`; on macOS PyInstaller may produce an `.app` bundle.
+The script collects the Python entry point, QML files, image assets, templates,
+translations, and the solver worker route used by the GUI process. It also
+creates a platform-named zip archive such as `dist/TilingForestSolver-Windows.zip`.
+Project-local PyInstaller hooks keep the package focused on the Qt/QML modules
+used by this app and replace OR-Tools' top-level pandas import with a small
+packaging stub, so unused GUI and data-science modules are not shipped.
+
+GitHub Actions runs the same script on `windows-latest`, `macos-latest`, and
+`ubuntu-latest` whenever a commit is pushed to `main`, and uploads each platform
+package as a workflow artifact.
+
 ## License
 
 The project is licensed under the [MIT License](LICENSE).

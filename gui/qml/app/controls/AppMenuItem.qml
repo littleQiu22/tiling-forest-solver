@@ -20,19 +20,34 @@ MenuItem {
         color: root.highlighted ? AppTheme.hoverOverlay : "transparent"
     }
 
+    indicator: Item {}
     arrow: Item {}
 
     contentItem: RowLayout {
         spacing: 8
 
-        Text {
-            text: root.checked ? "✓" : ""
-            font: root.font
-            color: AppTheme.textPrimary
+        Item {
             visible: root.checkable
-            verticalAlignment: Text.AlignVCenter
             Layout.preferredWidth: 14
+            Layout.preferredHeight: 14
             Layout.alignment: Qt.AlignVCenter
+
+            Rectangle {
+                anchors.centerIn: parent
+                width: 12
+                height: 12
+                radius: 3
+                visible: root.checked
+                color: AppTheme.primary
+
+                Text {
+                    anchors.centerIn: parent
+                    text: "✓"
+                    color: AppTheme.surface
+                    font.pixelSize: 9
+                    font.bold: true
+                }
+            }
         }
 
         Text {

@@ -1,9 +1,12 @@
 module app.controls
 AppMenuBar 1.0 AppMenuBar.qml
+MainMenuBar 1.0 MainMenuBar.qml
 AppMenu 1.0 AppMenu.qml
 AppMenuItem 1.0 AppMenuItem.qml
 AppButton 1.0 AppButton.qml
+AppCheckBox 1.0 AppCheckBox.qml
 AppDialog 1.0 AppDialog.qml
+AppTextField 1.0 AppTextField.qml
 AlterDialog 1.0 AlterDialog.qml
 ConfirmDialog 1.0 ConfirmDialog.qml
 EditMenu 1.0 EditMenu.qml

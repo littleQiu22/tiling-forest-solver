@@ -2,3 +2,10 @@ _*
 .*
 
 !.gitignore
+!.github/
+!.github/workflows/
+!.github/workflows/*.yml
+
+build/
+dist/
+*.spec

@@ -1,5 +1,6 @@
 import sys
 import signal
+import os
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 
@@ -39,6 +40,7 @@ def createQmlEngine(app: QGuiApplication) -> QQmlApplicationEngine:
 
 
 def main() -> int:
+    os.environ.setdefault("QT_QUICK_CONTROLS_STYLE", "Basic")
     app = QGuiApplication(sys.argv)
     configure_application()
     app.setWindowIcon(QIcon(getAsset("logo.png")))

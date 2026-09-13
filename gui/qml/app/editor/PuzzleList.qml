@@ -117,6 +117,15 @@ ColumnLayout {
         }
     }
 
+    function finishRename(puzzleId, name) {
+        if (root.renamingId !== puzzleId)
+            return;
+
+        root.workspace.renamePuzzle(puzzleId, name);
+        root.renamingId = "";
+        listFrame.forceActiveFocus();
+    }
+
     function focusPuzzleRecord(puzzleId) {
         let index = root.workspace.puzzles.indexById(puzzleId);
         if (index < 0)
@@ -231,11 +240,7 @@ ColumnLayout {
     }
 
     function dragPreviewY() {
-        return root.clamp(
-            dragState.pointerY - root.recordHeight / 2,
-            0,
-            Math.max(0, listFrame.height - root.recordHeight)
-        );
+        return root.clamp(dragState.pointerY - root.recordHeight / 2, 0, Math.max(0, listFrame.height - root.recordHeight));
     }
 
     function finishPuzzleDrag(puzzleId, shouldCommit) {
@@ -261,6 +266,7 @@ ColumnLayout {
         Layout.fillWidth: true
         Layout.fillHeight: true
         clip: true
+        focus: true
 
         ListView {
             id: puzzleList
@@ -330,27 +336,23 @@ ColumnLayout {
 
                             Rectangle {
                                 anchors.centerIn: parent
-                                width: 18
-                                height: 18
-                                radius: 9
-                                color: "transparent"
-                                border.width: 2
-                                border.color: PuzzleStyle.resultStatusColor(puzzleRecord.resultStatus)
+                                width: 8
+                                height: 8
+                                radius: 4
+                                color: PuzzleStyle.resultStatusColor(puzzleRecord.resultStatus)
                             }
                         }
 
-                        TextInput {
+                        AppTextField {
                             id: renameInput
 
                             Layout.fillWidth: true
                             visible: root.renamingId === puzzleRecord.puzzleId
                             text: root.renamingText
                             selectByMouse: true
-                            color: AppTheme.textPrimary
 
                             onEditingFinished: {
-                                root.workspace.renamePuzzle(puzzleRecord.puzzleId, text);
-                                root.renamingId = "";
+                                root.finishRename(puzzleRecord.puzzleId, text);
                             }
                         }
 

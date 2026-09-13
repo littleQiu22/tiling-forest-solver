@@ -263,7 +263,7 @@ ScrollView {
                         width: parent.width
                         spacing: 6
 
-                        CheckBox {
+                        AppCheckBox {
                             Layout.fillWidth: true
                             checked: modelData.enabled
                             text: root.objectiveLabel(modelData.key)
@@ -306,7 +306,7 @@ ScrollView {
                 Repeater {
                     model: root.workspace.puzzleView.constraintItems
 
-                    delegate: CheckBox {
+                    delegate: AppCheckBox {
                         required property var modelData
 
                         checked: modelData.enabled
@@ -340,10 +340,10 @@ ScrollView {
                     Layout.fillWidth: true
                     spacing: 6
 
-                    CheckBox {
+                    AppCheckBox {
                         text: qsTr("Time limit(s)")
                         checked: root.workspace.puzzleView.hasTimeLimit
-                        onClicked: root.workspace.setPuzzleLimit(root.workspace.puzzleView.puzzleId, "time", checked, timeLimitSpinBox.value)
+                        onClicked: root.workspace.setPuzzleLimit(root.workspace.puzzleView.puzzleId, "time", checked, Number(timeLimitField.text))
                     }
 
                     Item {
@@ -352,18 +352,21 @@ ScrollView {
 
                     Item {
                         Layout.preferredWidth: 88
-                        Layout.preferredHeight: Math.max(timeLimitSpinBox.implicitHeight, timeLimitUnlimited.implicitHeight)
+                        Layout.preferredHeight: Math.max(timeLimitField.implicitHeight, timeLimitUnlimited.implicitHeight)
 
-                        SpinBox {
-                            id: timeLimitSpinBox
+                        AppTextField {
+                            id: timeLimitField
 
                             anchors.fill: parent
                             visible: root.workspace.puzzleView.hasTimeLimit
-                            editable: true
-                            from: 1
-                            to: 86400
-                            value: root.workspace.puzzleView.timeLimit
-                            onValueModified: root.workspace.setPuzzleLimit(root.workspace.puzzleView.puzzleId, "time", root.workspace.puzzleView.hasTimeLimit, value)
+                            text: String(root.workspace.puzzleView.timeLimit)
+                            horizontalAlignment: TextInput.AlignHCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            validator: IntValidator {
+                                bottom: 1
+                                top: 86400
+                            }
+                            onEditingFinished: root.workspace.setPuzzleLimit(root.workspace.puzzleView.puzzleId, "time", root.workspace.puzzleView.hasTimeLimit, Number(text))
                         }
 
                         Label {
@@ -381,10 +384,10 @@ ScrollView {
                     Layout.fillWidth: true
                     spacing: 6
 
-                    CheckBox {
+                    AppCheckBox {
                         text: qsTr("Solution limit")
                         checked: root.workspace.puzzleView.hasSolutionLimit
-                        onClicked: root.workspace.setPuzzleLimit(root.workspace.puzzleView.puzzleId, "solution", checked, solutionLimitSpinBox.value)
+                        onClicked: root.workspace.setPuzzleLimit(root.workspace.puzzleView.puzzleId, "solution", checked, Number(solutionLimitField.text))
                     }
 
                     Item {
@@ -393,18 +396,21 @@ ScrollView {
 
                     Item {
                         Layout.preferredWidth: 88
-                        Layout.preferredHeight: Math.max(solutionLimitSpinBox.implicitHeight, solutionLimitUnlimited.implicitHeight)
+                        Layout.preferredHeight: Math.max(solutionLimitField.implicitHeight, solutionLimitUnlimited.implicitHeight)
 
-                        SpinBox {
-                            id: solutionLimitSpinBox
+                        AppTextField {
+                            id: solutionLimitField
 
                             anchors.fill: parent
                             visible: root.workspace.puzzleView.hasSolutionLimit
-                            editable: true
-                            from: 1
-                            to: 10000
-                            value: root.workspace.puzzleView.solutionLimit
-                            onValueModified: root.workspace.setPuzzleLimit(root.workspace.puzzleView.puzzleId, "solution", root.workspace.puzzleView.hasSolutionLimit, value)
+                            text: String(root.workspace.puzzleView.solutionLimit)
+                            horizontalAlignment: TextInput.AlignHCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            validator: IntValidator {
+                                bottom: 1
+                                top: 10000
+                            }
+                            onEditingFinished: root.workspace.setPuzzleLimit(root.workspace.puzzleView.puzzleId, "solution", root.workspace.puzzleView.hasSolutionLimit, Number(text))
                         }
 
                         Label {
@@ -451,7 +457,7 @@ ScrollView {
                     onClicked: root.workspace.previousPuzzleSolution(root.workspace.puzzleView.puzzleId)
                 }
 
-                TextField {
+                AppTextField {
                     Layout.preferredWidth: 56
                     text: root.workspace.puzzleView.currentSolutionIndex >= 0 ? String(root.workspace.puzzleView.currentSolutionIndex + 1) : ""
                     horizontalAlignment: TextInput.AlignHCenter
