@@ -585,6 +585,7 @@ class TilingSolver:
             if objValue is not None:
                 objValue = int(objValue)
             self._setPhase(SOLVER_PHASE.OPTIMIZE_GOAL, goal, objValue)
+            self._guardedCallback(SOLVER_STATUS.SOLVING)
             self._addGoalBound(goal, objValue)
             lastSolution = solution
 
