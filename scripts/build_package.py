@@ -104,8 +104,15 @@ def createArchive(appName: str, outputDir: Path) -> Path:
     archiveBase = outputDir / f"{appName}-{platformName()}"
     archivePath = archiveBase.with_suffix(".zip")
     archivePath.unlink(missing_ok=True)
-    shutil.make_archive(str(archiveBase), "zip", outputDir, appName)
+    shutil.make_archive(str(archiveBase), "zip", outputDir / appName)
     return archivePath
+
+
+def iconArgs() -> list[str]:
+    icon = PROJECT_ROOT / "gui" / "qml" / "app" / "assets" / "logo.ico"
+    if platform.system() == "Windows" and icon.exists():
+        return ["--icon", str(icon)]
+    return []
 
 
 def removePath(path: Path) -> None:
@@ -174,6 +181,7 @@ def buildPackage(appName: str, outputDir: Path, clean: bool, archive: bool, cons
         str(PROJECT_ROOT),
         "--additional-hooks-dir",
         str(PROJECT_ROOT / "hooks"),
+        *iconArgs(),
         "--hidden-import",
         "PySide6.QtQuick",
         "--hidden-import",

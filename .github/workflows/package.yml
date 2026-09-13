@@ -41,4 +41,5 @@ jobs:
         with:
           name: TilingForestSolver-${{ runner.os }}
           path: dist/*.zip
+          archive: false
           if-no-files-found: error
