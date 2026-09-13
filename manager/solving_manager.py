@@ -42,7 +42,8 @@ class SolvingManager(QObject):
                 PuzzleListModel.SolutionCountRole,
                 PuzzleListModel.CurrentSolutionIndexRole,
                 PuzzleListModel.SolvingLogRole,
-                PuzzleListModel.SolveStatusRole
+                PuzzleListModel.SolveStatusRole,
+                PuzzleListModel.ResultStatusRole,
             ],
         )
         self._workspace._markBackgroundDirty()
@@ -170,12 +171,16 @@ class SolvingManager(QObject):
                 PuzzleListModel.CurrentSolutionRole,
                 PuzzleListModel.SolutionCountRole,
                 PuzzleListModel.CurrentSolutionIndexRole,
+                PuzzleListModel.ResultStatusRole,
             ])
 
         status = event.get("status", None)
         if status is not None:
             state.solveStatus = SOLVER_STATUS(str(status))
-            roles.append(PuzzleListModel.SolveStatusRole)
+            roles.extend([
+                PuzzleListModel.SolveStatusRole,
+                PuzzleListModel.ResultStatusRole,
+            ])
 
         if not roles:
             return

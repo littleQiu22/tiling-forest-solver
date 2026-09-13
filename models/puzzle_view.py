@@ -33,6 +33,7 @@ class PuzzleView(QObject):
     hasPuzzleChanged = Signal()
     nameChanged = Signal()
     solveStatusChanged = Signal()
+    resultStatusChanged = Signal()
     isGeometryStaledChanged = Signal()
     tilePoolItemsChanged = Signal()
     objectiveItemsChanged = Signal()
@@ -71,6 +72,10 @@ class PuzzleView(QObject):
     def solveStatus(self) -> str:
         state = self._state()
         return PuzzleSolveStatus.UNSOLVED.value if state is None else state.solveStatus.value
+
+    @Property(str, notify=resultStatusChanged)
+    def resultStatus(self) -> str:
+        return self._workspace._puzzles.resultStatusById(self._puzzleId).value
 
     @Property(bool, notify=isGeometryStaledChanged)
     def isGeometryStaled(self) -> bool:
@@ -226,6 +231,8 @@ class PuzzleView(QObject):
             self.isGeometryStaledChanged.emit()
         if not roles or PuzzleListModel.SolveStatusRole in roles:
             self.solveStatusChanged.emit()
+        if not roles or PuzzleListModel.ResultStatusRole in roles:
+            self.resultStatusChanged.emit()
         if not roles or PuzzleListModel.ObjectiveItemsRole in roles:
             self.objectiveItemsChanged.emit()
         if not roles or PuzzleListModel.ConstraintItemsRole in roles:
@@ -249,6 +256,7 @@ class PuzzleView(QObject):
         self.hasPuzzleChanged.emit()
         self.nameChanged.emit()
         self.solveStatusChanged.emit()
+        self.resultStatusChanged.emit()
         self.isGeometryStaledChanged.emit()
         self.tilePoolItemsChanged.emit()
         self.objectiveItemsChanged.emit()

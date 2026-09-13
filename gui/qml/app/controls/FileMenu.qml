@@ -94,18 +94,9 @@ AppMenu {
 
     // Runs loadFn after handling an unsaved/untitled workspace.
     function openDocument(loadFn) {
-        let ws = root.workspaceManager.workspace;
-        if (ws.isDirty) {
-            if (!!root.workspaceManager.filePath) {
-                let response = root.workspaceManager.save();
-                if (!response.status) {
-                    Services.alert(response.message);
-                    return;
-                }
-            } else {
-                Services.confirm(loadFn, qsTr("The current workspace has unsaved changes. They will be discarded."), qsTr("Discard Unsaved Workspace?"), qsTr("Discard && Continue"));
-                return;
-            }
+        if (root.workspaceManager.workspace.isDirty) {
+            Services.confirm(loadFn, qsTr("The current workspace has unsaved changes. They will be discarded."), qsTr("Discard Unsaved Workspace?"), qsTr("Discard && Continue"));
+            return;
         }
         loadFn();
     }
@@ -143,7 +134,9 @@ AppMenu {
                     let response = root.workspaceManager.load(filePath);
                     if (!response.status) {
                         Qt.callLater(() => AppSettings.removeRecentFile(filePath));
+                        return;
                     }
+                    AppSettings.addRecentFile(root.workspaceManager.filePath);
                 })
             }
         }
@@ -157,6 +150,7 @@ AppMenu {
             model: root.workspaceManager.templates
             delegate: AppMenuItem {
                 text: modelData
+                textElide: Text.ElideMiddle
 
                 onTriggered: openDocument(() => {
                     let response = root.workspaceManager.loadTemplate(modelData);

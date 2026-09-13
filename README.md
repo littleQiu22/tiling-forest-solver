@@ -30,8 +30,6 @@ The project consists of two core components:
   - **Max Density**: Fill as many empty spaces as possible.
   - **Min Unexplored**: Prefer road networks with fewer unexplored tiles.
 
-- **Multi-Region Joint Solving**: Since placement in one puzzle region can affect adjacent ones, the GUI allows selecting and solving multiple interconnected regions simultaneously.
-
 - **Fine-Grained Solver Controls & Result Sorting**:
   - **Solver Limits**: Set constraints on solving time and the maximum number of returned solutions.
   - **Interactive Visualization**: Sort and inspect solutions directly in the GUI based on density or connectivity metrics.

@@ -264,7 +264,7 @@ Item {
                             text: modelData.label
                             color: AppTheme.textPrimary
                             font.bold: true
-                            font.pixelSize: 14
+                            font.pixelSize: 12
                         }
                     }
 

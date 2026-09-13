@@ -28,7 +28,7 @@ ColumnLayout {
         property bool active: false
         property string puzzleId: ""
         property string puzzleName: ""
-        property string solveStatus: ""
+        property string resultStatus: ""
         property bool isGeometryStaled: false
         property int dropIndex: -1
         property real pointerY: 0
@@ -37,7 +37,7 @@ ColumnLayout {
         property real pressedY: 0
         property string pressedPuzzleId: ""
         property string pressedPuzzleName: ""
-        property string pressedSolveStatus: ""
+        property string pressedResultStatus: ""
         property bool pressedIsGeometryStaled: false
 
         readonly property int dragThreshold: 2
@@ -46,7 +46,7 @@ ColumnLayout {
             pressedY = listY;
             pressedPuzzleId = item.puzzleId;
             pressedPuzzleName = item.name;
-            pressedSolveStatus = item.solveStatus;
+            pressedResultStatus = item.resultStatus;
             pressedIsGeometryStaled = item.isGeometryStaled;
             hoveredPuzzleId = pressedPuzzleId;
             updateDropIndexFromListY(listY);
@@ -64,7 +64,7 @@ ColumnLayout {
             active = true;
             puzzleId = pressedPuzzleId;
             puzzleName = pressedPuzzleName;
-            solveStatus = pressedSolveStatus;
+            resultStatus = pressedResultStatus;
             isGeometryStaled = pressedIsGeometryStaled;
             updateDropIndexFromListY(listY);
         }
@@ -78,7 +78,7 @@ ColumnLayout {
             pressedY = 0;
             pressedPuzzleId = "";
             pressedPuzzleName = "";
-            pressedSolveStatus = "";
+            pressedResultStatus = "";
             pressedIsGeometryStaled = false;
         }
 
@@ -86,7 +86,7 @@ ColumnLayout {
             active = false;
             puzzleId = "";
             puzzleName = "";
-            solveStatus = "";
+            resultStatus = "";
             isGeometryStaled = false;
             dropIndex = -1;
             pointerY = 0;
@@ -279,7 +279,7 @@ ColumnLayout {
 
                 required property string puzzleId
                 required property string name
-                required property string solveStatus
+                required property string resultStatus
                 required property bool isGeometryStaled
                 required property bool isSelected
                 width: puzzleList.width
@@ -335,7 +335,7 @@ ColumnLayout {
                                 radius: 9
                                 color: "transparent"
                                 border.width: 2
-                                border.color: PuzzleStyle.solveStatusColor(puzzleRecord.solveStatus)
+                                border.color: PuzzleStyle.resultStatusColor(puzzleRecord.resultStatus)
                             }
                         }
 
@@ -521,7 +521,7 @@ ColumnLayout {
                         radius: 9
                         color: "transparent"
                         border.width: 2
-                        border.color: PuzzleStyle.solveStatusColor(dragState.solveStatus)
+                        border.color: PuzzleStyle.resultStatusColor(dragState.resultStatus)
                     }
                 }
 

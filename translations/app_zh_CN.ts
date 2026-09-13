@@ -290,12 +290,12 @@
 <context>
     <name>PuzzleExtraction</name>
     <message>
-        <location filename="../models/puzzle.py" line="260"/>
+        <location filename="../models/puzzle.py" line="261"/>
         <source>Puzzle creation failed: The selected empty area is not enclosed by tiles.</source>
         <translation>创建谜题失败：选中的空白区域没有被瓦片封闭。</translation>
     </message>
     <message>
-        <location filename="../models/puzzle.py" line="273"/>
+        <location filename="../models/puzzle.py" line="275"/>
         <source>The selected empty area is not enclosed.</source>
         <translation>选中的空白区域没有被封闭。</translation>
     </message>
@@ -310,7 +310,7 @@
     <message>
         <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="26"/>
         <source>Stale</source>
-        <translation>待重建</translation>
+        <translation>已变动</translation>
     </message>
     <message>
         <location filename="../gui/qml/app/editor/PuzzleInspector.qml" line="33"/>
@@ -480,7 +480,7 @@
         <location filename="../gui/qml/app/editor/PuzzleList.qml" line="360"/>
         <location filename="../gui/qml/app/editor/PuzzleList.qml" line="530"/>
         <source> | Stale</source>
-        <translation> | 待重建</translation>
+        <translation> | 已变动</translation>
     </message>
     <message>
         <location filename="../gui/qml/app/editor/PuzzleList.qml" line="366"/>
@@ -504,9 +504,9 @@
 <context>
     <name>Viewport</name>
     <message>
-        <location filename="../gui/qml/app/editor/Viewport.qml" line="445"/>
+        <location filename="../gui/qml/app/editor/Viewport.qml" line="388"/>
         <source>Stale</source>
-        <translation>待重建</translation>
+        <translation>已变动</translation>
     </message>
 </context>
 <context>
@@ -532,12 +532,12 @@
         <translation>未找到谜题。</translation>
     </message>
     <message>
-        <location filename="../models/workspace.py" line="773"/>
+        <location filename="../models/workspace.py" line="774"/>
         <source>Cannot rebuild stale puzzle: no empty seed grid remains.</source>
         <translation>无法重建谜题：没有剩余的空白种子格。</translation>
     </message>
     <message>
-        <location filename="../models/workspace.py" line="791"/>
+        <location filename="../models/workspace.py" line="792"/>
         <source>Cannot rebuild stale puzzle from the selected empty seed.</source>
         <translation>无法从选中的空白种子格重建谜题。</translation>
     </message>

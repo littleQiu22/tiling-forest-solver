@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import itertools as it
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Any
 from uuid import uuid4
 
@@ -370,6 +371,15 @@ def extractPuzzle(
 PuzzleSolveStatus = SOLVER_STATUS
 
 
+class PuzzleResultStatus(Enum):
+    COMPLETE_SOLUTION = "CompleteSolution"
+    PARTIAL_SOLUTION = "PartialSolution"
+    SOLVING = "Solving"
+    INFEASIBLE = "Infeasible"
+    PENDING = "Pending"
+    ERROR = "Error"
+
+
 TILE_POOL_CANDIDATES = [
     TILE.TYPE.ROAD_WE,
     TILE.TYPE.ROAD_NS,
@@ -518,6 +528,7 @@ class PuzzleListModel(QAbstractListModel):
     SolutionCountRole = IndexRole + 22
     CurrentSolutionIndexRole = IndexRole + 23
     SolvingLogRole = IndexRole + 24
+    ResultStatusRole = IndexRole + 25
 
     def __init__(self, parent: QObject | None = None) -> None:
         super().__init__(parent)
@@ -566,6 +577,8 @@ class PuzzleListModel(QAbstractListModel):
                 return puzzleState.isSelected
             case self.SolveStatusRole:
                 return puzzleState.solveStatus.value
+            case self.ResultStatusRole:
+                return self._resultStatus(puzzle, puzzleState).value
             case self.SvgPathsRole:
                 return puzzle.svgPaths
             case self.SvgXRole:
@@ -609,6 +622,7 @@ class PuzzleListModel(QAbstractListModel):
             self.IsGeometryStaledRole: QByteArray(b"isGeometryStaled"),
             self.IsSelectedRole: QByteArray(b"isSelected"),
             self.SolveStatusRole: QByteArray(b"solveStatus"),
+            self.ResultStatusRole: QByteArray(b"resultStatus"),
             self.SvgPathsRole: QByteArray(b"svgPaths"),
             self.SvgXRole: QByteArray(b"svgX"),
             self.SvgYRole: QByteArray(b"svgY"),
@@ -789,6 +803,7 @@ class PuzzleListModel(QAbstractListModel):
                 self.PlacedGridCountRole,
                 self.EmptyGridsRole,
                 self.PlacedGridsRole,
+                self.ResultStatusRole,
                 self.SvgPathsRole,
                 self.SvgXRole,
                 self.SvgYRole,
@@ -878,6 +893,7 @@ class PuzzleListModel(QAbstractListModel):
                     self.IsGeometryStaledRole,
                     self.SolveStatusRole,
                     self.CurrentSolutionRole,
+                    self.ResultStatusRole,
                 ],
             )
 
@@ -950,6 +966,30 @@ class PuzzleListModel(QAbstractListModel):
             }
             for grid, tile in sorted(solution.items(), key=lambda item: (item[0].row, item[0].col))
         ]
+
+    def _resultStatus(self, puzzle: Puzzle, puzzleState: PuzzleState) -> PuzzleResultStatus:
+        if 0 <= puzzleState.currentSolutionIndex < len(puzzleState.solutions):
+            solution = puzzleState.solutions[puzzleState.currentSolutionIndex]
+            if len(solution) == len(puzzle.emptyGrids):
+                return PuzzleResultStatus.COMPLETE_SOLUTION
+            return PuzzleResultStatus.PARTIAL_SOLUTION
+
+        match puzzleState.solveStatus:
+            case PuzzleSolveStatus.SOLVING:
+                return PuzzleResultStatus.SOLVING
+            case PuzzleSolveStatus.INFEASIBLE:
+                return PuzzleResultStatus.INFEASIBLE
+            case PuzzleSolveStatus.INTERNAL_ERROR:
+                return PuzzleResultStatus.ERROR
+            case _:
+                return PuzzleResultStatus.PENDING
+
+    def resultStatusById(self, puzzleId: str) -> PuzzleResultStatus:
+        puzzle = self.puzzleById(puzzleId)
+        puzzleState = self.puzzleStateById(puzzleId)
+        if puzzle is None or puzzleState is None:
+            return PuzzleResultStatus.PENDING
+        return self._resultStatus(puzzle, puzzleState)
 
     def _emitRoles(self, index: int, roles: list[int]) -> None:
         modelIndex = self.index(index, 0)

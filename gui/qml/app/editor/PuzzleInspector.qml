@@ -122,7 +122,7 @@ ScrollView {
                 id: summaryLabel
 
                 text: root.puzzleSummary()
-                color: summaryHover.hovered ? AppTheme.primary : (root.workspace.puzzleView.hasPuzzle ? PuzzleStyle.solveStatusColor(root.workspace.puzzleView.solveStatus) : AppTheme.textPrimary)
+                color: summaryHover.hovered ? AppTheme.primary : (root.workspace.puzzleView.hasPuzzle ? PuzzleStyle.resultStatusColor(root.workspace.puzzleView.resultStatus) : AppTheme.textPrimary)
                 font.bold: true
                 elide: Text.ElideRight
 

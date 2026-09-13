@@ -2,19 +2,19 @@ pragma Singleton
 import QtQuick
 
 QtObject {
-    function solveStatusColor(solveStatus) {
-        switch (solveStatus) {
-        case "Solved":
+    function resultStatusColor(resultStatus) {
+        switch (resultStatus) {
+        case "CompleteSolution":
             return AppTheme.success;
-        case "TimeLimit":
-        case "SolutionLimit":
-            return AppTheme.warning;
-        case "Unsolved":
-            return AppTheme.primary;
+        case "PartialSolution":
+            return AppTheme.muted;
         case "Solving":
             return AppTheme.active;
-        default:
+        case "Infeasible":
+        case "Error":
             return AppTheme.danger;
+        default:
+            return AppTheme.warning;
         }
     }
 }

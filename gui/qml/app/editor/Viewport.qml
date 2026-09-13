@@ -297,6 +297,7 @@ Item {
                 required property real svgWidth
                 required property real svgHeight
                 required property string solveStatus
+                required property string resultStatus
                 required property var placedGrids
                 required property bool isSelected
                 required property bool isGeometryStaled
@@ -347,7 +348,7 @@ Item {
 
                         ShapePath {
                             fillColor: "transparent"
-                            strokeColor: PuzzleStyle.solveStatusColor(puzzleOutlineDelegate.solveStatus)
+                            strokeColor: PuzzleStyle.resultStatusColor(puzzleOutlineDelegate.resultStatus)
                             strokeWidth: 5 / camera.zoom
                             capStyle: ShapePath.RoundCap
                             joinStyle: ShapePath.RoundJoin

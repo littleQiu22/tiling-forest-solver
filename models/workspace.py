@@ -663,6 +663,7 @@ class Workspace(QObject):
             [
                 PuzzleListModel.CurrentSolutionRole,
                 PuzzleListModel.CurrentSolutionIndexRole,
+                PuzzleListModel.ResultStatusRole,
             ],
         )
 
@@ -796,7 +797,10 @@ class Workspace(QObject):
             puzzleState.isGeometryStaled = False
             self._puzzles.emitPuzzleChanged(
                 puzzle.id,
-                [PuzzleListModel.IsGeometryStaledRole],
+                [
+                    PuzzleListModel.IsGeometryStaledRole,
+                    PuzzleListModel.ResultStatusRole,
+                ],
             )
             self._markBackgroundDirty()
         return True
@@ -814,6 +818,7 @@ class Workspace(QObject):
             [
                 PuzzleListModel.SolveStatusRole,
                 PuzzleListModel.SolvingLogRole,
+                PuzzleListModel.ResultStatusRole,
             ],
         )
 
