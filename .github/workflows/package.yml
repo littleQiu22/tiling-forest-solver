@@ -20,15 +20,15 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v10
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
-          python-version-file: .python-version
+          python-version: "3.12"
 
       - name: Install dependencies
         run: uv sync --dev
@@ -37,7 +37,7 @@ jobs:
         run: uv run python scripts/build_package.py --clean
 
       - name: Upload package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: TilingForestSolver-${{ runner.os }}
           path: dist/*.zip
